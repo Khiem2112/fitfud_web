@@ -51,6 +51,4 @@ FitFud/
 │       ├── service/          # Logic giao tiếp API với Backend (Axios/Fetch)
 │       ├── type/             # Định nghĩa kiểu dữ liệu (Interfaces/Types/DTOs)
 │       └── util/             # Các hàm hỗ trợ độc lập (Helpers/Formatters)
-├── AI_INSTRUCTIONS.md        # Chỉ thị cốt lõi cho AI ở cấp độ root
 ├── README.md                 # Tài liệu khởi tạo dự án chung
-└── STRUCTURE.md              # File định tuyến cấu trúc này
