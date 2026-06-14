@@ -64,7 +64,11 @@ Mở file `.env` và điền các giá trị cần thiết (URL API backend, ...
 ### Bước 4 — Khởi động ứng dụng React
 
 ```bash
-npm start
+npm run dev
+```
+hoac
+```bash
+yarn dev
 ```
 
 Trình duyệt sẽ tự mở tại **[http://localhost:3000](http://localhost:3000)**
