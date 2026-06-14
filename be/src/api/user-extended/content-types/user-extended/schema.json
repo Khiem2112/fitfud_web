@@ -1,0 +1,69 @@
+{
+  "kind": "collectionType",
+  "collectionName": "users_extended",
+  "info": {
+    "singularName": "user-extended",
+    "pluralName": "users-extended",
+    "displayName": "User",
+    "description": "Core user accounts for the Fidfud platform"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "full_name": {
+      "type": "string",
+      "required": true
+    },
+    "email": {
+      "type": "email",
+      "required": true,
+      "unique": true
+    },
+    "phone": {
+      "type": "string",
+      "unique": true
+    },
+    "password_hash": {
+      "type": "password",
+      "required": true
+    },
+    "customer_profile": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::customer-profile.customer-profile",
+      "mappedBy": "user"
+    },
+    "meal_logs": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::meal-log.meal-log",
+      "mappedBy": "user"
+    },
+    "ai_recommendations": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::ai-recommendation.ai-recommendation",
+      "mappedBy": "user"
+    },
+    "cart_items": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::cart-item.cart-item",
+      "mappedBy": "user"
+    },
+    "orders": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::order.order",
+      "mappedBy": "user"
+    },
+    "reviews": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::review.review",
+      "mappedBy": "user"
+    }
+  }
+}

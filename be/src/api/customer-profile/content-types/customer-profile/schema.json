@@ -1,0 +1,90 @@
+{
+  "kind": "collectionType",
+  "collectionName": "customer_profiles",
+  "info": {
+    "singularName": "customer-profile",
+    "pluralName": "customer-profiles",
+    "displayName": "Customer Profile",
+    "description": "Health profile and preferences for each customer"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::user-extended.user-extended",
+      "inversedBy": "customer_profile",
+      "required": true
+    },
+    "gender": {
+      "type": "enumeration",
+      "enum": [
+        "Male",
+        "Female",
+        "Other"
+      ]
+    },
+    "age": {
+      "type": "integer",
+      "min": 0,
+      "max": 120
+    },
+    "height": {
+      "type": "decimal",
+      "min": 0
+    },
+    "weight": {
+      "type": "decimal",
+      "min": 0
+    },
+    "health_goal": {
+      "type": "enumeration",
+      "enum": [
+        "Weight Loss",
+        "Muscle Gain",
+        "Eat Clean",
+        "Calorie Control",
+        "Convenience"
+      ]
+    },
+    "activity_level": {
+      "type": "enumeration",
+      "enum": [
+        "Sedentary",
+        "Lightly Active",
+        "Moderately Active",
+        "Very Active",
+        "Extra Active"
+      ]
+    },
+    "target_calories": {
+      "type": "decimal",
+      "min": 0
+    },
+    "target_protein": {
+      "type": "decimal",
+      "min": 0
+    },
+    "ward": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::ward.ward",
+      "inversedBy": "customer_profiles"
+    },
+    "address_profiles": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::address-profile.address-profile",
+      "mappedBy": "customer_profile"
+    },
+    "customer_allergies": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::customer-allergy.customer-allergy",
+      "mappedBy": "profile"
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "cart_items",
+  "info": {
+    "singularName": "cart-item",
+    "pluralName": "cart-items",
+    "displayName": "Cart Item",
+    "description": "Items currently in a user's shopping cart"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::user-extended.user-extended",
+      "inversedBy": "cart_items",
+      "required": true
+    },
+    "dish_size": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::dish-size.dish-size",
+      "inversedBy": "cart_items",
+      "required": true
+    },
+    "quantity": {
+      "type": "integer",
+      "required": true,
+      "min": 1,
+      "default": 1
+    }
+  }
+}

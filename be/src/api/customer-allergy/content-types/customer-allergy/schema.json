@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "customer_allergies",
+  "info": {
+    "singularName": "customer-allergy",
+    "pluralName": "customer-allergies",
+    "displayName": "Customer Allergy",
+    "description": "Allergy / ingredient restrictions per customer profile"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "profile": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::customer-profile.customer-profile",
+      "inversedBy": "customer_allergies",
+      "required": true
+    },
+    "ingredient": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::ingredient.ingredient",
+      "inversedBy": "customer_allergies",
+      "required": true
+    }
+  }
+}

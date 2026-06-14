@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "sizes",
+  "info": {
+    "singularName": "size",
+    "pluralName": "sizes",
+    "displayName": "Size",
+    "description": "Portion sizes (e.g. Small, Medium, Large)"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "size_name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "dish_sizes": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::dish-size.dish-size",
+      "mappedBy": "size"
+    }
+  }
+}

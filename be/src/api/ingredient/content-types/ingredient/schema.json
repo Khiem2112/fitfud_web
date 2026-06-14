@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "ingredients",
+  "info": {
+    "singularName": "ingredient",
+    "pluralName": "ingredients",
+    "displayName": "Ingredient",
+    "description": "Master list of ingredients used in dishes"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "ingredient_name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "dish_ingredients": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::dish-ingredient.dish-ingredient",
+      "mappedBy": "ingredient"
+    },
+    "customer_allergies": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::customer-allergy.customer-allergy",
+      "mappedBy": "ingredient"
+    }
+  }
+}

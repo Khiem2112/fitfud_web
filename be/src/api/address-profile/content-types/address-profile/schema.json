@@ -1,0 +1,38 @@
+{
+  "kind": "collectionType",
+  "collectionName": "address_profiles",
+  "info": {
+    "singularName": "address-profile",
+    "pluralName": "address-profiles",
+    "displayName": "Address Profile",
+    "description": "Saved delivery addresses for customers"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "customer_profile": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::customer-profile.customer-profile",
+      "inversedBy": "address_profiles",
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "shipping_address_text": {
+      "type": "text",
+      "required": true
+    },
+    "ward": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::ward.ward",
+      "inversedBy": "address_profiles",
+      "required": true
+    }
+  }
+}

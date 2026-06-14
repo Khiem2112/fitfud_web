@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "diet_tags",
+  "info": {
+    "singularName": "diet-tag",
+    "pluralName": "diet-tags",
+    "displayName": "Diet Tag",
+    "description": "Dietary labels such as Keto, Vegan, Low-Carb"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "tag_name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "dish_diet_tags": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::dish-diet-tag.dish-diet-tag",
+      "mappedBy": "diet_tag"
+    }
+  }
+}

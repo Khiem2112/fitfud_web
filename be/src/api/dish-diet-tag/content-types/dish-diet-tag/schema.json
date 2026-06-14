@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "dish_diet_tags",
+  "info": {
+    "singularName": "dish-diet-tag",
+    "pluralName": "dish-diet-tags",
+    "displayName": "Dish Diet Tag",
+    "description": "Junction: links dishes to their diet tags"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "dish": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::dish.dish",
+      "inversedBy": "dish_diet_tags",
+      "required": true
+    },
+    "diet_tag": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::diet-tag.diet-tag",
+      "inversedBy": "dish_diet_tags",
+      "required": true
+    }
+  }
+}

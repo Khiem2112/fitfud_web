@@ -1,0 +1,45 @@
+{
+  "kind": "collectionType",
+  "collectionName": "wards",
+  "info": {
+    "singularName": "ward",
+    "pluralName": "wards",
+    "displayName": "Ward",
+    "description": "Sub-district wards used for delivery address resolution"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "district": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::district.district",
+      "inversedBy": "wards",
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "customer_profiles": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::customer-profile.customer-profile",
+      "mappedBy": "ward"
+    },
+    "address_profiles": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::address-profile.address-profile",
+      "mappedBy": "ward"
+    },
+    "orders": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::order.order",
+      "mappedBy": "ward"
+    }
+  }
+}

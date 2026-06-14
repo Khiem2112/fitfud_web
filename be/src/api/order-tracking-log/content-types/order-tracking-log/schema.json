@@ -1,0 +1,38 @@
+{
+  "kind": "collectionType",
+  "collectionName": "order_tracking_logs",
+  "info": {
+    "singularName": "order-tracking-log",
+    "pluralName": "order-tracking-logs",
+    "displayName": "Order Tracking Log",
+    "description": "Audit log of order status changes over time"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "order": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::order.order",
+      "inversedBy": "order_tracking_logs",
+      "required": true
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "Pending",
+        "Confirmed",
+        "Preparing",
+        "Delivering",
+        "Completed",
+        "Cancelled"
+      ],
+      "required": true
+    },
+    "logged_at": {
+      "type": "datetime"
+    }
+  }
+}

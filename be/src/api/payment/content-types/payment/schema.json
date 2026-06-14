@@ -1,0 +1,45 @@
+{
+  "kind": "collectionType",
+  "collectionName": "payments",
+  "info": {
+    "singularName": "payment",
+    "pluralName": "payments",
+    "displayName": "Payment",
+    "description": "Payment records linked one-to-one with orders"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "order": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::order.order",
+      "inversedBy": "payment",
+      "required": true
+    },
+    "payment_method": {
+      "type": "enumeration",
+      "enum": [
+        "COD",
+        "Online"
+      ],
+      "required": true
+    },
+    "payment_status": {
+      "type": "enumeration",
+      "enum": [
+        "Pending",
+        "Paid",
+        "Failed",
+        "Refunded"
+      ],
+      "default": "Pending",
+      "required": true
+    },
+    "paid_at": {
+      "type": "datetime"
+    }
+  }
+}

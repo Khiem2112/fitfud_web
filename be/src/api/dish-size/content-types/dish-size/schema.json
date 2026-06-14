@@ -1,0 +1,69 @@
+{
+  "kind": "collectionType",
+  "collectionName": "dish_sizes",
+  "info": {
+    "singularName": "dish-size",
+    "pluralName": "dish-sizes",
+    "displayName": "Dish Size",
+    "description": "Pricing and nutritional info per dish per size variant"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "dish": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::dish.dish",
+      "inversedBy": "dish_sizes",
+      "required": true
+    },
+    "size": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::size.size",
+      "inversedBy": "dish_sizes",
+      "required": true
+    },
+    "price": {
+      "type": "decimal",
+      "required": true,
+      "min": 0
+    },
+    "calories": {
+      "type": "decimal",
+      "min": 0
+    },
+    "protein": {
+      "type": "decimal",
+      "min": 0
+    },
+    "carb": {
+      "type": "decimal",
+      "min": 0
+    },
+    "fat": {
+      "type": "decimal",
+      "min": 0
+    },
+    "cart_items": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::cart-item.cart-item",
+      "mappedBy": "dish_size"
+    },
+    "order_items": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::order-item.order-item",
+      "mappedBy": "dish_size"
+    },
+    "ai_recommendations": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::ai-recommendation.ai-recommendation",
+      "mappedBy": "dish_size"
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "kind": "collectionType",
+  "collectionName": "dishes",
+  "info": {
+    "singularName": "dish",
+    "pluralName": "dishes",
+    "displayName": "Dish",
+    "description": "Menu items available for ordering"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "category": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::category.category",
+      "inversedBy": "dishes",
+      "required": true
+    },
+    "dish_name": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "Active",
+        "Inactive",
+        "Out of Stock"
+      ],
+      "default": "Active",
+      "required": true
+    },
+    "dish_diet_tags": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::dish-diet-tag.dish-diet-tag",
+      "mappedBy": "dish"
+    },
+    "dish_ingredients": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::dish-ingredient.dish-ingredient",
+      "mappedBy": "dish"
+    },
+    "dish_sizes": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::dish-size.dish-size",
+      "mappedBy": "dish"
+    }
+  }
+}

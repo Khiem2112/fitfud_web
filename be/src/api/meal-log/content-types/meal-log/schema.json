@@ -1,0 +1,49 @@
+{
+  "kind": "collectionType",
+  "collectionName": "meal_logs",
+  "info": {
+    "singularName": "meal-log",
+    "pluralName": "meal-logs",
+    "displayName": "Meal Log",
+    "description": "Food diary entries with AI-detected nutritional data"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::user-extended.user-extended",
+      "inversedBy": "meal_logs",
+      "required": true
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "dish_name": {
+      "type": "string"
+    },
+    "calories": {
+      "type": "decimal",
+      "min": 0
+    },
+    "protein": {
+      "type": "decimal",
+      "min": 0
+    },
+    "carb": {
+      "type": "decimal",
+      "min": 0
+    },
+    "fat": {
+      "type": "decimal",
+      "min": 0
+    }
+  }
+}

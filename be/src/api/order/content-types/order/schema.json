@@ -1,0 +1,86 @@
+{
+  "kind": "collectionType",
+  "collectionName": "orders",
+  "info": {
+    "singularName": "order",
+    "pluralName": "orders",
+    "displayName": "Order",
+    "description": "Customer orders with delivery and status tracking"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::user-extended.user-extended",
+      "inversedBy": "orders",
+      "required": true
+    },
+    "order_code": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "order_status": {
+      "type": "enumeration",
+      "enum": [
+        "Pending",
+        "Confirmed",
+        "Preparing",
+        "Delivering",
+        "Completed",
+        "Cancelled"
+      ],
+      "default": "Pending",
+      "required": true
+    },
+    "contact_name": {
+      "type": "string",
+      "required": true
+    },
+    "contact_phone": {
+      "type": "string",
+      "required": true
+    },
+    "ward": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::ward.ward",
+      "inversedBy": "orders",
+      "required": true
+    },
+    "shipping_address": {
+      "type": "text",
+      "required": true
+    },
+    "estimated_shipped_time": {
+      "type": "datetime"
+    },
+    "total_amount": {
+      "type": "decimal",
+      "required": true,
+      "min": 0
+    },
+    "order_items": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::order-item.order-item",
+      "mappedBy": "order"
+    },
+    "payment": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::payment.payment",
+      "mappedBy": "order"
+    },
+    "order_tracking_logs": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::order-tracking-log.order-tracking-log",
+      "mappedBy": "order"
+    }
+  }
+}

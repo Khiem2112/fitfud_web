@@ -1,0 +1,34 @@
+{
+  "kind": "collectionType",
+  "collectionName": "ai_recommendations",
+  "info": {
+    "singularName": "ai-recommendation",
+    "pluralName": "ai-recommendations",
+    "displayName": "AI Recommendation",
+    "description": "AI-generated dish recommendations per user"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::user-extended.user-extended",
+      "inversedBy": "ai_recommendations",
+      "required": true
+    },
+    "dish_size": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::dish-size.dish-size",
+      "inversedBy": "ai_recommendations",
+      "required": true
+    },
+    "generated_at": {
+      "type": "datetime",
+      "required": true
+    }
+  }
+}

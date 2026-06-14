@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "dish_ingredients",
+  "info": {
+    "singularName": "dish-ingredient",
+    "pluralName": "dish-ingredients",
+    "displayName": "Dish Ingredient",
+    "description": "Junction: links dishes to ingredients"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "dish": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::dish.dish",
+      "inversedBy": "dish_ingredients",
+      "required": true
+    },
+    "ingredient": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::ingredient.ingredient",
+      "inversedBy": "dish_ingredients",
+      "required": true
+    }
+  }
+}
