@@ -24,6 +24,9 @@ Giúp người dùng dễ dàng tìm kiếm và lựa chọn món ăn phù hợp
 
 - Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=137-485` (Trang chủ / Menu chính)
 - Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=232-2` (Popup chi tiết món ăn)
+- Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=461-15` (Popup recommend món ăn tại Menu)
+- Spec popup liên quan: `popup/dish_quick_view.md`, `popup/menu_behavior_recommendation.md`
+- Spec nghiệp vụ liên quan: `implicit_preference_tracking.md`
 
 ---
 
@@ -77,6 +80,12 @@ Bấm chọn size & tùy chỉnh thành phần -> Xác nhận "Thêm vào giỏ 
 - Tích hợp checkbox loại bỏ nguyên liệu (ví dụ: Không lấy hành tây, không lấy rong biển...).
 - Ô nhập "Ghi chú cho đầu bếp".
 - Nút "Thêm vào giỏ hàng" và bộ tăng giảm số lượng.
+- Chi tiết hành vi popup được quản lý tại `popup/dish_quick_view.md`.
+
+### Popup gợi ý món theo hành vi
+- Khi người dùng lọc/tìm kiếm món nhiều lần và hệ thống có preference candidate phù hợp, có thể hiển thị Popup recommend món ăn tại Menu.
+- Popup chỉ đưa ra gợi ý và lý do, không tự lưu dị ứng hoặc dữ liệu sức khỏe chính thức nếu người dùng chưa xác nhận.
+- Chi tiết hành vi tại `popup/menu_behavior_recommendation.md` và nghiệp vụ thu thập tín hiệu tại `implicit_preference_tracking.md`.
 
 ---
 

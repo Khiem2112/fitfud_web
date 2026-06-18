@@ -26,6 +26,8 @@ Quản lý quyền truy cập của người dùng, làm cơ sở để cá nhâ
 - Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=42-258` (Đăng ký)
 - Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=42-377` (Đăng nhập)
 - Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=352-1441` (Quên mật khẩu)
+- Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=352-1536` (Popup đổi mật khẩu)
+- Spec popup liên quan: `popup/change_password.md`, `popup/error.md`
 
 ---
 
@@ -74,6 +76,7 @@ Chuyển hướng đến trang Khảo sát AI (nếu đăng ký mới) hoặc Tr
 - Nhập Email khôi phục.
 - Hệ thống gửi mật khẩu mới về Email (hoặc link khôi phục).
 - Hỗ trợ đổi mật khẩu trong trang cá nhân bằng mã PIN/OTP (nếu có).
+- Popup đổi mật khẩu trong tài khoản cá nhân được mô tả tại `popup/change_password.md`.
 
 ---
 

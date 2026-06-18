@@ -25,6 +25,9 @@ Giúp người dùng theo dõi trực quan mục tiêu cân nặng/dinh dưỡng
 - Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=258-960` (Hồ sơ cá nhân)
 - Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=51-1806` (Hồ sơ sức khỏe - Mobile)
 - Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=51-3450` (Quản lý tài khoản tổng hợp - Mobile)
+- Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=352-1536` (Popup đổi mật khẩu)
+- Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=353-1684` (Popup chờ phân tích AI / Popup lỗi)
+- Spec popup liên quan: `popup/change_password.md`, `popup/ai_loading.md`, `popup/error.md`
 
 ---
 
@@ -74,6 +77,11 @@ Vòng tiến trình (Circular Progress) cập nhật phần trăm hoàn thành c
 - **Tải ảnh nhận diện bằng AI**: Người dùng click "Chụp/Tải ảnh" -> Mô phỏng AI quét ảnh -> Tự động nhận diện tên món ăn và lượng calories/protein -> Lưu nhật ký.
 - **Log nhanh từ thực đơn FitFud**: Nhập tên món để tìm nhanh trong danh sách thực đơn FitFud, click để ghi log trực tiếp.
 - **Nhập thủ công**: Form nhập text đơn giản dành cho các món tự chuẩn bị ngoài FitFud.
+- Khi AI đang phân tích ảnh, hiển thị Popup chờ phân tích AI tại `popup/ai_loading.md`.
+
+### Quản lý tài khoản
+- Người dùng có thể mở Popup đổi mật khẩu từ khu vực tài khoản.
+- Chi tiết hành vi đổi mật khẩu tại `popup/change_password.md`.
 
 ---
 

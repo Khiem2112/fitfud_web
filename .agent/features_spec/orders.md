@@ -27,6 +27,9 @@ Mang đến sự yên tâm và minh bạch về trạng thái giao nhận bữa 
 - Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=1-4891` (Đặt hàng thành công & Theo dõi đơn)
 - Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=349-1250` (Popup OTP hủy đơn)
 - Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=352-1601` (Đơn hàng chưa đăng nhập)
+- Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=323-135` (Popup chi tiết lịch sử đơn)
+- Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=141-2` (Popup đánh giá món ăn)
+- Spec popup liên quan: `popup/order_history_detail.md`, `popup/otp_order_confirm.md`, `popup/dish_review.md`, `popup/error.md`
 
 ---
 
@@ -87,6 +90,11 @@ Hiển thị danh sách các đơn hàng tương ứng kèm trạng thái giao h
 
 ### Đặt lại đơn hàng cũ (Reorder)
 - Nút "Đặt lại" ở mỗi thẻ đơn hàng cũ trong lịch sử sẽ tự động copy tất cả món ăn (đúng kích cỡ size) và thêm vào giỏ hàng hiện tại, điều hướng nhanh tới trang Checkout.
+- Chi tiết popup lịch sử đơn được mô tả tại `popup/order_history_detail.md`.
+
+### Đánh giá món ăn
+- Với đơn hàng đã hoàn thành, người dùng có thể mở Popup đánh giá món ăn từ lịch sử đơn hoặc chi tiết đơn.
+- Chi tiết hành vi tại `popup/dish_review.md`.
 
 ---
 
