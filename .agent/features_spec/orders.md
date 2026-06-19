@@ -191,11 +191,28 @@ export type GuestLookupInput = {
 | Input | `phone: string` |
 | Output | `OrderDetail[]` |
 
-## API 3 - Hủy đơn hàng & Gửi OTP
+## API 3 - Gửi OTP hủy đơn hàng
 
 | Thuộc tính | Giá trị |
 |------------|----------|
-| API | REST / POST `/api/orders/{id}/cancel-request` và `/api/orders/{id}/cancel-confirm` |
-| Service | `requestCancelOrder(id)`, `confirmCancelOrder(id, otpCode)` |
-| Input | `id: string`, `otpCode?: string` |
+| API | REST / POST `/api/orders/{id}/cancel-request` |
+| Service | `requestCancelOrderOtp(id)` |
+| Input | `id: string` |
 | Output | `{ success: boolean, message: string }` |
+
+**Mô tả**
+
+Kiểm tra đơn có được phép hủy không. Nếu hợp lệ, hệ thống gửi OTP về số điện thoại của đơn hàng.
+
+## API 4 - Xác nhận hủy đơn bằng OTP
+
+| Thuộc tính | Giá trị |
+|------------|----------|
+| API | REST / POST `/api/orders/{id}/cancel-confirm` |
+| Service | `confirmCancelOrder(id, otpCode)` |
+| Input | `id: string`, `otpCode: string` |
+| Output | `{ success: boolean, message: string }` |
+
+**Mô tả**
+
+Xác thực OTP và cập nhật trạng thái đơn hàng sang `Cancelled` nếu mã hợp lệ.

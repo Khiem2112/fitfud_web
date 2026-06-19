@@ -49,6 +49,8 @@ Có trùng khớp dị ứng?
 Chọn Size (S, M, L) -> Cập nhật bảng Macro và giá tiền tương ứng
     ↓
 Bấm chọn số lượng và nhấn "Tôi hiểu cảnh báo - Tiếp tục" hoặc "Thêm vào giỏ hàng"
+    ↓
+Thêm món vào giỏ hàng với size và số lượng đã chọn
 ```
 
 ---
@@ -63,7 +65,7 @@ Bấm chọn số lượng và nhấn "Tôi hiểu cảnh báo - Tiếp tục" h
 - **Tính năng độc quyền**: So khớp nguyên liệu của món ăn (`ingredients`) với danh mục dị ứng (`allergies`) trong hồ sơ người dùng đăng nhập.
 - Nếu phát hiện trùng khớp, hiển thị khung cảnh báo màu đỏ nổi bật phía trên nút Mua hàng:
   > **CẢNH BÁO DỊ ỨNG:** Món ăn này có chứa [TÊN NGUYÊN LIỆU]. Hồ sơ sức khỏe của bạn ghi nhận dị ứng với [TÊN NGUYÊN LIỆU]. Sử dụng món ăn này có thể gây kích ứng.
-- Khi có cảnh báo, nút "Thêm vào giỏ hàng" đổi thành "Tôi hiểu cảnh báo – tiếp tục" để người dùng xác nhận trước khi cho vào giỏ.
+- Khi có cảnh báo, nút "Thêm vào giỏ hàng" đổi text thành "Tôi hiểu cảnh báo – tiếp tục". Chức năng vẫn là thêm món vào giỏ; text này chỉ nhấn mạnh rằng người dùng đã nhìn thấy cảnh báo dị ứng.
 
 ### Nguyên liệu & Kích cỡ
 - Hiển thị danh sách nguyên liệu trực quan (Cá hồi, Gạo lứt, Bông cải xanh...).
@@ -142,6 +144,10 @@ export type DishDetailRes = {
   rating_avg: number;
   reviews_count: number;
 };
+
+export type UserAllergyInfo = {
+  allergyNames: string[];
+};
 ```
 
 ---
@@ -156,3 +162,16 @@ export type DishDetailRes = {
 | Service | `getDishDetails(id)` |
 | Input | `id: string` |
 | Output | `DishDetailRes` |
+
+## API 2 - Lấy danh sách dị ứng của người dùng
+
+| Thuộc tính | Giá trị |
+|------------|----------|
+| API | REST / GET `/api/customer-profiles/allergies` |
+| Service | `getUserAllergies()` |
+| Input | `void` |
+| Output | `UserAllergyInfo` |
+
+**Mô tả**
+
+Dùng để đối chiếu với nguyên liệu của món ăn và hiển thị cảnh báo dị ứng cá nhân hóa nếu có trùng khớp.

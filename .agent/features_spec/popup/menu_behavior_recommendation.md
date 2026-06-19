@@ -6,7 +6,7 @@
 
 **Mô tả**
 
-Popup gợi ý món ăn tại giao diện Menu dựa trên hành vi người dùng như tìm kiếm, lọc món, loại trừ nguyên liệu, chọn khoảng calo, khoảng giá hoặc diet tag lặp lại. Popup này dùng dữ liệu candidate từ luồng thu thập sở thích ngầm, không tự động xem các tín hiệu đó là dữ liệu sức khỏe chính thức.
+Popup gợi ý món ăn tại giao diện Menu, hiển thị một nhóm món phù hợp với hành vi lọc/tìm kiếm gần đây của người dùng. File này chỉ mô tả popup hiển thị gì và FE dùng dữ liệu nào để hiển thị; rule BE chi tiết nằm ở `implicit_preference_tracking.md`.
 
 **Đối tượng**
 
@@ -15,7 +15,7 @@ Popup gợi ý món ăn tại giao diện Menu dựa trên hành vi người dù
 
 **Mục đích**
 
-Đưa ra gợi ý món phù hợp ngay trong lúc người dùng đang xem thực đơn, giúp rút ngắn thời gian chọn món nhưng vẫn tôn trọng nguyên tắc người dùng phải xác nhận trước khi lưu dữ liệu nhạy cảm như dị ứng.
+Đưa ra gợi ý món phù hợp ngay trong lúc người dùng đang xem thực đơn, giúp rút ngắn thời gian chọn món mà không tự ý ghi dữ liệu suy luận vào hồ sơ chính thức.
 
 ---
 
@@ -31,8 +31,8 @@ Popup gợi ý món ăn tại giao diện Menu dựa trên hành vi người dù
 ## Luồng tiếp cận
 
 - Người dùng đang ở trang Menu.
-- Người dùng có hành vi lọc/tìm kiếm đủ điều kiện tạo gợi ý.
-- Hệ thống có danh sách món phù hợp với candidate hiện tại.
+- FE nhận được dữ liệu gợi ý món từ service recommendation.
+- Có ít nhất một món phù hợp để hiển thị.
 
 ---
 
@@ -41,29 +41,47 @@ Popup gợi ý món ăn tại giao diện Menu dựa trên hành vi người dù
 ```text
 Người dùng thao tác trên /menu
     ↓
-Frontend gửi event lọc/tìm kiếm về backend
+FE cập nhật dữ liệu filter/search hiện tại
     ↓
-Backend trả về preference candidates hoặc recommendation candidates
+FE gọi/lấy danh sách món được gợi ý theo hành vi đã có
     ↓
-Nếu có gợi ý phù hợp -> Hiển thị popup recommend món ăn
+Nếu có gợi ý phù hợp -> Hiển thị popup
     ↓
 Người dùng chọn:
-  ↳ Xem món được gợi ý -> Mở Popup chi tiết món ăn
-  ↳ Thêm vào giỏ -> Mở Popup chi tiết món ăn để chọn size/số lượng
-  ↳ Bỏ qua -> Đóng popup, không lưu candidate vào hồ sơ chính thức
-  ↳ Lưu sở thích nếu được hỏi -> Xác nhận candidate vào hồ sơ
+  ↳ Xem món được gợi ý -> Điều hướng sang Trang chi tiết món ăn
+  ↳ Thêm vào giỏ -> Mở Popup chọn món nhanh để chọn size/số lượng
+  ↳ Bỏ qua -> Đóng popup
 ```
 
 ---
 
 ## Tính năng tương tác
 
-- Hiển thị món được gợi ý kèm lý do ngắn gọn, ví dụ: "Dựa trên các lần bạn chọn Low Carb gần đây".
-- Nếu gợi ý liên quan đến dị ứng hoặc loại trừ nguyên liệu, chỉ được hiển thị như candidate cần xác nhận, không tự lưu vào hồ sơ dị ứng.
+- Popup hiển thị danh sách món gợi ý, gồm ảnh món, tên món, giá, tag dinh dưỡng/chế độ ăn nếu có và lý do ngắn gọn.
+- Ví dụ lý do hiển thị: "Phù hợp với bộ lọc Low Carb bạn hay chọn" hoặc "Gần với khoảng calo bạn đang tìm".
+- Nếu lý do liên quan đến dị ứng hoặc loại trừ nguyên liệu, chỉ hiển thị như gợi ý tham khảo; không tự lưu vào hồ sơ dị ứng.
 - Cho phép người dùng bỏ qua gợi ý mà không ảnh hưởng đến bộ lọc hiện tại.
-- Khi người dùng chọn món, mở Popup chi tiết món ăn để xác nhận size, số lượng và ghi chú.
+- Click vào món gợi ý điều hướng sang Trang chi tiết món ăn.
+- Click "Thêm vào giỏ" mở Popup chọn món nhanh để xác nhận size, số lượng và ghi chú.
 - Nếu không có đủ tín hiệu hành vi, không hiển thị popup.
-- Nếu API gợi ý lỗi, không chặn luồng xem Menu; chỉ hiển thị Popup lỗi khi người dùng đang chủ động thao tác.
+
+### Dữ liệu FE cần để hiển thị
+- Danh sách món gợi ý.
+- Lý do gợi ý dạng text ngắn.
+- Trạng thái món còn bán/hết hàng.
+- Thông tin giá/ảnh/tag đủ để render card trong popup.
+
+### FE logic hiển thị popup
+- Theo dõi thay đổi filter/search trên trang Menu.
+- Khi FE có dữ liệu gợi ý món hợp lệ và popup chưa bị người dùng bỏ qua trong phiên hiện tại, hiển thị popup.
+- Nếu người dùng bấm "Bỏ qua", ẩn popup trong phiên hiện tại để tránh gây phiền.
+- Nếu danh sách gợi ý rỗng, không hiển thị popup.
+- Nếu món gợi ý đã hết hàng, vẫn có thể hiển thị nhưng disable nút "Thêm vào giỏ".
+
+### Phần không mô tả trong popup này
+- Không mô tả ngưỡng tạo candidate chi tiết.
+- Không mô tả ERD/rule BE chi tiết.
+- Không quyết định tự động lưu dị ứng hoặc sở thích chính thức.
 
 ---
 
@@ -90,12 +108,7 @@ Người dùng chọn:
 
 ## Database Relationships
 
-| Quan hệ | Kiểu |
-|---------|------|
-| User ↔ UserPreferenceEvent | One-to-Many |
-| User ↔ UserPreferenceCandidate | One-to-Many |
-| Dishes ↔ DishDietTag ↔ DietTag | Many-to-Many |
-| Dishes ↔ DishIngredient ↔ Ingredient | Many-to-Many |
+*Không mô tả trong file popup này. Rule BE và quan hệ dữ liệu nằm ở `implicit_preference_tracking.md`.*
 
 ---
 
@@ -143,11 +156,6 @@ export type MenuRecommendationPopupOutput = {
 | Input | token/session |
 | Output | `MenuRecommendationPopupOutput` |
 
-## API 2 - Xác nhận hoặc bỏ qua candidate
+**Ghi chú**
 
-| Thuộc tính | Giá trị |
-|------------|----------|
-| API | REST / POST `/api/user-preferences/candidates/confirm` |
-| Service | `confirmPreferenceCandidate(payload)` |
-| Input | `ConfirmPreferenceInput` |
-| Output | `{ success: boolean }` |
+File popup này chỉ cần API lấy dữ liệu hiển thị popup. API/rule xác nhận candidate thuộc phạm vi `implicit_preference_tracking.md`.

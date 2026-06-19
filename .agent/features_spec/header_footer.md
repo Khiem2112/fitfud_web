@@ -1,4 +1,4 @@
-# Mô tả chức năng: Sidebar/Header & Footer dùng chung
+# Mô tả chức năng: Header & Footer dùng chung
 
 ---
 
@@ -6,7 +6,7 @@
 
 **Mô tả**
 
-Sidebar/Header và Footer là các thành phần điều hướng dùng chung trên toàn website FitFud, giúp người dùng truy cập nhanh tới các trang chính, quản lý tài khoản và thao tác với giỏ hàng.
+Header và Footer là các thành phần điều hướng dùng chung trên toàn website FitFud. Header chỉ gồm logo, các link điều hướng chính, icon giỏ hàng và icon tài khoản.
 
 **Đối tượng**
 
@@ -15,7 +15,7 @@ Sidebar/Header và Footer là các thành phần điều hướng dùng chung tr
 
 **Mục đích**
 
-Đảm bảo điều hướng nhất quán, giúp người dùng luôn truy cập được Menu, Gợi ý AI, Đơn hàng, Hồ sơ cá nhân và các thông tin hỗ trợ quan trọng.
+Đảm bảo người dùng luôn truy cập nhanh được Trang chủ, Thực đơn, Đơn hàng, Về chúng tôi, Giỏ hàng và Tài khoản.
 
 ---
 
@@ -23,18 +23,16 @@ Sidebar/Header và Footer là các thành phần điều hướng dùng chung tr
 
 ## Tài liệu thiết kế
 
-- Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=141-132` (Sidebar/Header)
+- Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=141-132` (Header)
 - Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=1-2577` (Footer)
 - Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=323-26` (Popup giỏ hàng)
-- Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=462-143` (Popup recommend tạo tài khoản)
-- Spec popup liên quan: `popup/cart_hover.md`, `popup/temporary_account_signup_recommendation.md`
-- Spec nghiệp vụ liên quan: `temporary_account.md`
+- Spec popup liên quan: `popup/cart_hover.md`
 
 ---
 
 ## Luồng tiếp cận
 
-- Sidebar/Header hiển thị trên các trang chính của website.
+- Header hiển thị trên các trang chính của website.
 - Footer hiển thị cuối các trang nội dung và trang mua hàng, trừ khi màn hình đặc biệt yêu cầu layout tối giản.
 
 ---
@@ -44,7 +42,7 @@ Sidebar/Header và Footer là các thành phần điều hướng dùng chung tr
 ```text
 Người dùng truy cập website
     ↓
-Sidebar/Header hiển thị Logo, Navigation, tài khoản và giỏ hàng
+Header hiển thị Logo, Navigation, icon giỏ hàng và icon tài khoản
     ↓
 Click Logo -> Về Trang chủ
 Click Navigation -> Điều hướng đến trang tương ứng
@@ -58,11 +56,19 @@ Cuộn cuối trang -> Footer hiển thị thông tin hỗ trợ và liên kết
 
 ## Tính năng tương tác
 
-### Sidebar/Header Navigation
-- Logo FitFud điều hướng về `/`.
-- Menu chính gồm các khu vực: Trang chủ, Thực đơn, Gợi ý AI, Về FitFud, Đơn hàng.
-- Nếu chưa đăng nhập, hiển thị hành động Đăng nhập/Đăng ký.
-- Nếu đã đăng nhập, hiển thị Avatar hoặc tên người dùng và liên kết tới Hồ sơ cá nhân.
+### Header Navigation
+- Logo FitFud -> điều hướng về `/`.
+- Header gồm đúng các nút/link chính:
+  - "Trang chủ" -> `/`
+  - "Thực đơn" -> `/menu`
+  - "Đơn hàng" -> `/orders`
+  - "Về chúng tôi" -> `/about`
+- Icon giỏ hàng:
+  - Hover -> mở Popup giỏ hàng tạm thời.
+  - Click -> ghim Popup giỏ hàng để người dùng chỉnh số lượng/xóa món/bấm thanh toán.
+- Icon tài khoản:
+  - Nếu chưa đăng nhập -> điều hướng tới trang Đăng nhập `/login`.
+  - Nếu đã đăng nhập -> điều hướng tới Hồ sơ cá nhân `/profile`.
 
 ### Giỏ hàng trên Header
 - Hiển thị biểu tượng giỏ hàng và số lượng món hiện có.
@@ -70,14 +76,9 @@ Cuộn cuối trang -> Footer hiển thị thông tin hỗ trợ và liên kết
 - Click biểu tượng giỏ hàng chuyển Popup giỏ hàng sang trạng thái ghim, không tự đóng khi rê chuột ra ngoài.
 - Popup giỏ hàng được mô tả chi tiết tại `popup/cart_hover.md`.
 
-### Gợi ý tạo tài khoản từ tài khoản tạm
-- Nếu người dùng đang ở trạng thái tài khoản tạm, khu vực tài khoản trong sidebar/header có thể hiển thị Popup recommend tạo tài khoản.
-- Popup này dùng luồng nâng cấp tài khoản tạm, không tạo user mới tách rời dữ liệu cũ.
-- Chi tiết hành vi tại `popup/temporary_account_signup_recommendation.md`.
-
 ### Footer
 - Hiển thị thông tin thương hiệu, địa chỉ, số điện thoại, email hỗ trợ.
-- Nhóm liên kết nhanh: Thực đơn, Gợi ý AI, Về chúng tôi, Chính sách, Đơn hàng.
+- Nhóm liên kết nhanh: Trang chủ, Thực đơn, Đơn hàng, Về chúng tôi, Chính sách.
 - Các liên kết Footer phải điều hướng đúng route và không mở popup ngoài ý muốn.
 
 ---
@@ -87,18 +88,18 @@ Cuộn cuối trang -> Footer hiển thị thông tin hỗ trợ và liên kết
 ### Atoms
 - Logo
 - Icon giỏ hàng
-- Avatar
+- Icon tài khoản
 - Navigation Link
 - Footer Link
 
 ### Molecules
-- Sidebar/Header Nav Group
+- Header Nav Group
 - Account Menu Trigger
 - Cart Icon Button
 - Footer Link Column
 
 ### Organisms
-- Global Sidebar/Header
+- Global Header
 - Cart Hover Popup
 - Global Footer
 

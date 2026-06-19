@@ -6,7 +6,7 @@
 
 **Mô tả**
 
-Popup giỏ hàng nhanh hiển thị các món đã chọn ngay tại Header, cho phép xem tạm tính, chỉnh số lượng, xóa món và đi tới trang thanh toán.
+Popup giỏ hàng nhanh hiển thị các món đã chọn ngay tại khu vực biểu tượng giỏ hàng của Header. Đây là popup nổi gần icon giỏ hàng, không phải drawer/sidebar trượt từ cạnh phải.
 
 **Đối tượng**
 
@@ -29,8 +29,8 @@ Giúp người dùng kiểm tra và chỉnh giỏ hàng nhanh mà không phải 
 
 ## Luồng tiếp cận
 
-- Hover vào biểu tượng giỏ hàng trên Header.
-- Click biểu tượng giỏ hàng trên Header.
+- Hover vào icon giỏ hàng trên Header.
+- Click icon giỏ hàng trên Header.
 - Sau khi thêm món thành công từ Popup chi tiết món ăn.
 
 ---
@@ -40,13 +40,13 @@ Giúp người dùng kiểm tra và chỉnh giỏ hàng nhanh mà không phải 
 ```text
 Hover biểu tượng giỏ hàng
     ↓
-Mở Popup giỏ hàng ở trạng thái tạm thời
+Mở popup nổi gần icon giỏ hàng ở trạng thái tạm thời
     ↓
 Nếu rê chuột ra khỏi vùng popup/header -> Tự đóng
 
 Click biểu tượng giỏ hàng
     ↓
-Mở Popup giỏ hàng ở trạng thái ghim
+Mở popup nổi gần icon giỏ hàng ở trạng thái ghim
     ↓
 Rê chuột ra ngoài không làm popup biến mất
     ↓
@@ -60,6 +60,7 @@ Người dùng chỉnh số lượng/xóa món hoặc bấm Thanh toán
 - Trạng thái `hover` mở popup tạm thời.
 - Trạng thái `pinned` được kích hoạt khi người dùng click biểu tượng giỏ hàng.
 - Khi `pinned`, popup chỉ đóng khi người dùng click nút đóng, click lại biểu tượng giỏ hàng, hoặc chuyển route.
+- Popup không chiếm toàn bộ chiều cao màn hình và không trượt từ cạnh phải như drawer.
 - Cho phép tăng/giảm số lượng và xóa item.
 - Nút thanh toán điều hướng tới `/checkout`.
 - Nếu giỏ hàng rỗng, hiển thị trạng thái rỗng và CTA quay lại Menu.
@@ -80,7 +81,7 @@ Người dùng chỉnh số lượng/xóa món hoặc bấm Thanh toán
 - Empty Cart State
 
 ### Organisms
-- Header Cart Popup
+- Cart Hover Popup
 
 ---
 
