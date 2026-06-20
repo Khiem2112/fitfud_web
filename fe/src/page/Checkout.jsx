@@ -28,6 +28,7 @@ export default function Checkout() {
       cityId: '',
       districtId: '',
       wardId: '',
+      delivery_time: '',
       isDefaultAddress: false,
       payment_method: 'COD',
     },
@@ -43,6 +44,7 @@ export default function Checkout() {
       cityId: '',
       districtId: '',
       wardId: '',
+      delivery_time: '',
       isDefaultAddress: false,
       payment_method: 'COD',
     });
@@ -79,7 +81,7 @@ export default function Checkout() {
     try {
       // Calculate totals ONLY for selected items
       const selectedItems = cart.filter(item => selectedCartItemIds.includes(item.id));
-      
+
       const totals = selectedItems.reduce(
         (acc, item) => {
           acc.amount += item.price * item.quantity;
@@ -134,16 +136,6 @@ export default function Checkout() {
           <h1 className="font-be-vietnam text-[32px] font-bold leading-[41.6px] text-brand-main">
             Hoàn tất đơn hàng
           </h1>
-          <button
-            type="button"
-            onClick={handleResetForm}
-            className="flex items-center gap-2 px-4 py-2 rounded-[8px] border border-border-light bg-white text-text-secondary hover:text-primary hover:border-primary transition-colors shadow-sm"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 4V9H4.58152M19.9381 11C19.446 7.05369 16.0796 4 12 4C8.64262 4 5.76829 6.06817 4.58152 9M4.58152 9H9M20 20V15H19.4185M4.06189 13C4.55399 16.9463 7.92038 20 12 20C15.3574 20 18.2317 17.9318 19.4185 15M19.4185 15H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <span className="font-be-vietnam text-[14px] font-medium">Làm mới form</span>
-          </button>
         </div>
 
         {globalError && (

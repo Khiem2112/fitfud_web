@@ -11,6 +11,7 @@ export const checkoutSchema = z.object({
   districtId: z.string().min(1, 'Vui lòng chọn Quận/Huyện'),
   wardId: z.string().min(1, 'Vui lòng chọn Phường/Xã'),
   shipping_address: z.string().min(5, 'Vui lòng nhập địa chỉ chi tiết'),
+  delivery_time: z.string().min(1, 'Vui lòng chọn thời gian giao hàng'),
   isDefaultAddress: z.boolean().optional().default(false),
   payment_method: z.enum(['COD', 'Online'], {
     errorMap: () => ({ message: 'Vui lòng chọn phương thức thanh toán' }),

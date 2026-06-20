@@ -5,6 +5,7 @@ export interface CheckoutFormData {
   cityId: string;
   districtId: string;
   wardId: string;
+  delivery_time: string;
   isDefaultAddress: boolean;
   payment_method: 'COD' | 'Online';
 }

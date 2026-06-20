@@ -5,10 +5,12 @@ import { SelectorDropdown } from '../../atom/Checkout/SelectorDropdown';
 import { Checkbox } from '../../atom/Checkout/Checkbox';
 import { useLocation } from '../../../hook/useLocation';
 import { SavedAddressModal } from './SavedAddressModal';
+import { DeliveryTimeModal } from './DeliveryTimeModal';
 import { useToast } from '../../../context/ToastContext';
 
 export const CheckoutShippingForm = ({ control, watch, setValue, onReset }) => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isTimeModalOpen, setIsTimeModalOpen] = React.useState(false);
   const { addToast } = useToast();
 
   const cityId = watch('cityId');
@@ -181,25 +183,50 @@ export const CheckoutShippingForm = ({ control, watch, setValue, onReset }) => {
         />
       </div>
 
-      <div className="mt-4 flex items-center gap-4 rounded-[12px] border border-[rgba(15,82,56,0.2)] bg-[rgba(45,106,79,0.1)] p-4">
+      <div 
+        className="mt-4 flex items-center gap-4 rounded-[12px] border border-[rgba(15,82,56,0.2)] bg-[rgba(45,106,79,0.1)] p-4 cursor-pointer hover:bg-[rgba(45,106,79,0.15)] transition-colors"
+        onClick={() => setIsTimeModalOpen(true)}
+      >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="12" cy="12" r="10" stroke="#0F5238" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           <path d="M12 6V12L16 14" stroke="#0F5238" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
-        <div className="flex flex-col">
+        <div className="flex flex-col flex-1">
           <span className="font-be-vietnam text-[16px] font-normal text-brand-main">
-            Thời gian giao hàng dự kiến
+            Thời gian giao hàng dự kiến <span className="text-red-500">*</span>
           </span>
-          <span className="font-be-vietnam text-[16px] font-bold text-text-main">
-            10:30 - 11:00 (Hôm nay)
-          </span>
+          <Controller
+            name="delivery_time"
+            control={control}
+            render={({ field, fieldState }) => (
+              <>
+                <span className={`font-be-vietnam text-[16px] font-bold ${field.value ? 'text-text-main' : 'text-text-muted italic'}`}>
+                  {field.value || 'Nhấn để chọn ngày giờ giao hàng'}
+                </span>
+                {fieldState.error && (
+                  <span className="text-sm font-medium text-danger mt-1">{fieldState.error.message}</span>
+                )}
+              </>
+            )}
+          />
         </div>
+        <button 
+          type="button" 
+          className="text-primary font-bold text-sm hover:underline"
+        >
+          Thay đổi
+        </button>
       </div>
     </div>
     <SavedAddressModal 
       isOpen={isModalOpen} 
       onClose={() => setIsModalOpen(false)} 
       onSelectAddress={handleSelectAddress} 
+    />
+    <DeliveryTimeModal
+      isOpen={isTimeModalOpen}
+      onClose={() => setIsTimeModalOpen(false)}
+      onSelectTime={(timeStr) => setValue('delivery_time', timeStr, { shouldValidate: true })}
     />
     </>
   );
