@@ -106,7 +106,17 @@ export const mockWards: Record<string, { id: string; name: string }[]> = {
 
 export const fetchCities = async () => mockCities;
 export const fetchDistricts = async (cityId: string) => mockDistricts[cityId] || [];
-export const fetchWards = async (districtId: string) => mockWards[districtId] || [];
+export const fetchWards = async (districtId: string) => {
+  if (mockWards[districtId] && mockWards[districtId].length > 0) {
+    return mockWards[districtId];
+  }
+  // Generate dummy wards if missing
+  return [
+    { id: `ward_1_${districtId}`, name: 'Phường 1' },
+    { id: `ward_2_${districtId}`, name: 'Phường 2' },
+    { id: `ward_3_${districtId}`, name: 'Phường 3' },
+  ];
+};
 
 // --- Saved Addresses Mock Store ---
 

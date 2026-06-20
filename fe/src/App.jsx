@@ -18,6 +18,8 @@ import Profile from './page/Profile';
 import Auth from './page/Auth';
 import Survey from './page/Survey';
 
+import { DraftNotification } from './component/molecule/Checkout/DraftNotification';
+
 // App.css import
 import './App.css';
 
@@ -74,6 +76,9 @@ function App() {
 
             {/* Minicart Slide Drawer */}
             <Minicart />
+
+            {/* Global Draft Checkout Notification */}
+            <DraftNotification />
 
             {/* Footer */}
             <Footer />
