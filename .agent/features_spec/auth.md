@@ -26,6 +26,7 @@ Quản lý quyền truy cập của người dùng, làm cơ sở để cá nhâ
 - Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=42-258` (Đăng ký)
 - Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=42-377` (Đăng nhập)
 - Figma: `https://www.figma.com/design/nVRsMRDuQtkttZsSeqCyqY/FitFud?node-id=352-1441` (Quên mật khẩu)
+- Spec popup liên quan: `popup/error.md`
 
 ---
 
@@ -71,9 +72,10 @@ Chuyển hướng đến trang Khảo sát AI (nếu đăng ký mới) hoặc Tr
 - Redirect sang trang "Quên mật khẩu".
 
 ### Quên mật khẩu (Forgot Password)
-- Nhập Email khôi phục.
-- Hệ thống gửi mật khẩu mới về Email (hoặc link khôi phục).
-- Hỗ trợ đổi mật khẩu trong trang cá nhân bằng mã PIN/OTP (nếu có).
+- Nhập SĐT đã đăng ký.
+- Hệ thống gửi OTP xác thực tới SĐT.
+- Người dùng nhập OTP hợp lệ rồi chuyển sang bước đặt mật khẩu mới.
+- Luồng này dùng cho khôi phục mật khẩu trước đăng nhập, tách biệt với Popup đổi mật khẩu trong Hồ sơ cá nhân.
 
 ---
 
@@ -135,6 +137,17 @@ export type RegisterInput = {
 };
 
 export type RegisterOutput = LoginOutput;
+
+export type ForgotPasswordRequestInput = {
+  phone: string;
+};
+
+export type ResetPasswordInput = {
+  phone: string;
+  otp_code: string;
+  new_password: string;
+  confirm_password: string;
+};
 ```
 
 ---
@@ -158,3 +171,21 @@ export type RegisterOutput = LoginOutput;
 | Service | `registerUser(params)` |
 | Input | `RegisterInput` |
 | Output | `RegisterOutput` |
+
+## API 3 - Gửi OTP quên mật khẩu
+
+| Thuộc tính | Giá trị |
+|------------|----------|
+| API | REST / POST `/api/auth/forgot-password/request-otp` |
+| Service | `requestForgotPasswordOtp(params)` |
+| Input | `ForgotPasswordRequestInput` |
+| Output | `{ success: boolean, message: string }` |
+
+## API 4 - Đặt lại mật khẩu bằng OTP
+
+| Thuộc tính | Giá trị |
+|------------|----------|
+| API | REST / POST `/api/auth/forgot-password/reset` |
+| Service | `resetPasswordWithOtp(params)` |
+| Input | `ResetPasswordInput` |
+| Output | `{ success: boolean, message: string }` |
