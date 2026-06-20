@@ -6,7 +6,6 @@ import { AppProvider } from './context/AppContext';
 // Layout Shared Components
 import Header from './component/Header';
 import Footer from './component/Footer';
-import Minicart from './component/Minicart';
 
 // Pages
 import Menu from './page/Menu';
@@ -73,9 +72,6 @@ function App() {
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </main>
-
-            {/* Minicart Slide Drawer */}
-            <Minicart />
 
             {/* Global Draft Checkout Notification */}
             <DraftNotification />

@@ -11,39 +11,13 @@ import { OrderSummarySidebarCard } from '../component/organism/Checkout/OrderSum
 import { useCheckoutDraft } from '../hook/useCheckoutDraft';
 
 export default function Checkout() {
-  const { user, cart, updateCartQty, clearCart } = useApp();
+  const { user, cart, updateCartQty, clearCart, selectedCartItemIds, toggleSelectAllCartItems, toggleSelectCartItem } = useApp();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [globalError, setGlobalError] = useState('');
 
   // Use checkout draft hook
   const { getDraftFormData, updateDraft, clearDraft } = useCheckoutDraft();
-
-  // Selection state: defaults to all cart items
-  const [selectedItemIds, setSelectedItemIds] = useState([]);
-  const [hasInitializedSelection, setHasInitializedSelection] = useState(false);
-
-  useEffect(() => {
-    // Initialize selection when cart loads only ONCE
-    if (cart.length > 0 && !hasInitializedSelection) {
-      setSelectedItemIds(cart.map(item => item.id));
-      setHasInitializedSelection(true);
-    }
-  }, [cart, hasInitializedSelection]);
-
-  const handleToggleSelectAll = () => {
-    if (selectedItemIds.length === cart.length) {
-      setSelectedItemIds([]);
-    } else {
-      setSelectedItemIds(cart.map(item => item.id));
-    }
-  };
-
-  const handleToggleSelect = (id) => {
-    setSelectedItemIds(prev =>
-      prev.includes(id) ? prev.filter(itemId => itemId !== id) : [...prev, id]
-    );
-  };
 
   const methods = useForm({
     resolver: zodResolver(checkoutSchema),
@@ -104,8 +78,8 @@ export default function Checkout() {
     setIsSubmitting(true);
     try {
       // Calculate totals ONLY for selected items
-      const selectedItems = cart.filter(item => selectedItemIds.includes(item.id));
-
+      const selectedItems = cart.filter(item => selectedCartItemIds.includes(item.id));
+      
       const totals = selectedItems.reduce(
         (acc, item) => {
           acc.amount += item.price * item.quantity;
@@ -206,9 +180,9 @@ export default function Checkout() {
                     onUpdateQuantity={updateCartQty}
                     isSubmitting={isSubmitting}
                     paymentMethod={field.value}
-                    selectedItemIds={selectedItemIds}
-                    onToggleSelectAll={handleToggleSelectAll}
-                    onToggleSelect={handleToggleSelect}
+                    selectedItemIds={selectedCartItemIds}
+                    onToggleSelectAll={toggleSelectAllCartItems}
+                    onToggleSelect={toggleSelectCartItem}
                   />
                 )}
               />
