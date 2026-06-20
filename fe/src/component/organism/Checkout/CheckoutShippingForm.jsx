@@ -4,8 +4,13 @@ import { Input } from '../../atom/Checkout/Input';
 import { SelectorDropdown } from '../../atom/Checkout/SelectorDropdown';
 import { Checkbox } from '../../atom/Checkout/Checkbox';
 import { useLocation } from '../../../hook/useLocation';
+import { SavedAddressModal } from './SavedAddressModal';
+import { useToast } from '../../../context/ToastContext';
 
 export const CheckoutShippingForm = ({ control, watch, setValue, onReset }) => {
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const { addToast } = useToast();
+
   const cityId = watch('cityId');
   const districtId = watch('districtId');
 
@@ -25,7 +30,23 @@ export const CheckoutShippingForm = ({ control, watch, setValue, onReset }) => {
     return () => subscription.unsubscribe();
   }, [watch, setValue]);
 
+  const handleSelectAddress = (address) => {
+    // Fill the form fields using RHF setValue
+    setValue('contact_name', address.name, { shouldValidate: true });
+    setValue('contact_phone', address.phone, { shouldValidate: true });
+    setValue('shipping_address', address.shipping_address_text, { shouldValidate: true });
+    
+    // Set location dropdowns. Ensure we set them in order or just set all directly 
+    // since useLocation handles the fetching based on watch, but the values will be stored in RHF.
+    setValue('cityId', address.cityId, { shouldValidate: true });
+    setValue('districtId', address.districtId, { shouldValidate: true });
+    setValue('wardId', address.wardId, { shouldValidate: true });
+    
+    addToast('Đã áp dụng địa chỉ giao hàng thành công!', 'success');
+  };
+
   return (
+    <>
     <div className="flex flex-col w-full gap-4 rounded-[12px] bg-white p-[24px] shadow-[0px_4px_20px_0px_rgba(27,67,50,0.06)]">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -38,7 +59,11 @@ export const CheckoutShippingForm = ({ control, watch, setValue, onReset }) => {
             </svg>
           </button>
         </div>
-        <button type="button" className="flex items-center gap-2 text-primary font-be-vietnam font-bold">
+        <button 
+          type="button" 
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center gap-2 text-primary font-be-vietnam font-bold hover:underline"
+        >
           <svg width="16" height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M8 10C9.65685 10 11 8.65685 11 7C11 5.34315 9.65685 4 8 4C6.34315 4 5 5.34315 5 7C5 8.65685 6.34315 10 8 10Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M8 18C10.7614 15.619 14 11.8333 14 7.5C14 4.46243 11.3137 2 8 2C4.68629 2 2 4.46243 2 7.5C2 11.8333 5.23858 15.619 8 18Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -171,5 +196,11 @@ export const CheckoutShippingForm = ({ control, watch, setValue, onReset }) => {
         </div>
       </div>
     </div>
+    <SavedAddressModal 
+      isOpen={isModalOpen} 
+      onClose={() => setIsModalOpen(false)} 
+      onSelectAddress={handleSelectAddress} 
+    />
+    </>
   );
 };

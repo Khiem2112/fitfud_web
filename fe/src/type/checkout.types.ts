@@ -45,6 +45,9 @@ export type SavedAddress = {
   name: string;
   phone: string;
   shipping_address_text: string;
+  wardId: string;
+  districtId: string;
+  cityId: string;
   wardName: string;
   districtName: string;
   cityName: string;
