@@ -9,7 +9,6 @@ import { OrderHistoryList } from '../component/organism/Orders/OrderHistoryList'
 import { OrderDetailModal } from '../component/organism/Orders/OrderDetailModal';
 import { CancelOrderModal } from '../component/organism/Orders/CancelOrderModal';
 import { ReorderConfirmModal } from '../component/organism/Orders/ReorderConfirmModal';
-import { DishReviewModal } from '../component/organism/Orders/DishReviewModal';
 import { useToast } from '../context/ToastContext';
 
 export default function Orders() {
@@ -30,7 +29,6 @@ export default function Orders() {
   const [cancellingOrder, setCancellingOrder] = useState(null);
   const [viewingDetailOrder, setViewingDetailOrder] = useState(null);
   const [reorderingOrder, setReorderingOrder] = useState(null);
-  const [reviewingItem, setReviewingItem] = useState(null);
 
   const handleGuestLookup = async (e) => {
     e.preventDefault();
@@ -138,7 +136,6 @@ export default function Orders() {
 
   const handleReviewSubmit = async (data) => {
     // Call API here if needed: await createDishReview(data)
-    setReviewingItem(null);
     addToast('Gửi đánh giá thành công', 'success');
   };
 
@@ -282,13 +279,7 @@ export default function Orders() {
         order={viewingDetailOrder}
         onClose={() => setViewingDetailOrder(null)}
         onReorder={handleStartReorder}
-        onReview={setReviewingItem}
-      />
-
-      <DishReviewModal
-        item={reviewingItem}
-        onClose={() => setReviewingItem(null)}
-        onSubmit={handleReviewSubmit}
+        onSubmitReview={handleReviewSubmit}
       />
 
       <CancelOrderModal

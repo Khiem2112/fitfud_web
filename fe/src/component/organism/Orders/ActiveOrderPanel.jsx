@@ -5,8 +5,8 @@ export const ActiveOrderPanel = ({ order, onViewDetail, onCancel }) => {
   const isCancelled = order.order_status === 'Cancelled';
 
   const containerClass = isCancelled
-    ? 'rounded-2xl border border-danger/30 bg-danger/5 p-6 shadow-premium'
-    : 'rounded-2xl border border-border-light bg-bg-card p-6 shadow-premium';
+    ? 'rounded-2xl border border-danger/30 bg-danger/10 p-6 shadow-premium cursor-pointer hover:opacity-95 transition relative overflow-hidden'
+    : 'rounded-2xl border border-border-light bg-bg-card p-6 shadow-premium cursor-pointer hover:opacity-95 transition';
 
   return (
     <div>
@@ -16,15 +16,15 @@ export const ActiveOrderPanel = ({ order, onViewDetail, onCancel }) => {
           {isCancelled ? '1 đơn hàng đã hủy' : '1 đơn hàng đang xử lý'}
         </span>
       </div>
-      <div className={containerClass}>
+      <div 
+        className={containerClass}
+        onClick={() => onViewDetail(order)}
+      >
         
-        <div className="flex flex-col lg:flex-row items-center gap-6 justify-between">
+        <div className="flex flex-col lg:flex-row items-center gap-6 justify-between relative z-10">
           
           {/* Left: Order Info */}
-          <div 
-            className="flex items-center gap-4 cursor-pointer hover:opacity-80 transition"
-            onClick={() => onViewDetail(order)}
-          >
+          <div className="flex items-center gap-4">
             {(order.first_item_image || (order.items && order.items[0]?.image_url)) ? (
               <img src={order.first_item_image || order.items[0].image_url} alt="Order item" className={`w-24 h-24 rounded-xl object-cover ${isCancelled ? 'grayscale opacity-70' : ''}`} />
             ) : (
@@ -55,7 +55,10 @@ export const ActiveOrderPanel = ({ order, onViewDetail, onCancel }) => {
           <div className="flex-shrink-0">
             {(order.order_status === 'Pending' || order.order_status === 'Confirmed') ? (
               <button
-                onClick={() => onCancel(order)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCancel(order);
+                }}
                 className="rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-white hover:bg-primary-dark transition shadow-sm"
               >
                 Hủy đơn
