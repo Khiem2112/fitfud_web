@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useApp } from '../context/AppContext';
-import { fetchDishDetail, mockMasterData } from '../service/menuService';
-import { getCustomerProfile } from '../service/surveyService';
+import { fetchDishDetail } from '../service/menuService';
+import { useToast } from '../context/ToastContext';
+import { useAllergyCheck } from '../hook/useAllergyCheck';
+import Breadcrumb from '../component/molecule/Menu/Breadcrumb';
+import ChefNoteInput from '../component/molecule/Menu/ChefNoteInput';
+import AllergyWarning from '../component/molecule/Menu/AllergyWarning';
 
 export default function DishDetail() {
   const { id } = useParams();
@@ -14,7 +18,8 @@ export default function DishDetail() {
   const [removedIngredients, setRemovedIngredients] = useState([]);
   const [chefNotes, setChefNotes] = useState('');
   const [quantity, setQuantity] = useState(1);
-  const [allergenAlert, setAllergenAlert] = useState(null);
+
+  const { addToast } = useToast();
 
   // Tanstack Query for dish detail
   const { data: dish, isLoading, isError } = useQuery({
@@ -23,45 +28,7 @@ export default function DishDetail() {
     enabled: !!id
   });
 
-  const profile = user ? getCustomerProfile(user.id) : null;
-
-  // Set up allergen warning when dish data resolves
-  useEffect(() => {
-    if (dish && profile && profile.allergyIds && profile.allergyIds.length > 0) {
-      const userAllergyNames = mockMasterData.allergies
-        .filter((a) => profile.allergyIds.includes(a.id))
-        .map((a) => a.name);
-
-      const allergenMap = {
-        'Cá': ['cá', 'cá hồi', 'cá ngừ'],
-        'Trứng': ['trứng'],
-        'Gluten': ['gạo lứt', 'mì ý', 'lúa mì', 'bột mì'],
-        'Lạc': ['đậu phộng', 'lạc'],
-        'Sữa': ['bơ', 'sữa', 'phô mai', 'bơ lạt'],
-        'Hạt': ['óc chó', 'hướng dương', 'hạt dẻ', 'điều'],
-        'Đậu nành': ['đậu nành', 'đậu hũ', 'tào phớ']
-      };
-
-      const matchedAllergens = [];
-      userAllergyNames.forEach((allergyName) => {
-        const triggers = allergenMap[allergyName] || [allergyName.toLowerCase()];
-        const clashingIngredient = dish.ingredients.find((ing) =>
-          triggers.some((trig) => ing.toLowerCase().includes(trig))
-        );
-        if (clashingIngredient) {
-          matchedAllergens.push({ allergyName, clashingIngredient });
-        }
-      });
-
-      if (matchedAllergens.length > 0) {
-        setAllergenAlert(matchedAllergens);
-      } else {
-        setAllergenAlert(null);
-      }
-    } else {
-      setAllergenAlert(null);
-    }
-  }, [dish, profile]);
+  const { data: allergens, isLoading: isAllergyLoading, isError: isAllergyError } = useAllergyCheck(user?.id, dish?.ingredients);
 
   if (isLoading) {
     return (
@@ -106,18 +73,21 @@ export default function DishDetail() {
       fat: activeSize.fat,
       carb: activeSize.carb
     });
+    addToast('Đã thêm vào giỏ hàng', 'success');
   };
 
   return (
-    <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8 page-enter space-y-8">
-      
+    <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6 lg:px-8 page-enter space-y-4">
+
+      <Breadcrumb dishName={dish?.dish_name} />
+
       {/* Main Layout Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-[52fr_48fr] gap-8 items-start">
-        
+      <div className="grid grid-cols-1 lg:grid-cols-[52fr_48fr] gap-6 items-start">
+
         {/* Left Column */}
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-4">
           {/* Image */}
-          <div className="rounded-2xl overflow-hidden bg-bg-main h-[400px] sm:h-[500px] border border-border-light shadow-sm">
+          <div className="rounded-2xl overflow-hidden bg-bg-main h-[300px] sm:h-[400px] border border-border-light shadow-sm">
             {dish.image_url ? (
               <img src={dish.image_url} alt={dish.dish_name} className="h-full w-full object-cover" />
             ) : (
@@ -126,7 +96,7 @@ export default function DishDetail() {
           </div>
 
           {/* Title & Description */}
-          <div className="space-y-4">
+          <div className="space-y-2">
             <h1 className="text-3xl sm:text-4xl font-extrabold text-text-main tracking-tight">
               {dish.dish_name}
             </h1>
@@ -136,7 +106,7 @@ export default function DishDetail() {
           </div>
 
           {/* Customer reviews */}
-          <div className="bg-white border border-border-light rounded-2xl p-6 shadow-sm space-y-6">
+          <div className="bg-white border border-border-light rounded-2xl p-4 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">
@@ -147,7 +117,7 @@ export default function DishDetail() {
                 <span className="text-sm text-text-muted">{dish.reviews_count} đánh giá</span>
               </div>
             </div>
-            
+
             <div className="space-y-4">
               {dish.reviews.length === 0 ? (
                 <div className="text-center p-4 text-text-muted text-xs">
@@ -156,7 +126,7 @@ export default function DishDetail() {
               ) : (
                 <div className="space-y-4">
                   {dish.reviews.slice(0, 3).map((rev) => (
-                    <div key={rev.id} className="space-y-2 pb-4 border-b border-border-light last:border-0 last:pb-0">
+                    <div key={rev.id} className="space-y-1 pb-3 border-b border-border-light last:border-0 last:pb-0">
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-sm text-text-main">{rev.reviewer_name}</span>
                         <div className="text-xs text-accent">{'★'.repeat(rev.rating)}{'☆'.repeat(5 - rev.rating)}</div>
@@ -174,8 +144,8 @@ export default function DishDetail() {
         </div>
 
         {/* Right Column */}
-        <div className="flex flex-col gap-6">
-          
+        <div className="flex flex-col gap-4">
+
           {/* Price & Rating */}
           <div className="flex items-center justify-between">
             <span className="text-4xl font-extrabold text-primary">
@@ -220,20 +190,19 @@ export default function DishDetail() {
           </div>
 
           {/* Ingredients */}
-          <div className="space-y-3">
-            <h3 className="text-base font-bold text-text-main">Nguyên liệu</h3>
-            <div className="flex flex-wrap gap-2">
+          <div className="space-y-2">
+            <h3 className="text-sm font-bold text-text-main">Nguyên liệu</h3>
+            <div className="flex flex-wrap gap-1.5">
               {dish.ingredients.map((ing) => {
                 const isRemoved = removedIngredients.includes(ing);
                 return (
                   <button
                     key={ing}
                     onClick={() => handleIngredientToggle(ing)}
-                    className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
-                      isRemoved
-                        ? 'bg-danger/10 border border-danger/30 text-danger'
-                        : 'bg-bg-main border border-transparent text-text-main hover:bg-border-light'
-                    }`}
+                    className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${isRemoved
+                      ? 'bg-danger/10 border border-danger/30 text-danger'
+                      : 'bg-bg-main border border-transparent text-text-main hover:bg-border-light'
+                      }`}
                   >
                     {isRemoved ? '❌' : ''} {ing}
                   </button>
@@ -243,67 +212,53 @@ export default function DishDetail() {
           </div>
 
           {/* ALLERGEN WARNING */}
-          {allergenAlert && allergenAlert.length > 0 && (
-            <div className="rounded-2xl bg-[#FFF7ED] border border-[#FED7AA] p-4 flex items-start gap-3">
-              <span className="text-[#EA580C] mt-0.5 text-lg">⚠️</span>
-              <div>
-                <span className="text-xs font-bold text-[#EA580C] uppercase tracking-wider block mb-1">
-                  Cảnh báo dị ứng
-                </span>
-                <p className="text-sm text-[#9A3412] leading-relaxed mb-2">
-                  Món ăn này có chứa{' '}
-                  {allergenAlert.map((a, i) => (
-                    <span key={i} className="font-extrabold underline uppercase">
-                      {a.clashingIngredient}
-                    </span>
-                  ))}
-                  . Hồ sơ sức khỏe của bạn ghi nhận dị ứng với{' '}
-                  {allergenAlert.map((a) => a.allergyName).join(', ')}. Sử dụng món ăn này có thể gây kích ứng.
-                </p>
-                <button className="text-sm font-bold text-[#EA580C] underline">
-                  Xem thành phần gây dị ứng
-                </button>
-              </div>
-            </div>
-          )}
+          <AllergyWarning
+            allergens={allergens}
+            isLoading={isAllergyLoading}
+            isError={isAllergyError}
+          />
+
+          {/* Chef Notes */}
+          <div className="pt-2">
+            <ChefNoteInput value={chefNotes} onChange={setChefNotes} />
+          </div>
 
           {/* Selection & CTA */}
-          <div className="border-t border-border-light pt-6 space-y-6">
-            <div className="flex items-center justify-between">
+          <div className="pt-3 space-y-4 border-t border-border-light mt-1">
+            <div className="flex items-end justify-between">
               {/* Sizes */}
-              <div className="w-1/2">
-                <span className="block text-base font-bold text-text-main mb-3">Kích cỡ</span>
-                <div className="flex bg-[#EEEEEE] p-1 rounded-xl border border-border-light">
+              <div className="w-[55%]">
+                <span className="block text-sm font-bold text-text-main mb-2">Kích cỡ</span>
+                <div className="flex gap-2">
                   {dish.sizes.map((s) => (
                     <button
                       key={s.id}
                       onClick={() => setSizeName(s.size_name)}
-                      className={`flex-1 py-2 text-center rounded-lg text-base font-medium transition ${
-                        sizeName === s.size_name
-                          ? 'bg-white text-primary shadow-sm'
-                          : 'text-text-main hover:bg-white/50'
-                      }`}
+                      className={`flex-1 py-1.5 text-center rounded-lg text-sm font-bold transition border ${sizeName === s.size_name
+                        ? 'border-primary text-primary bg-primary-light/10 shadow-sm'
+                        : 'border-border-light text-text-main hover:bg-bg-main'
+                        }`}
                     >
                       {s.size_name}
                     </button>
                   ))}
                 </div>
               </div>
-              
+
               {/* Quantity */}
-              <div className="w-1/3 flex flex-col items-end">
-                <span className="block text-base font-bold text-text-main mb-3">Số lượng</span>
-                <div className="flex items-center justify-between bg-[#E8E8E8] border border-border-light rounded-xl p-1 w-full max-w-[120px]">
+              <div className="w-[35%] flex flex-col items-end">
+                <span className="block text-sm font-bold text-text-main mb-2 w-full text-right">Số lượng</span>
+                <div className="flex items-center justify-between bg-[#E8E8E8] border border-border-light rounded-lg p-1 w-full">
                   <button
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    className="w-8 h-8 flex items-center justify-center font-bold text-text-main hover:bg-white rounded-lg transition"
+                    className="w-8 h-8 flex items-center justify-center font-bold text-text-main hover:bg-white rounded-md transition"
                   >
                     -
                   </button>
                   <span className="font-bold text-text-main">{quantity}</span>
                   <button
                     onClick={() => setQuantity((q) => q + 1)}
-                    className="w-8 h-8 flex items-center justify-center font-bold text-text-main hover:bg-white rounded-lg transition"
+                    className="w-8 h-8 flex items-center justify-center font-bold text-text-main hover:bg-white rounded-md transition"
                   >
                     +
                   </button>
@@ -311,43 +266,17 @@ export default function DishDetail() {
               </div>
             </div>
 
-            {/* Chef Notes */}
-            <div>
-              <span className="block text-sm font-semibold text-text-main mb-2">Ghi chú cho đầu bếp</span>
-              <textarea
-                value={chefNotes}
-                onChange={(e) => setChefNotes(e.target.value)}
-                placeholder="Ví dụ: Đừng cho quá nhiều sốt, làm chín kỹ cá hồi..."
-                rows="2"
-                className="w-full rounded-xl border border-border-light bg-white px-4 py-3 text-sm focus:border-primary focus:outline-none transition resize-none"
-              />
-            </div>
-
             {/* Submit Button */}
             <button
               onClick={handleAddToCart}
-              className={`w-full rounded-2xl py-4 text-center text-base font-bold text-white shadow-premium transition bg-primary hover:bg-primary-dark shadow-[0px_4px_6px_-1px_rgba(15,82,56,0.2)]`}
+              className={`w-full rounded-xl py-3.5 text-center text-sm font-bold text-white shadow-premium transition bg-primary hover:bg-primary-dark`}
             >
-              {allergenAlert && allergenAlert.length > 0 ? 'Tôi hiểu cảnh báo – tiếp tục' : 'Thêm vào giỏ hàng'}
+              {allergens && allergens.length > 0 ? 'Tôi hiểu cảnh báo – tiếp tục' : 'Thêm vào giỏ hàng'}
             </button>
           </div>
 
         </div>
       </div>
-
-      {/* Commitments banner */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-8 border-t border-border-light">
-        {[
-          { title: '🔒 Minh bạch 100%', desc: 'Mọi thông tin dinh dưỡng và nguồn gốc nguyên liệu đều được kiểm chứng.' },
-          { title: '⚡ Giao hàng nhanh', desc: 'Đảm bảo bữa ăn luôn nóng hổi và giữ trọn hương vị tươi ngon.' },
-          { title: '📊 Cá nhân hóa', desc: 'Tự động tính toán calo và cập nhật nhật ký sức khỏe.' }
-        ].map((item, idx) => (
-          <div key={idx} className="bg-bg-card border border-border-light rounded-2xl p-5 shadow-sm space-y-2">
-            <h4 className="text-sm font-bold text-text-main">{item.title}</h4>
-            <p className="text-xs text-text-muted leading-relaxed">{item.desc}</p>
-          </div>
-        ))}
-      </section>
 
     </div>
   );

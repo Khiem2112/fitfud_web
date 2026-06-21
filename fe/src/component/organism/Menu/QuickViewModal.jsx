@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useToast } from '../../../context/ToastContext';
 import QtySelector from '../../atom/Menu/QtySelector';
+import { useApp } from '../../../context/AppContext';
+import { useAllergyCheck } from '../../../hook/useAllergyCheck';
+import ChefNoteInput from '../../molecule/Menu/ChefNoteInput';
+import AllergyWarning from '../../molecule/Menu/AllergyWarning';
 
 /**
  * QuickViewModal Organism
- * @param {{ dish: import('../../../type/menu.types').DishItem, onClose: function, onAddToCart: function, allergenAlert: any }} props
+ * @param {{ dish: import('../../../type/menu.types').DishItem, onClose: function, onAddToCart: function }} props
  */
-export default function QuickViewModal({ dish, onClose, onAddToCart, allergenAlert }) {
+export default function QuickViewModal({ dish, onClose, onAddToCart }) {
   const { addToast } = useToast();
+  const { user } = useApp();
+  
+  const { data: allergens, isLoading: isAllergyLoading, isError: isAllergyError } = useAllergyCheck(user?.id, dish?.ingredients);
 
   const [quickViewSize, setQuickViewSize] = useState('M');
   const [removedIngredients, setRemovedIngredients] = useState([]);
@@ -51,8 +59,8 @@ export default function QuickViewModal({ dish, onClose, onAddToCart, allergenAle
     onClose();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-modal="true">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-modal="true">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
@@ -60,7 +68,7 @@ export default function QuickViewModal({ dish, onClose, onAddToCart, allergenAle
       ></div>
 
       {/* Modal Card */}
-      <div className="relative w-full max-w-[1000px] flex flex-col md:flex-row overflow-hidden rounded-2xl border border-border-light bg-bg-card shadow-premium-lg page-enter max-h-[90vh]">
+      <div className="relative w-full max-w-4xl flex flex-col md:flex-row overflow-hidden rounded-2xl border border-border-light bg-bg-card shadow-premium-lg page-enter max-h-[90vh]">
 
         {/* Close Button */}
         <button
@@ -79,23 +87,23 @@ export default function QuickViewModal({ dish, onClose, onAddToCart, allergenAle
           )}
           
           {/* Macro Summary Overlay */}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6 pt-24">
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-              <div className="flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-sm">
-                <span className="text-[10px] text-text-muted font-bold tracking-wider">KCAL</span>
-                <span className="text-base font-bold text-primary">{activeSizeObj.calories}</span>
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6 pt-32">
+            <div className="flex items-center gap-3 overflow-x-auto no-scrollbar justify-start">
+              <div className="w-14 h-14 flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm rounded-full shadow-lg">
+                <span className="text-[9px] text-text-muted font-bold tracking-wider leading-none mb-0.5">KCAL</span>
+                <span className="text-sm font-bold text-primary leading-none">{activeSizeObj.calories}</span>
               </div>
-              <div className="flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-sm">
-                <span className="text-[10px] text-text-muted font-bold tracking-wider">PROTEIN</span>
-                <span className="text-base font-bold text-primary">{activeSizeObj.protein}g</span>
+              <div className="w-14 h-14 flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm rounded-full shadow-lg">
+                <span className="text-[9px] text-text-muted font-bold tracking-wider leading-none mb-0.5">PROTEIN</span>
+                <span className="text-sm font-bold text-primary leading-none">{activeSizeObj.protein}g</span>
               </div>
-              <div className="flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-sm">
-                <span className="text-[10px] text-text-muted font-bold tracking-wider">CARBS</span>
-                <span className="text-base font-bold text-primary">{activeSizeObj.carb}g</span>
+              <div className="w-14 h-14 flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm rounded-full shadow-lg">
+                <span className="text-[9px] text-text-muted font-bold tracking-wider leading-none mb-0.5">CARBS</span>
+                <span className="text-sm font-bold text-primary leading-none">{activeSizeObj.carb}g</span>
               </div>
-              <div className="flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-sm">
-                <span className="text-[10px] text-text-muted font-bold tracking-wider">FAT</span>
-                <span className="text-base font-bold text-primary">{activeSizeObj.fat}g</span>
+              <div className="w-14 h-14 flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm rounded-full shadow-lg">
+                <span className="text-[9px] text-text-muted font-bold tracking-wider leading-none mb-0.5">FAT</span>
+                <span className="text-sm font-bold text-primary leading-none">{activeSizeObj.fat}g</span>
               </div>
             </div>
           </div>
@@ -105,25 +113,22 @@ export default function QuickViewModal({ dish, onClose, onAddToCart, allergenAle
         <div className="w-full md:w-[55%] flex flex-col bg-white overflow-y-auto">
           <div className="p-6 md:p-8 space-y-8 flex-1">
             {/* Dish Head Info */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
-                  {dish.category_name}
-                </span>
-                <span className="text-sm font-extrabold text-accent-dark">
+            <div className="pr-10">
+              <h2 className="text-2xl font-bold text-text-main mb-2 leading-tight">{dish.dish_name}</h2>
+              <div className="flex justify-between items-start">
+                <p className="text-sm text-text-muted leading-relaxed max-w-[70%]">
+                  {dish.description}
+                </p>
+                <span className="text-xl font-extrabold text-accent-dark whitespace-nowrap">
                   {dish.sizes[0].price.toLocaleString('vi-VN')}đ
                 </span>
               </div>
-              <h2 className="text-2xl font-bold text-text-main mt-1 leading-tight">{dish.dish_name}</h2>
-              <p className="text-sm text-text-muted mt-2 leading-relaxed">
-                {dish.description}
-              </p>
             </div>
 
             {/* Size modifiers */}
             <div className="space-y-4">
               <label className="flex items-center gap-2 text-sm font-bold text-text-main">
-                <span className="text-lg">⚖️</span> Chọn kích cỡ phần ăn
+                <span className="text-lg leading-none">📏</span> Chọn kích cỡ phần ăn
               </label>
               <div className="flex gap-3">
                 {dish.sizes.map((s) => {
@@ -173,38 +178,18 @@ export default function QuickViewModal({ dish, onClose, onAddToCart, allergenAle
               </div>
               
               {/* SMART ALLERGEN WARNING */}
-              {allergenAlert && allergenAlert.length > 0 && (
-                <div className="mt-4 rounded-xl bg-[#FFF7ED] border border-[#FED7AA] p-4 flex items-start gap-3 shadow-sm">
-                  <span className="text-[#EA580C] mt-0.5">⚠️</span>
-                  <div>
-                    <span className="text-[11px] font-bold text-[#EA580C] uppercase tracking-wider block mb-1">CẢNH BÁO DỊ ỨNG</span>
-                    <p className="text-xs text-[#9A3412] leading-relaxed">
-                      Món ăn này có chứa{' '}
-                      {allergenAlert.map((a, i) => (
-                        <span key={i} className="font-extrabold underline">
-                          {a.clashingIngredient.toUpperCase()}
-                        </span>
-                      ))}
-                      . Hồ sơ sức khỏe của bạn ghi nhận dị ứng với{' '}
-                      {allergenAlert.map((a) => a.allergyName).join(', ')}. Sử dụng món ăn này có thể gây kích ứng.
-                    </p>
-                  </div>
-                </div>
-              )}
+              <div className="mt-4">
+                <AllergyWarning 
+                  allergens={allergens} 
+                  isLoading={isAllergyLoading} 
+                  isError={isAllergyError} 
+                />
+              </div>
             </div>
 
             {/* Chef Notes */}
-            <div className="space-y-3 pb-4">
-              <label className="flex items-center gap-2 text-sm font-bold text-text-main">
-                <span className="text-lg">📝</span> Ghi chú cho đầu bếp
-              </label>
-              <textarea
-                value={chefNotes}
-                onChange={(e) => setChefNotes(e.target.value)}
-                placeholder="Ví dụ: Đừng cho quá nhiều sốt, làm chín kỹ cá hồi..."
-                rows="2"
-                className="w-full rounded-xl border border-border-light bg-bg-card px-4 py-3 text-sm text-text-main focus:border-primary focus:outline-none transition resize-none shadow-sm"
-              />
+            <div className="pb-4">
+              <ChefNoteInput value={chefNotes} onChange={setChefNotes} />
             </div>
           </div>
 
@@ -218,7 +203,7 @@ export default function QuickViewModal({ dish, onClose, onAddToCart, allergenAle
                 onClick={handleConfirmAddToCart}
                 className="flex-1 rounded-xl py-3.5 flex items-center justify-center gap-2 text-sm font-bold text-white shadow-premium transition bg-primary hover:bg-primary-dark"
               >
-                <span>{allergenAlert && allergenAlert.length > 0 ? 'Tôi hiểu cảnh báo - tiếp tục' : 'Thêm vào giỏ hàng'}</span>
+                <span>{allergens && allergens.length > 0 ? 'Tôi hiểu cảnh báo - tiếp tục' : 'Thêm vào giỏ hàng'}</span>
                 <span className="opacity-50">•</span>
                 <span>{(activeSizeObj.price * quantity).toLocaleString('vi-VN')}đ</span>
               </button>
@@ -226,6 +211,7 @@ export default function QuickViewModal({ dish, onClose, onAddToCart, allergenAle
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
