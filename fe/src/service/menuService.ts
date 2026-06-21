@@ -54,7 +54,7 @@ const mockDishes: DishItem[] = [
     id: 'dish_2',
     dish_name: 'Cơm gà gạo lứt',
     description: 'Ức gà hữu cơ áp chảo mềm mọng, kết hợp cùng cơm gạo lứt thảo mộc giàu xơ và rau quả hữu cơ luộc.',
-    image_url: 'https://images.unsplash.com/photo-13764603-bf527356dc6bb7ac?auto=format&fit=crop&q=80&w=600',
+    image_url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_55nsrg0LXovyH5MSSz6LaNVrGZdzqFHD0JS_sszQFJwN3fL9XndBRZ0&s=10',
     status: 'Active',
     category_name: 'Món chính',
     diet_tags: ['Giàu Protein', 'Low Carb'],

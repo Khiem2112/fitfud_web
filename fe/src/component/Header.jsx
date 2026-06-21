@@ -1,15 +1,36 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { CartPopup } from './organism/CartPopup';
+import { CartMode } from '../type/cart';
 
 export default function Header() {
-  const { user, logout, cartOpen, setCartOpen, getCartTotals } = useApp();
+  const { user, logout, cartMode, setCartMode, getCartTotals } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
-  const totals = getCartTotals();
+  const totals = getCartTotals(false); // Header badge should show total items in cart, not just selected
 
   const handleCartClick = () => {
-    setCartOpen(!cartOpen);
+    // If it's already pinned, click again to close. Otherwise pin it.
+    if (cartMode === CartMode.PINNED) {
+      setCartMode(CartMode.CLOSED);
+    } else {
+      setCartMode(CartMode.PINNED);
+    }
+  };
+
+  const handleCartMouseEnter = () => {
+    // Only open on hover if it's currently closed
+    if (cartMode === CartMode.CLOSED) {
+      setCartMode(CartMode.HOVER);
+    }
+  };
+
+  const handleCartMouseLeave = () => {
+    // Only close on mouse leave if it's currently in hover mode
+    if (cartMode === CartMode.HOVER) {
+      setCartMode(CartMode.CLOSED);
+    }
   };
 
   const isActive = (path) => {
@@ -44,19 +65,27 @@ export default function Header() {
 
         {/* Actions */}
         <div className="flex items-center gap-4">
-          {/* Cart Icon */}
-          <button
-            onClick={handleCartClick}
-            className="relative rounded-full p-2 text-text-muted hover:bg-bg-main hover:text-primary transition"
-            aria-label="Giỏ hàng"
+          {/* Cart Icon & Popup Container */}
+          <div
+            className="relative flex items-center"
+            onMouseEnter={handleCartMouseEnter}
+            onMouseLeave={handleCartMouseLeave}
           >
-            <span className="text-xl">🛒</span>
-            {totals.count > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white ring-2 ring-bg-card animate-pulse">
-                {totals.count}
-              </span>
-            )}
-          </button>
+            <button
+              onClick={handleCartClick}
+              data-cart-icon="true"
+              className={`relative rounded-full p-2 transition ${cartMode !== CartMode.CLOSED ? 'bg-primary/10 text-primary' : 'text-text-muted hover:bg-bg-main hover:text-primary'}`}
+              aria-label="Giỏ hàng"
+            >
+              <span className="text-xl">🛒</span>
+              {totals.count > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white ring-2 ring-bg-card animate-pulse">
+                  {totals.count}
+                </span>
+              )}
+            </button>
+            <CartPopup mode={cartMode} onClose={() => setCartMode(CartMode.CLOSED)} />
+          </div>
 
           {/* User Account Menu */}
           {user ? (

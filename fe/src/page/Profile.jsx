@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { getProfileDashboard, logMeal, analyzeMealImage, getMealLogs } from '../service/profileService';
@@ -24,7 +24,6 @@ export default function Profile() {
 
   // Meal logging states
   const [logMode, setLogMode] = useState('fitfud'); // 'fitfud', 'manual', 'ai'
-  const [searchDish, setSearchDish] = useState('');
   const [selectedDishId, setSelectedDishId] = useState('');
   
   // Manual log inputs

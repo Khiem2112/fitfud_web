@@ -18,9 +18,15 @@ export type CheckoutInput = {
   contact_phone: string;
   shipping_address: string;
   wardId: string;
+  delivery_time: string;
   payment_method: 'COD' | 'Online';
   items: {
     dish_size_id: string;
+    dish_id: string;
+    dish_name: string;
+    size_name: string;
+    price: number;
+    image_url?: string;
     quantity: number;
     subtotal: number;
   }[];
@@ -45,6 +51,9 @@ export type SavedAddress = {
   name: string;
   phone: string;
   shipping_address_text: string;
+  wardId: string;
+  districtId: string;
+  cityId: string;
   wardName: string;
   districtName: string;
   cityName: string;

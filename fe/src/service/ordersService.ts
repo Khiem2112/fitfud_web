@@ -1,4 +1,4 @@
-import { OrderDetail, OrderStatus } from '../type/orders.types';
+import { OrderDetail, OrderStatus, OrderHistorySummary } from '../type/orders.types';
 
 const ORDERS_KEY = 'fitfud_orders';
 
@@ -8,7 +8,7 @@ const getMockInitialOrders = (userId: string): OrderDetail[] => {
       id: 'ord_active_1',
       order_code: 'FF9921',
       order_status: 'Preparing', // Match Figma active order
-      total_amount: 145000,
+      total_amount: 114000,
       contact_name: 'Nguyễn Minh Tuấn',
       contact_phone: '0901234567',
       shipping_address: '123 Đường ABC, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
@@ -16,11 +16,13 @@ const getMockInitialOrders = (userId: string): OrderDetail[] => {
       estimated_shipped_time: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
       items: [
         {
-          dish_name: 'Salad Cá Hồi Áp Chảo',
+          dish_id: 'dish_1',
+          dish_name: 'Cơm cá hồi áp chảo',
           size_name: 'L',
           quantity: 1,
-          unit_price: 145000,
-          subtotal: 145000
+          unit_price: 114000,
+          subtotal: 114000,
+          image_url: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=600'
         }
       ],
       tracking_logs: [
@@ -35,18 +37,20 @@ const getMockInitialOrders = (userId: string): OrderDetail[] => {
       id: 'ord_past_1',
       order_code: 'FF036',
       order_status: 'Completed',
-      total_amount: 145000,
+      total_amount: 114000,
       contact_name: 'Nguyễn Minh Tuấn',
       contact_phone: '0901234567',
       shipping_address: '123 Đường ABC, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
       created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
       items: [
         {
-          dish_name: 'Salad Cá Hồi Áp Chảo',
+          dish_id: 'dish_1',
+          dish_name: 'Cơm cá hồi áp chảo',
           size_name: 'L',
           quantity: 1,
-          unit_price: 145000,
-          subtotal: 145000
+          unit_price: 114000,
+          subtotal: 114000,
+          image_url: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=600'
         }
       ],
       tracking_logs: [
@@ -60,25 +64,29 @@ const getMockInitialOrders = (userId: string): OrderDetail[] => {
       id: 'ord_past_2',
       order_code: 'FF034',
       order_status: 'Completed',
-      total_amount: 210000,
+      total_amount: 214000,
       contact_name: 'Nguyễn Minh Tuấn',
       contact_phone: '0901234567',
       shipping_address: '123 Đường ABC, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
       created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
       items: [
         {
-          dish_name: 'Ức Gà Nướng',
-          size_name: 'M',
-          quantity: 1,
-          unit_price: 85000,
-          subtotal: 85000
-        },
-        {
-          dish_name: 'Salad Cá Hồi',
+          dish_id: 'dish_2',
+          dish_name: 'Cơm gà gạo lứt',
           size_name: 'L',
           quantity: 1,
+          unit_price: 89000,
+          subtotal: 89000,
+          image_url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_55nsrg0LXovyH5MSSz6LaNVrGZdzqFHD0JS_sszQFJwN3fL9XndBRZ0&s=10'
+        },
+        {
+          dish_id: 'dish_5',
+          dish_name: 'Salmon Poke Bowl',
+          size_name: 'M',
+          quantity: 1,
           unit_price: 125000,
-          subtotal: 125000
+          subtotal: 125000,
+          image_url: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=600'
         }
       ],
       tracking_logs: [
@@ -92,18 +100,20 @@ const getMockInitialOrders = (userId: string): OrderDetail[] => {
       id: 'ord_past_3',
       order_code: 'FF01',
       order_status: 'Cancelled',
-      total_amount: 85000,
+      total_amount: 74000,
       contact_name: 'Nguyễn Minh Tuấn',
       contact_phone: '0901234567',
       shipping_address: '123 Đường ABC, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
       created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
       items: [
         {
-          dish_name: 'Ức Gà Nướng',
+          dish_id: 'dish_2',
+          dish_name: 'Cơm gà gạo lứt',
           size_name: 'M',
           quantity: 1,
-          unit_price: 85000,
-          subtotal: 85000
+          unit_price: 74000,
+          subtotal: 74000,
+          image_url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_55nsrg0LXovyH5MSSz6LaNVrGZdzqFHD0JS_sszQFJwN3fL9XndBRZ0&s=10'
         }
       ],
       tracking_logs: [
@@ -116,35 +126,89 @@ const getMockInitialOrders = (userId: string): OrderDetail[] => {
   ];
 };
 
-export const getUserOrders = async (userId: string): Promise<OrderDetail[]> => {
+export const getOrderDetail = async (orderId: string): Promise<OrderDetail> => {
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  const stored = localStorage.getItem(ORDERS_KEY);
+  const allOrders: OrderDetail[] = stored ? JSON.parse(stored) : getMockInitialOrders('default');
+
+  const order = allOrders.find(o => o.id === orderId);
+  if (!order) throw new Error('Không tìm thấy đơn hàng');
+  return order;
+};
+
+export const getUserOrders = async (userId: string): Promise<{ activeOrder: OrderHistorySummary | null, historyOrders: OrderHistorySummary[] }> => {
   await new Promise((resolve) => setTimeout(resolve, 500));
 
   const stored = localStorage.getItem(ORDERS_KEY);
+  let allOrders: OrderDetail[] = [];
+
   if (!stored) {
-    const initial = getMockInitialOrders(userId);
-    localStorage.setItem(ORDERS_KEY, JSON.stringify(initial));
-    return initial;
+    allOrders = getMockInitialOrders(userId);
+    localStorage.setItem(ORDERS_KEY, JSON.stringify(allOrders));
+  } else {
+    allOrders = JSON.parse(stored);
   }
 
-  const allOrders: any[] = JSON.parse(stored);
-  return allOrders.filter((o) => o.userId === userId || !o.userId); // Show mock template orders too
+  const userOrders = allOrders.filter((o) => (o as any).userId === userId || !(o as any).userId);
+
+  // Sort descending by created_at (newest first)
+  userOrders.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+  // Convert OrderDetail to OrderHistorySummary
+  const summaryOrders: OrderHistorySummary[] = userOrders.map(o => ({
+    id: o.id,
+    order_code: o.order_code,
+    order_status: o.order_status,
+    total_amount: o.total_amount,
+    created_at: o.created_at,
+    items_count: o.items.length,
+    first_item_name: o.items[0]?.dish_name || '',
+    first_item_image: o.items[0]?.image_url || '',
+    estimated_shipped_time: o.estimated_shipped_time
+  }));
+
+  // Logic: Active order is the newest order ONLY IF it is not completed or cancelled
+  let activeOrder = null;
+  let historyOrders = summaryOrders;
+
+  if (summaryOrders.length > 0) {
+    const newestOrder = summaryOrders[0];
+    if (newestOrder.order_status !== 'Completed' && newestOrder.order_status !== 'Cancelled') {
+      activeOrder = newestOrder;
+      historyOrders = summaryOrders.slice(1); // The rest goes to history
+    }
+  }
+
+  return { activeOrder, historyOrders };
 };
 
-export const lookupGuestOrders = async (phone: string): Promise<OrderDetail[]> => {
+export const lookupGuestOrders = async (phone: string): Promise<OrderHistorySummary[]> => {
   await new Promise((resolve) => setTimeout(resolve, 600));
 
   const stored = localStorage.getItem(ORDERS_KEY);
-  const allOrders: any[] = stored ? JSON.parse(stored) : getMockInitialOrders('default');
+  const allOrders: OrderDetail[] = stored ? JSON.parse(stored) : getMockInitialOrders('default');
 
   // Filter orders matching the phone number
-  return allOrders.filter((o) => o.contact_phone.replace(/\s+/g, '') === phone.replace(/\s+/g, ''));
+  const matched = allOrders.filter((o) => o.contact_phone.replace(/\s+/g, '') === phone.replace(/\s+/g, ''));
+
+  return matched.map(o => ({
+    id: o.id,
+    order_code: o.order_code,
+    order_status: o.order_status,
+    total_amount: o.total_amount,
+    created_at: o.created_at,
+    items_count: o.items.length,
+    first_item_name: o.items[0]?.dish_name || '',
+    first_item_image: o.items[0]?.image_url || '',
+    estimated_shipped_time: o.estimated_shipped_time
+  }));
 };
 
 export const requestCancelOrder = async (orderId: string): Promise<{ success: boolean; message: string }> => {
   await new Promise((resolve) => setTimeout(resolve, 400));
 
   const stored = localStorage.getItem(ORDERS_KEY);
-  const orders: any[] = stored ? JSON.parse(stored) : [];
+  const orders: OrderDetail[] = stored ? JSON.parse(stored) : [];
   const order = orders.find((o) => o.id === orderId);
 
   if (!order) {
@@ -159,6 +223,15 @@ export const requestCancelOrder = async (orderId: string): Promise<{ success: bo
     };
   }
 
+  // CREATE OTP RECORD TO MOCK DATA FOLDER (Simulated by LocalStorage so it works in browser)
+  const otpData = localStorage.getItem('fitfud_otp_data') ? JSON.parse(localStorage.getItem('fitfud_otp_data')!) : [];
+  otpData.push({
+    orderId,
+    otp: '1234',
+    createdAt: new Date().toISOString()
+  });
+  localStorage.setItem('fitfud_otp_data', JSON.stringify(otpData));
+
   return {
     success: true,
     message: 'OTP_SENT'
@@ -168,12 +241,16 @@ export const requestCancelOrder = async (orderId: string): Promise<{ success: bo
 export const confirmCancelOrder = async (orderId: string, otpCode: string): Promise<{ success: boolean; message: string }> => {
   await new Promise((resolve) => setTimeout(resolve, 600));
 
-  if (otpCode !== '1234') {
-    throw new Error('Mã OTP không đúng! Vui lòng thử lại với mã OTP thử nghiệm: 1234');
+  // VERIFY OTP FROM MOCK DATA FOLDER (Simulated by LocalStorage)
+  const otpData = localStorage.getItem('fitfud_otp_data') ? JSON.parse(localStorage.getItem('fitfud_otp_data')!) : [];
+  const validRecord = otpData.find((r: any) => r.orderId === orderId && r.otp === otpCode);
+
+  if (!validRecord) {
+    throw new Error('Mã OTP không đúng hoặc đã hết hạn! Vui lòng thử lại.');
   }
 
   const stored = localStorage.getItem(ORDERS_KEY);
-  const orders: any[] = stored ? JSON.parse(stored) : [];
+  const orders: OrderDetail[] = stored ? JSON.parse(stored) : [];
   const order = orders.find((o) => o.id === orderId);
 
   if (!order) {
@@ -188,6 +265,10 @@ export const confirmCancelOrder = async (orderId: string, otpCode: string): Prom
   });
 
   localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+
+  // Remove used OTP
+  const newOtpData = otpData.filter((r: any) => r !== validRecord);
+  localStorage.setItem('fitfud_otp_data', JSON.stringify(newOtpData));
 
   return {
     success: true,

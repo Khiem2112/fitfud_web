@@ -106,7 +106,17 @@ export const mockWards: Record<string, { id: string; name: string }[]> = {
 
 export const fetchCities = async () => mockCities;
 export const fetchDistricts = async (cityId: string) => mockDistricts[cityId] || [];
-export const fetchWards = async (districtId: string) => mockWards[districtId] || [];
+export const fetchWards = async (districtId: string) => {
+  if (mockWards[districtId] && mockWards[districtId].length > 0) {
+    return mockWards[districtId];
+  }
+  // Generate dummy wards if missing
+  return [
+    { id: `ward_1_${districtId}`, name: 'Phường 1' },
+    { id: `ward_2_${districtId}`, name: 'Phường 2' },
+    { id: `ward_3_${districtId}`, name: 'Phường 3' },
+  ];
+};
 
 // --- Saved Addresses Mock Store ---
 
@@ -116,6 +126,9 @@ const mockAddresses: SavedAddress[] = [
     name: 'Nguyễn Minh Tuấn',
     phone: '0901234567',
     shipping_address_text: '123 Đường ABC',
+    wardId: 'ward_bn',
+    districtId: 'dist_q1',
+    cityId: 'city_hcm',
     wardName: 'Phường Bến Nghé',
     districtName: 'Quận 1',
     cityName: 'TP. Hồ Chí Minh',
@@ -126,6 +139,9 @@ const mockAddresses: SavedAddress[] = [
     name: 'Trần Thị Bé Hai',
     phone: '0987654321',
     shipping_address_text: 'Tầng 15, Tòa nhà Landmark 81, 720A Điện Biên Phủ',
+    wardId: 'ward_22_dist_qbt', // Fake ID
+    districtId: 'dist_qbt',
+    cityId: 'city_hcm',
     wardName: 'Phường 22',
     districtName: 'Quận Bình Thạnh',
     cityName: 'TP. Hồ Chí Minh',
@@ -158,15 +174,17 @@ export const createOrder = async (input: CheckoutInput, userId: string): Promise
     contact_phone: input.contact_phone,
     shipping_address: fullAddress,
     created_at: new Date().toISOString(),
-    estimated_shipped_time: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // 1 hour later
-    items: input.items.map((item: any) => {
+    estimated_shipped_time: input.delivery_time || new Date(Date.now() + 60 * 60 * 1000).toISOString(), // Use form input if available
+    items: input.items.map((item) => {
       // Find details from cart item (in a real app, this would query backend)
       return {
+        dish_id: item.dish_id,
         dish_name: item.dish_name || 'Cơm Cá Hồi Áp Chảo',
         size_name: item.size_name || 'M',
         quantity: item.quantity,
         unit_price: item.price || 99000,
-        subtotal: item.subtotal
+        subtotal: item.subtotal,
+        image_url: item.image_url
       };
     }),
     tracking_logs: [
