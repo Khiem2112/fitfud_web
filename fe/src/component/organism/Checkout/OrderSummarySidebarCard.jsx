@@ -1,8 +1,12 @@
 import React from 'react';
 import { CartLineItem } from '../../molecule/Checkout/CartLineItem';
 import { SummaryRow } from '../../molecule/Checkout/SummaryRow';
+import { useFormContext } from 'react-hook-form';
 
 export const OrderSummarySidebarCard = ({ cartItems, onUpdateQuantity, isSubmitting, selectedItemIds, onToggleSelectAll, onToggleSelect }) => {
+  const { watch } = useFormContext();
+  const paymentMethod = watch('payment_method');
+  const hasTransferred = watch('has_transferred');
   // Compute totals ONLY for selected items
   const selectedItems = cartItems.filter(item => selectedItemIds.includes(item.id));
   const grandTotal = selectedItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
@@ -97,8 +101,8 @@ export const OrderSummarySidebarCard = ({ cartItems, onUpdateQuantity, isSubmitt
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={isSubmitting || selectedItemIds.length === 0}
-          className="mt-6 flex w-full items-center justify-center gap-2 rounded-[12px] bg-accent-dark py-[16px] transition-opacity hover:opacity-90 disabled:opacity-50"
+          disabled={isSubmitting || selectedItemIds.length === 0 || (paymentMethod === 'Online' && !hasTransferred)}
+          className="mt-6 flex w-full items-center justify-center gap-2 rounded-[12px] bg-accent-dark py-[16px] transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <span className="font-be-vietnam text-[16px] font-bold text-white">
             {isSubmitting ? 'Đang xử lý...' : 'Thanh toán ngay'}

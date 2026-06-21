@@ -68,7 +68,7 @@ export default function Orders() {
     setCancelSuccess('');
     setOtpSent(false);
     setOtpCode('');
-    
+
     setCancelLoading(true);
     try {
       const res = await requestCancelOrder(order.id);
@@ -96,7 +96,7 @@ export default function Orders() {
       const res = await confirmCancelOrder(cancellingOrder.id, otpCode);
       if (res.success) {
         setCancelSuccess(res.message);
-        
+
         // Reload order list
         await loadUserOrders();
         if (guestOrders) {
@@ -138,7 +138,7 @@ export default function Orders() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 page-enter space-y-8">
-      
+
       {/* 1. ORDER SUCCESS HIGHLIGHT BANNER */}
       {successCode && (
         <div className="rounded-3xl bg-primary-light border-2 border-primary/20 p-6 sm:p-8 shadow-premium text-center space-y-4 page-enter">
@@ -191,7 +191,7 @@ export default function Orders() {
       {/* 2. LOGGED-IN USERS SCREEN */}
       {user && !successCode && (
         <div className="space-y-8">
-          
+
           {/* Active order panel */}
           {loading ? (
             <div className="animate-pulse rounded-2xl border border-border-light bg-bg-card p-6 h-40"></div>
@@ -208,7 +208,7 @@ export default function Orders() {
                     .filter((o) => o.order_status !== 'Completed' && o.order_status !== 'Cancelled')
                     .map((order) => (
                       <div key={order.id} className="rounded-2xl border border-border-light bg-bg-card p-6 shadow-premium space-y-6">
-                        
+
                         {/* Header details */}
                         <div className="flex justify-between items-start gap-4 flex-wrap border-b border-border-light pb-4">
                           <div>
@@ -217,7 +217,7 @@ export default function Orders() {
                           </div>
                           <div>
                             <span className="text-[10px] text-text-muted uppercase font-bold">Dự kiến giao</span>
-                            <p className="font-bold text-text-main text-xs">{order.payment_method === 'Online' ? '11:30, Hôm nay' : '12:00, Hôm nay'}</p>
+                            <p className="font-bold text-text-main text-xs">{order.estimated_shipped_time}</p>
                           </div>
                           <div className="flex items-center gap-2">
                             <button
@@ -257,11 +257,10 @@ export default function Orders() {
                                 return (
                                   <div key={s} className="text-center flex flex-col items-center max-w-[80px]">
                                     <div
-                                      className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-bold border-2 transition duration-300 ${
-                                        isPassed
-                                          ? 'bg-primary border-primary text-white'
-                                          : 'bg-bg-card border-border-light text-text-muted'
-                                      } ${isActive ? 'ring-4 ring-primary-light ring-offset-0 scale-110' : ''}`}
+                                      className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-bold border-2 transition duration-300 ${isPassed
+                                        ? 'bg-primary border-primary text-white'
+                                        : 'bg-bg-card border-border-light text-text-muted'
+                                        } ${isActive ? 'ring-4 ring-primary-light ring-offset-0 scale-110' : ''}`}
                                     >
                                       {idx + 1}
                                     </div>
@@ -307,9 +306,8 @@ export default function Orders() {
                               <p className="text-[10px] text-text-muted font-bold">15 Tháng 5, 2026</p>
                               <h4 className="text-sm font-bold text-text-main mt-0.5">Đơn hàng #{order.order_code}</h4>
                             </div>
-                            <span className={`rounded px-2.5 py-1 text-[9px] font-bold uppercase ${
-                              completed ? 'bg-primary-light text-primary' : 'bg-danger-light text-danger'
-                            }`}>
+                            <span className={`rounded px-2.5 py-1 text-[9px] font-bold uppercase ${completed ? 'bg-primary-light text-primary' : 'bg-danger-light text-danger'
+                              }`}>
                               {translateStatus(order.order_status)}
                             </span>
                           </div>
@@ -384,7 +382,7 @@ export default function Orders() {
               <h3 className="text-xs font-bold uppercase tracking-wider text-text-main">
                 Kết quả tra cứu ({guestOrders.length} đơn)
               </h3>
-              
+
               {guestOrders.length === 0 ? (
                 <p className="text-xs text-text-muted text-center py-4">Chưa có thông tin tra cứu cho số điện thoại này.</p>
               ) : (
@@ -393,9 +391,8 @@ export default function Orders() {
                     <div key={order.id} className="border border-border-light rounded-xl p-4 bg-bg-main space-y-3">
                       <div className="flex justify-between items-center text-xs">
                         <span className="font-bold text-text-main">#{order.order_code}</span>
-                        <span className={`rounded px-2 py-0.5 text-[9px] font-bold uppercase ${
-                          order.order_status === 'Completed' ? 'bg-primary-light text-primary' : 'bg-yellow-100 text-yellow-800'
-                        }`}>
+                        <span className={`rounded px-2 py-0.5 text-[9px] font-bold uppercase ${order.order_status === 'Completed' ? 'bg-primary-light text-primary' : 'bg-yellow-100 text-yellow-800'
+                          }`}>
                           {translateStatus(order.order_status)}
                         </span>
                       </div>
@@ -433,7 +430,7 @@ export default function Orders() {
       {cancellingOrder && otpSent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setCancellingOrder(null)}></div>
-          
+
           <div className="relative w-full max-w-sm rounded-2xl border border-border-light bg-bg-card p-6 shadow-premium-lg page-enter space-y-5 text-center">
             <h3 className="text-base font-bold text-text-main">Xác thực hủy đơn hàng</h3>
             <p className="text-xs text-text-muted leading-relaxed">
@@ -489,7 +486,7 @@ export default function Orders() {
       {viewingDetailOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-modal="true">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setViewingDetailOrder(null)}></div>
-          
+
           <div className="relative w-full max-w-md rounded-2xl border border-border-light bg-bg-card p-6 shadow-premium-lg page-enter space-y-5">
             <button
               onClick={() => setViewingDetailOrder(null)}
@@ -497,7 +494,7 @@ export default function Orders() {
             >
               ✕
             </button>
-            
+
             <div className="border-b border-border-light pb-3">
               <h3 className="text-base font-bold text-text-main">Chi tiết đơn hàng</h3>
               <p className="text-[10px] text-text-muted mt-0.5">Mã đơn: #{viewingDetailOrder.order_code}</p>

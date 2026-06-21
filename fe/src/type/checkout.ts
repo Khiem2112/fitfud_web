@@ -8,6 +8,7 @@ export interface CheckoutFormData {
   delivery_time: string;
   isDefaultAddress: boolean;
   payment_method: 'COD' | 'Online';
+  has_transferred: boolean;
 }
 
 export interface CheckoutDraft {

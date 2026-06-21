@@ -174,7 +174,7 @@ export const createOrder = async (input: CheckoutInput, userId: string): Promise
     contact_phone: input.contact_phone,
     shipping_address: fullAddress,
     created_at: new Date().toISOString(),
-    estimated_shipped_time: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // 1 hour later
+    estimated_shipped_time: input.delivery_time || new Date(Date.now() + 60 * 60 * 1000).toISOString(), // Use form input if available
     items: input.items.map((item: any) => {
       // Find details from cart item (in a real app, this would query backend)
       return {

@@ -1,8 +1,13 @@
 import React from 'react';
-import { Controller } from 'react-hook-form';
+import { Controller, useFormContext } from 'react-hook-form';
 import { RadioButton } from '../../atom/Checkout/RadioButton';
+import { BankTransferInfo } from '../../molecule/Checkout/BankTransferInfo';
+import { Checkbox } from '../../atom/Checkout/Checkbox';
 
 export const PaymentMethodSelectorBox = ({ control, errors }) => {
+  const { watch } = useFormContext();
+  const paymentMethod = watch('payment_method');
+  const hasTransferred = watch('has_transferred');
 
   return (
     <div className="flex flex-col w-full gap-4 rounded-[12px] bg-white p-[24px] shadow-[0px_4px_20px_0px_rgba(27,67,50,0.06)]">
@@ -28,6 +33,7 @@ export const PaymentMethodSelectorBox = ({ control, errors }) => {
                 onChange={() => field.onChange('COD')}
                 value="COD"
                 label="Thanh toán khi nhận hàng (COD)"
+                disabled={hasTransferred}
               />
               <RadioButton
                 name={field.name}
@@ -39,6 +45,33 @@ export const PaymentMethodSelectorBox = ({ control, errors }) => {
             </div>
           )}
         />
+        
+        {paymentMethod === 'Online' && (
+          <div className="flex flex-col gap-4 animate-fade-in-up">
+            <BankTransferInfo />
+            <Controller
+              name="has_transferred"
+              control={control}
+              render={({ field }) => (
+                <div className="bg-primary/5 p-3 rounded-lg border border-primary/20">
+                  <Checkbox
+                    name={field.name}
+                    checked={field.value}
+                    onChange={(e) => field.onChange(e.target.checked)}
+                    label="Tôi đã chuyển khoản thành công"
+                    disabled={field.value} // Lock checkbox once checked
+                  />
+                  {field.value && (
+                    <p className="text-xs text-primary mt-2 ml-7 italic">
+                      ✓ Đã khoá phương thức thanh toán. Bạn có thể tiến hành đặt đơn.
+                    </p>
+                  )}
+                </div>
+              )}
+            />
+          </div>
+        )}
+        
         {errors.payment_method && (
           <span className="font-be-vietnam text-[12px] font-medium text-red-500 mt-[-8px]">
             {errors.payment_method.message}

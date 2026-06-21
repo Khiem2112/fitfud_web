@@ -50,9 +50,13 @@ export const AppProvider = ({ children }) => {
     const updatedCart = serviceAddToCart(item);
     setCart([...updatedCart]);
     
-    // Auto select the newly added item if not already selected
-    if (!selectedCartItemIds.includes(item.id)) {
-      setSelectedCartItemIds(prev => [...prev, item.id]);
+    // Find the generated id for the newly added item
+    const addedItem = updatedCart.find(
+      c => c.dish_id === item.dish_id && c.size_name === item.size_name && c.chef_notes === item.chef_notes
+    );
+    
+    if (addedItem && !selectedCartItemIds.includes(addedItem.id)) {
+      setSelectedCartItemIds(prev => [...prev, addedItem.id]);
     }
     // Auto open minicart to notify user
     setCartMode(CartMode.PINNED);

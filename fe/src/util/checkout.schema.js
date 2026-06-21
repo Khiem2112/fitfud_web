@@ -16,4 +16,5 @@ export const checkoutSchema = z.object({
   payment_method: z.enum(['COD', 'Online'], {
     errorMap: () => ({ message: 'Vui lòng chọn phương thức thanh toán' }),
   }),
+  has_transferred: z.boolean().optional().default(false),
 });

@@ -18,6 +18,7 @@ export type CheckoutInput = {
   contact_phone: string;
   shipping_address: string;
   wardId: string;
+  delivery_time: string;
   payment_method: 'COD' | 'Online';
   items: {
     dish_size_id: string;

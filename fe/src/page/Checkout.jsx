@@ -8,6 +8,7 @@ import { checkoutSchema } from '../util/checkout.schema';
 import { CheckoutShippingForm } from '../component/organism/Checkout/CheckoutShippingForm';
 import { PaymentMethodSelectorBox } from '../component/organism/Checkout/PaymentMethodSelectorBox';
 import { OrderSummarySidebarCard } from '../component/organism/Checkout/OrderSummarySidebarCard';
+import { OrderSuccessModal } from '../component/organism/Checkout/OrderSuccessModal';
 import { useCheckoutDraft } from '../hook/useCheckoutDraft';
 
 export default function Checkout() {
@@ -15,6 +16,7 @@ export default function Checkout() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [globalError, setGlobalError] = useState('');
+  const [orderSuccessData, setOrderSuccessData] = useState(null);
 
   // Use checkout draft hook
   const { getDraftFormData, updateDraft, clearDraft } = useCheckoutDraft();
@@ -31,6 +33,7 @@ export default function Checkout() {
       delivery_time: '',
       isDefaultAddress: false,
       payment_method: 'COD',
+      has_transferred: false,
     },
     mode: 'onBlur',
   });
@@ -47,6 +50,7 @@ export default function Checkout() {
       delivery_time: '',
       isDefaultAddress: false,
       payment_method: 'COD',
+      has_transferred: false,
     });
   };
 
@@ -61,21 +65,10 @@ export default function Checkout() {
     }
   }, [formValuesString, updateDraft]);
 
-  // Redirect if cart is empty
-  useEffect(() => {
-    if (cart.length === 0) {
-      navigate('/');
-    }
-  }, [cart, navigate]);
+
 
   const onSubmit = async (data) => {
     setGlobalError('');
-
-    if (!user) {
-      setGlobalError('Bạn cần đăng nhập để đặt hàng.');
-      navigate('/auth');
-      return;
-    }
 
     setIsSubmitting(true);
     try {
@@ -99,6 +92,7 @@ export default function Checkout() {
         contact_phone: data.contact_phone,
         shipping_address: data.shipping_address,
         wardId: data.wardId,
+        delivery_time: data.delivery_time,
         payment_method: data.payment_method,
         items: selectedItems.map((item) => ({
           dish_size_id: item.id,
@@ -117,11 +111,12 @@ export default function Checkout() {
         },
       };
 
-      const res = await createOrder(payload, user.id);
+      const orderUserId = user ? user.id : `guest_${Date.now()}`;
+      const res = await createOrder(payload, orderUserId);
 
       clearCart();
       clearDraft(); // Wipe draft on success
-      navigate(`/orders?success_code=${res.order_code}`);
+      setOrderSuccessData(res);
     } catch (err) {
       setGlobalError(err.message || 'Đã xảy ra lỗi khi tạo đơn hàng.');
     } finally {
@@ -183,7 +178,11 @@ export default function Checkout() {
           </form>
         </FormProvider>
       </div>
+
+      <OrderSuccessModal
+        isOpen={!!orderSuccessData}
+        data={orderSuccessData}
+      />
     </div>
   );
 }
-
