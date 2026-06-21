@@ -9,10 +9,13 @@ import { OrderHistoryList } from '../component/organism/Orders/OrderHistoryList'
 import { OrderDetailModal } from '../component/organism/Orders/OrderDetailModal';
 import { CancelOrderModal } from '../component/organism/Orders/CancelOrderModal';
 import { ReorderConfirmModal } from '../component/organism/Orders/ReorderConfirmModal';
+import { DishReviewModal } from '../component/organism/Orders/DishReviewModal';
+import { useToast } from '../context/ToastContext';
 
 export default function Orders() {
   const { user, addMultipleToCart } = useApp();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   // Queries and mutations
   const { data: userOrdersData, isLoading: loading, refetch: refetchUserOrders } = useUserOrders(user?.id);
@@ -27,36 +30,32 @@ export default function Orders() {
   const [cancellingOrder, setCancellingOrder] = useState(null);
   const [viewingDetailOrder, setViewingDetailOrder] = useState(null);
   const [reorderingOrder, setReorderingOrder] = useState(null);
-
-  const [globalError, setGlobalError] = useState('');
+  const [reviewingItem, setReviewingItem] = useState(null);
 
   const handleGuestLookup = async (e) => {
     e.preventDefault();
     if (!guestPhone) return;
-    setGlobalError('');
     try {
       await mutateGuestLookup(guestPhone);
     } catch {
-      setGlobalError('Không tìm thấy đơn hàng của số điện thoại này.');
+      addToast('Không tìm thấy đơn hàng của số điện thoại này.', 'error');
     }
   };
 
   const handleStartCancel = async (order) => {
-    setGlobalError('');
     try {
       const res = await requestCancelOrder(order.id);
       if (res.success) {
         setCancellingOrder(order);
       } else {
-        setGlobalError(res.message);
+        addToast(res.message, 'error');
       }
     } catch (err) {
-      setGlobalError(err.message || 'Lỗi khi yêu cầu hủy đơn.');
+      addToast(err.message || 'Lỗi khi yêu cầu hủy đơn.', 'error');
     }
   };
 
   const handleConfirmCancelSubmit = async (otpCode) => {
-    setGlobalError('');
     try {
       const res = await confirmCancelOrder(cancellingOrder.id, otpCode);
       if (res.success) {
@@ -65,15 +64,15 @@ export default function Orders() {
           await mutateGuestLookup(guestPhone);
         }
         setCancellingOrder(null);
+        addToast('Huỷ đơn hàng thành công', 'success');
       }
     } catch (err) {
-      setGlobalError(err.message || 'Mã OTP không đúng.');
+      addToast(err.message || 'Mã OTP không đúng.', 'error');
     }
   };
 
   const handleStartReorder = async (summaryOrder) => {
     try {
-      setGlobalError('');
       // Need full order detail to get items
       const fullOrder = await getOrderDetail(summaryOrder.id);
       setReorderingOrder(fullOrder);
@@ -81,14 +80,12 @@ export default function Orders() {
         setViewingDetailOrder(null);
       }
     } catch {
-      setGlobalError('Lỗi khi tải chi tiết đơn hàng để đặt lại.');
+      addToast('Lỗi khi tải chi tiết đơn hàng để đặt lại.', 'error');
     }
   };
 
   const handleConfirmReorder = async (order) => {
     try {
-      setGlobalError('');
-
       const itemsToAdd = [];
       for (const item of order.items) {
         let calories = 0, protein = 0, fat = 0, carb = 0;
@@ -107,7 +104,7 @@ export default function Orders() {
               fat = sizeData.fat;
               carb = sizeData.carb;
             }
-          } catch(err) {
+          } catch (err) {
             console.error(err);
             // fallback to 0 if dish fetch fails
           }
@@ -131,11 +128,18 @@ export default function Orders() {
       addMultipleToCart(itemsToAdd);
 
       setReorderingOrder(null);
+      addToast('Đặt lại đơn hàng thành công', 'success');
       navigate('/menu');
     } catch (err) {
       console.error(err);
-      setGlobalError('Lỗi khi thêm món vào giỏ hàng.');
+      addToast('Lỗi khi thêm món vào giỏ hàng.', 'error');
     }
+  };
+
+  const handleReviewSubmit = async (data) => {
+    // Call API here if needed: await createDishReview(data)
+    setReviewingItem(null);
+    addToast('Gửi đánh giá thành công', 'success');
   };
 
   const formatGuestOrders = (gOrders) => {
@@ -218,17 +222,6 @@ export default function Orders() {
   return (
     <div className="fixed inset-x-0 bottom-0 top-[80px] overflow-hidden flex flex-col bg-bg-main page-enter">
       <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8 flex flex-col h-full overflow-hidden">
-        {globalError && (
-          <div className="mb-4 rounded-xl bg-danger-light p-4 text-sm font-bold text-danger border border-danger/20 flex items-center gap-3 shrink-0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="12"></line>
-              <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
-            {globalError}
-          </div>
-        )}
-
         {/* Title */}
         <div className="shrink-0 mb-2">
           <h1 className="text-2xl font-extrabold text-text-main tracking-tight">Lịch sử & Trạng thái đơn hàng</h1>
@@ -289,6 +282,13 @@ export default function Orders() {
         order={viewingDetailOrder}
         onClose={() => setViewingDetailOrder(null)}
         onReorder={handleStartReorder}
+        onReview={setReviewingItem}
+      />
+
+      <DishReviewModal
+        item={reviewingItem}
+        onClose={() => setReviewingItem(null)}
+        onSubmit={handleReviewSubmit}
       />
 
       <CancelOrderModal
