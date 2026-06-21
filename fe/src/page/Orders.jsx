@@ -1,553 +1,307 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { getUserOrders, lookupGuestOrders, requestCancelOrder, confirmCancelOrder } from '../service/ordersService';
+import { requestCancelOrder, confirmCancelOrder, getOrderDetail } from '../service/ordersService';
+import { fetchDishDetail } from '../service/menuService';
+import { useUserOrders, useGuestOrdersMutation } from '../hook/useOrders';
+import { ActiveOrderPanel } from '../component/organism/Orders/ActiveOrderPanel';
+import { OrderHistoryList } from '../component/organism/Orders/OrderHistoryList';
+import { OrderDetailModal } from '../component/organism/Orders/OrderDetailModal';
+import { CancelOrderModal } from '../component/organism/Orders/CancelOrderModal';
+import { ReorderConfirmModal } from '../component/organism/Orders/ReorderConfirmModal';
 
 export default function Orders() {
-  const { user } = useApp();
+  const { user, addMultipleToCart } = useApp();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const successCode = searchParams.get('success_code');
 
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Queries and mutations
+  const { data: userOrdersData, isLoading: loading, refetch: refetchUserOrders } = useUserOrders(user?.id);
+  const { mutateAsync: mutateGuestLookup, data: guestOrdersData, isPending: lookupLoading, reset: resetGuestOrders } = useGuestOrdersMutation();
+
+  const orders = userOrdersData || { activeOrder: null, historyOrders: [] };
 
   // Guest lookup states
   const [guestPhone, setGuestPhone] = useState('');
-  const [guestOrders, setGuestOrders] = useState(null);
-  const [lookupLoading, setLookupLoading] = useState(false);
 
-  // Cancel order state machine
-  const [cancellingOrder, setCancellingOrder] = useState(null); // Order object being cancelled
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpCode, setOtpCode] = useState('');
-  const [cancelError, setCancelError] = useState('');
-  const [cancelSuccess, setCancelSuccess] = useState('');
-  const [cancelLoading, setCancelLoading] = useState(false);
-
-  // General detail modal
+  // Modals state
+  const [cancellingOrder, setCancellingOrder] = useState(null);
   const [viewingDetailOrder, setViewingDetailOrder] = useState(null);
+  const [reorderingOrder, setReorderingOrder] = useState(null);
 
-  // Load orders for logged in users
-  const loadUserOrders = async () => {
-    if (user) {
-      setLoading(true);
-      try {
-        const data = await getUserOrders(user.id);
-        setOrders(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadUserOrders();
-  }, [user]);
+  const [globalError, setGlobalError] = useState('');
 
   const handleGuestLookup = async (e) => {
     e.preventDefault();
     if (!guestPhone) return;
-    setLookupLoading(true);
+    setGlobalError('');
     try {
-      const data = await lookupGuestOrders(guestPhone);
-      setGuestOrders(data);
-    } catch (err) {
-      alert('Không tìm thấy đơn hàng của số điện thoại này.');
-    } finally {
-      setLookupLoading(false);
+      await mutateGuestLookup(guestPhone);
+    } catch {
+      setGlobalError('Không tìm thấy đơn hàng của số điện thoại này.');
     }
   };
 
   const handleStartCancel = async (order) => {
-    setCancelError('');
-    setCancelSuccess('');
-    setOtpSent(false);
-    setOtpCode('');
-
-    setCancelLoading(true);
+    setGlobalError('');
     try {
       const res = await requestCancelOrder(order.id);
       if (res.success) {
         setCancellingOrder(order);
-        setOtpSent(true);
       } else {
-        // Figma logic: Show the custom cooking warning
-        alert(res.message);
+        setGlobalError(res.message);
       }
     } catch (err) {
-      alert(err.message || 'Lỗi khi yêu cầu hủy đơn.');
-    } finally {
-      setCancelLoading(false);
+      setGlobalError(err.message || 'Lỗi khi yêu cầu hủy đơn.');
     }
   };
 
-  const handleConfirmCancelSubmit = async (e) => {
-    e.preventDefault();
-    if (!otpCode) return;
-
-    setCancelLoading(true);
-    setCancelError('');
+  const handleConfirmCancelSubmit = async (otpCode) => {
+    setGlobalError('');
     try {
       const res = await confirmCancelOrder(cancellingOrder.id, otpCode);
       if (res.success) {
-        setCancelSuccess(res.message);
-
-        // Reload order list
-        await loadUserOrders();
-        if (guestOrders) {
-          // Reload guest lookup too
-          const data = await lookupGuestOrders(guestPhone);
-          setGuestOrders(data);
+        await refetchUserOrders();
+        if (guestOrdersData) {
+          await mutateGuestLookup(guestPhone);
         }
-
-        setTimeout(() => {
-          setCancellingOrder(null);
-          setOtpSent(false);
-        }, 1500);
+        setCancellingOrder(null);
       }
     } catch (err) {
-      setCancelError(err.message || 'Mã OTP không đúng.');
-    } finally {
-      setCancelLoading(false);
+      setGlobalError(err.message || 'Mã OTP không đúng.');
     }
   };
 
-  const getTimelineProgress = (status) => {
-    const steps = ['Pending', 'Confirmed', 'Preparing', 'Delivering', 'Completed'];
-    const currentIdx = steps.indexOf(status);
-    if (currentIdx === -1) return 0;
-    return (currentIdx / (steps.length - 1)) * 100;
-  };
-
-  const translateStatus = (status) => {
-    switch (status) {
-      case 'Pending': return 'Chờ duyệt';
-      case 'Confirmed': return 'Đã nhận';
-      case 'Preparing': return 'Đang chế biến';
-      case 'Delivering': return 'Đang giao';
-      case 'Completed': return 'Hoàn tất';
-      case 'Cancelled': return 'Đã hủy';
-      default: return status;
+  const handleStartReorder = async (summaryOrder) => {
+    try {
+      setGlobalError('');
+      // Need full order detail to get items
+      const fullOrder = await getOrderDetail(summaryOrder.id);
+      setReorderingOrder(fullOrder);
+      if (viewingDetailOrder) {
+        setViewingDetailOrder(null);
+      }
+    } catch {
+      setGlobalError('Lỗi khi tải chi tiết đơn hàng để đặt lại.');
     }
   };
 
-  return (
-    <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 page-enter space-y-8">
+  const handleConfirmReorder = async (order) => {
+    try {
+      setGlobalError('');
 
-      {/* 1. ORDER SUCCESS HIGHLIGHT BANNER */}
-      {successCode && (
-        <div className="rounded-3xl bg-primary-light border-2 border-primary/20 p-6 sm:p-8 shadow-premium text-center space-y-4 page-enter">
-          <span className="text-4xl block">🎉</span>
-          <h1 className="text-2xl font-extrabold text-primary">Đặt hàng thành công!</h1>
-          <p className="text-sm text-text-main font-medium">
-            Cảm ơn bạn đã tin tưởng lựa chọn FitFud cho hành trình sống khỏe.
-          </p>
-          <div className="max-w-md mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-primary/10 text-left text-xs">
-            <div>
-              <span className="text-text-muted block">Mã đơn hàng</span>
-              <span className="font-extrabold text-text-main text-sm">#{successCode}</span>
-            </div>
-            <div>
-              <span className="text-text-muted block">Dự kiến giao hàng</span>
-              <span className="font-bold text-text-main text-sm">11:30 - 12:00, Hôm nay</span>
-            </div>
-          </div>
-          <div className="pt-4 flex justify-center gap-3">
-            <button
-              onClick={() => {
-                setSearchParams({});
-                loadUserOrders();
-              }}
-              className="rounded-xl bg-primary px-6 py-2.5 text-xs font-bold text-white shadow-premium hover:bg-primary-dark transition"
-            >
-              Theo dõi đơn hàng
-            </button>
-            <button
-              onClick={() => {
-                setSearchParams({});
-                navigate('/');
-              }}
-              className="rounded-xl border border-border-light bg-bg-card px-6 py-2.5 text-xs font-bold text-text-main hover:bg-bg-main transition"
-            >
-              Tiếp tục xem thực đơn
-            </button>
-          </div>
+      const itemsToAdd = [];
+      for (const item of order.items) {
+        let calories = 0, protein = 0, fat = 0, carb = 0;
+        let freshName = item.dish_name;
+        let freshImage = item.image_url;
+
+        if (item.dish_id) {
+          try {
+            const dish = await fetchDishDetail(item.dish_id);
+            freshName = dish.dish_name;
+            freshImage = dish.image_url;
+            const sizeData = dish.sizes.find(s => s.size_name === item.size_name) || dish.sizes[0];
+            if (sizeData) {
+              calories = sizeData.calories;
+              protein = sizeData.protein;
+              fat = sizeData.fat;
+              carb = sizeData.carb;
+            }
+          } catch(err) {
+            console.error(err);
+            // fallback to 0 if dish fetch fails
+          }
+        }
+
+        itemsToAdd.push({
+          dish_id: item.dish_id || `dish_${Date.now()}`,
+          dish_name: freshName,
+          image_url: freshImage,
+          size_name: item.size_name,
+          price: item.unit_price,
+          quantity: item.quantity,
+          calories,
+          protein,
+          fat,
+          carb
+        });
+      }
+
+      // Append new items to existing cart
+      addMultipleToCart(itemsToAdd);
+
+      setReorderingOrder(null);
+      navigate('/menu');
+    } catch (err) {
+      console.error(err);
+      setGlobalError('Lỗi khi thêm món vào giỏ hàng.');
+    }
+  };
+
+  const formatGuestOrders = (gOrders) => {
+    let parsed = { activeOrder: null, historyOrders: [] };
+    if (gOrders && gOrders.length > 0) {
+      const sorted = [...gOrders].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      const newestOrder = sorted[0];
+      if (newestOrder.order_status !== 'Completed' && newestOrder.order_status !== 'Cancelled') {
+        parsed.activeOrder = newestOrder;
+        parsed.historyOrders = sorted.slice(1);
+      } else {
+        parsed.historyOrders = sorted;
+      }
+    }
+    return parsed;
+  };
+
+  const renderOrdersDashboard = (dashboardOrders, isGuest = false) => (
+    <div className="flex flex-col flex-1 min-h-0 bg-bg-main mt-4">
+      {isGuest && (
+        <div className="shrink-0 mb-6">
+          <button
+            onClick={() => { resetGuestOrders(); setGuestPhone(''); }}
+            className="text-xs font-bold text-primary hover:underline flex items-center gap-1 bg-primary/5 px-4 py-2 rounded-xl w-fit"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Tra cứu số điện thoại khác
+          </button>
         </div>
       )}
 
-      {/* Title */}
-      {!successCode && (
-        <div>
+      {/* Active order panel */}
+      <div className="shrink-0 mb-8">
+        {!dashboardOrders.activeOrder ? (
+          <div>
+            <h2 className="text-sm font-bold text-text-main mb-4">Đơn hàng hiện tại</h2>
+            <div className="rounded-2xl border border-border-light bg-bg-card p-6 text-center text-text-muted text-xs shadow-sm">
+              Hiện không có đơn hàng nào đang trong quá trình xử lý.
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <ActiveOrderPanel
+              key={dashboardOrders.activeOrder.id}
+              order={dashboardOrders.activeOrder}
+              onViewDetail={setViewingDetailOrder}
+              onCancel={handleStartCancel}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Past orders list */}
+      <div className="pt-4 border-t border-border-light flex flex-col flex-1 min-h-0">
+        <div className="flex justify-between items-center mb-4 shrink-0">
+          <h2 className="text-sm font-bold text-text-main">Lịch sử đơn hàng</h2>
+          {!isGuest && (
+            <button className="text-xs font-bold text-text-muted hover:text-text-main transition flex items-center gap-1">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6h16M7 12h10M10 18h4" /></svg> Lọc theo tháng
+            </button>
+          )}
+        </div>
+
+        <div className="flex-1 overflow-y-auto min-h-0 pr-2 pb-12 custom-scrollbar">
+          <OrderHistoryList
+            orders={dashboardOrders.historyOrders}
+            onViewDetail={setViewingDetailOrder}
+            onReorder={handleStartReorder}
+          />
+          {dashboardOrders.historyOrders.length > 0 && (
+            <div className="text-center mt-6">
+              <p className="text-xs text-text-muted">Đã xem hết đơn hàng</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="fixed inset-x-0 bottom-0 top-[80px] overflow-hidden flex flex-col bg-bg-main page-enter">
+      <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8 flex flex-col h-full overflow-hidden">
+        {globalError && (
+          <div className="mb-4 rounded-xl bg-danger-light p-4 text-sm font-bold text-danger border border-danger/20 flex items-center gap-3 shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            {globalError}
+          </div>
+        )}
+
+        {/* Title */}
+        <div className="shrink-0 mb-2">
           <h1 className="text-2xl font-extrabold text-text-main tracking-tight">Lịch sử & Trạng thái đơn hàng</h1>
           <p className="text-xs text-text-muted mt-0.5">Theo dõi các bữa ăn dinh dưỡng đang đến với bạn.</p>
         </div>
-      )}
 
-      {/* 2. LOGGED-IN USERS SCREEN */}
-      {user && !successCode && (
-        <div className="space-y-8">
-
-          {/* Active order panel */}
-          {loading ? (
-            <div className="animate-pulse rounded-2xl border border-border-light bg-bg-card p-6 h-40"></div>
+        {/* 2. LOGGED-IN USERS SCREEN */}
+        {user && (
+          loading ? (
+            <div className="animate-pulse rounded-2xl border border-border-light bg-bg-card p-6 h-40 mt-8"></div>
           ) : (
-            <div>
-              <h2 className="text-sm font-bold uppercase tracking-wider text-text-main mb-4">Đơn hàng hiện tại</h2>
-              {orders.filter((o) => o.order_status !== 'Completed' && o.order_status !== 'Cancelled').length === 0 ? (
-                <div className="rounded-2xl border border-border-light bg-bg-card p-6 text-center text-text-muted text-xs shadow-sm">
-                  Hiện không có đơn hàng nào đang trong quá trình xử lý.
+            renderOrdersDashboard(orders, false)
+          )
+        )}
+
+        {/* 3. GUEST (UNAUTHENTICATED) ORDERS LOOKUP SCREEN */}
+        {!user && (
+          guestOrdersData ? (
+            renderOrdersDashboard(formatGuestOrders(guestOrdersData), true)
+          ) : (
+            <div className="flex-1 overflow-y-auto min-h-0 pb-12 pt-8">
+              <div className="max-w-md mx-auto bg-bg-card border border-border-light rounded-2xl p-6 sm:p-8 shadow-premium space-y-6">
+                <div className="text-center space-y-1.5">
+                  <h2 className="text-lg font-bold text-text-main">Tra cứu đơn hàng cho khách</h2>
+                  <p className="text-xs text-text-muted">Nhập số điện thoại để xem trạng thái đơn hàng của bạn.</p>
                 </div>
-              ) : (
-                <div className="space-y-6">
-                  {orders
-                    .filter((o) => o.order_status !== 'Completed' && o.order_status !== 'Cancelled')
-                    .map((order) => (
-                      <div key={order.id} className="rounded-2xl border border-border-light bg-bg-card p-6 shadow-premium space-y-6">
 
-                        {/* Header details */}
-                        <div className="flex justify-between items-start gap-4 flex-wrap border-b border-border-light pb-4">
-                          <div>
-                            <span className="text-[10px] text-text-muted uppercase font-bold">Mã đơn hàng</span>
-                            <h3 className="font-extrabold text-text-main text-base">#{order.order_code}</h3>
-                          </div>
-                          <div>
-                            <span className="text-[10px] text-text-muted uppercase font-bold">Dự kiến giao</span>
-                            <p className="font-bold text-text-main text-xs">{order.estimated_shipped_time}</p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => setViewingDetailOrder(order)}
-                              className="rounded-xl border border-border-light bg-bg-card px-4 py-2 text-xs font-bold text-text-main hover:bg-bg-main transition"
-                            >
-                              Xem chi tiết
-                            </button>
-                            <button
-                              onClick={() => handleStartCancel(order)}
-                              className="rounded-xl bg-danger-light border border-danger/20 px-4 py-2 text-xs font-bold text-danger hover:bg-danger hover:text-white transition"
-                            >
-                              Hủy đơn
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Interactive timeline tracking map */}
-                        <div className="space-y-4">
-                          <p className="text-xs font-bold text-text-main">Tiến trình vận đơn:</p>
-                          <div className="relative pt-2">
-                            {/* Track bar background */}
-                            <div className="absolute top-4 left-0 right-0 h-1 bg-border-light rounded-full -translate-y-1/2"></div>
-                            {/* Active track bar fill */}
-                            <div
-                              className="absolute top-4 left-0 h-1 bg-primary rounded-full -translate-y-1/2 transition-all duration-500"
-                              style={{ width: `${getTimelineProgress(order.order_status)}%` }}
-                            ></div>
-
-                            {/* Timeline checkpoints */}
-                            <div className="flex justify-between relative">
-                              {['Pending', 'Confirmed', 'Preparing', 'Delivering', 'Completed'].map((s, idx) => {
-                                const steps = ['Pending', 'Confirmed', 'Preparing', 'Delivering', 'Completed'];
-                                const isPassed = steps.indexOf(order.order_status) >= idx;
-                                const isActive = order.order_status === s;
-
-                                return (
-                                  <div key={s} className="text-center flex flex-col items-center max-w-[80px]">
-                                    <div
-                                      className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-bold border-2 transition duration-300 ${isPassed
-                                        ? 'bg-primary border-primary text-white'
-                                        : 'bg-bg-card border-border-light text-text-muted'
-                                        } ${isActive ? 'ring-4 ring-primary-light ring-offset-0 scale-110' : ''}`}
-                                    >
-                                      {idx + 1}
-                                    </div>
-                                    <span className={`text-[10px] mt-2 block ${isPassed ? 'text-text-main font-bold' : 'text-text-muted'}`}>
-                                      {translateStatus(s)}
-                                    </span>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        </div>
-
-                      </div>
-                    ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Past orders History lists */}
-          {(!loading) && (
-            <div>
-              <div className="flex items-center justify-between border-b border-border-light pb-3 mb-4">
-                <h2 className="text-sm font-bold uppercase tracking-wider text-text-main">Lịch sử đơn hàng</h2>
-                <span className="text-xs text-text-muted">Lọc theo tháng (Gần nhất)</span>
-              </div>
-
-              {orders.filter((o) => o.order_status === 'Completed' || o.order_status === 'Cancelled').length === 0 ? (
-                <div className="rounded-2xl border border-border-light bg-bg-card p-6 text-center text-text-muted text-xs shadow-sm">
-                  Bạn chưa mua đơn hàng nào trước đây.
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {orders
-                    .filter((o) => o.order_status === 'Completed' || o.order_status === 'Cancelled')
-                    .map((order) => {
-                      const completed = order.order_status === 'Completed';
-                      return (
-                        <div key={order.id} className="rounded-2xl border border-border-light bg-bg-card p-5 shadow-premium flex flex-col justify-between gap-4">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <p className="text-[10px] text-text-muted font-bold">15 Tháng 5, 2026</p>
-                              <h4 className="text-sm font-bold text-text-main mt-0.5">Đơn hàng #{order.order_code}</h4>
-                            </div>
-                            <span className={`rounded px-2.5 py-1 text-[9px] font-bold uppercase ${completed ? 'bg-primary-light text-primary' : 'bg-danger-light text-danger'
-                              }`}>
-                              {translateStatus(order.order_status)}
-                            </span>
-                          </div>
-
-                          <div className="text-xs text-text-muted space-y-1">
-                            <p>{order.items.length} món ăn</p>
-                            <p className="font-bold text-text-main">{order.total_amount.toLocaleString('vi-VN')}đ</p>
-                          </div>
-
-                          <div className="flex items-center gap-2 border-t border-border-light pt-3">
-                            <button
-                              onClick={() => setViewingDetailOrder(order)}
-                              className="flex-1 rounded-lg border border-border-light bg-bg-card py-2 text-xs font-bold text-text-main hover:bg-bg-main transition"
-                            >
-                              Chi tiết
-                            </button>
-                            <button
-                              onClick={() => {
-                                // Add items back to cart
-                                alert('Đã thêm các món của đơn hàng này vào giỏ!');
-                                navigate('/checkout');
-                              }}
-                              className="flex-1 rounded-lg bg-primary py-2 text-xs font-bold text-white shadow-sm hover:bg-primary-dark transition"
-                            >
-                              Đặt lại
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
-              )}
-            </div>
-          )}
-
-        </div>
-      )}
-
-      {/* 3. GUEST (UNAUTHENTICATED) ORDERS LOOKUP SCREEN */}
-      {!user && (
-        <div className="max-w-md mx-auto bg-bg-card border border-border-light rounded-2xl p-6 sm:p-8 shadow-premium space-y-6">
-          <div className="text-center space-y-1.5">
-            <h2 className="text-lg font-bold text-text-main">Tra cứu đơn hàng cho khách</h2>
-            <p className="text-xs text-text-muted">Nhập số điện thoại để xem trạng thái đơn hàng của bạn.</p>
-          </div>
-
-          <form onSubmit={handleGuestLookup} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-text-main mb-1.5">
-                Số điện thoại của bạn
-              </label>
-              <input
-                type="text"
-                value={guestPhone}
-                onChange={(e) => setGuestPhone(e.target.value)}
-                placeholder="Ví dụ: 0901234567"
-                className="w-full rounded-xl border border-border-light bg-bg-main px-4 py-2.5 text-xs focus:border-primary focus:outline-none transition"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={lookupLoading}
-              className="w-full rounded-xl bg-primary py-3 text-center text-xs font-bold text-white shadow-premium hover:bg-primary-dark transition"
-            >
-              {lookupLoading ? 'Đang tra cứu...' : 'Tra cứu đơn hàng'}
-            </button>
-          </form>
-
-          {/* Guest lookup results listing */}
-          {guestOrders !== null && (
-            <div className="border-t border-border-light pt-6 mt-6 space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-text-main">
-                Kết quả tra cứu ({guestOrders.length} đơn)
-              </h3>
-
-              {guestOrders.length === 0 ? (
-                <p className="text-xs text-text-muted text-center py-4">Chưa có thông tin tra cứu cho số điện thoại này.</p>
-              ) : (
-                <div className="space-y-4">
-                  {guestOrders.map((order) => (
-                    <div key={order.id} className="border border-border-light rounded-xl p-4 bg-bg-main space-y-3">
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="font-bold text-text-main">#{order.order_code}</span>
-                        <span className={`rounded px-2 py-0.5 text-[9px] font-bold uppercase ${order.order_status === 'Completed' ? 'bg-primary-light text-primary' : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                          {translateStatus(order.order_status)}
-                        </span>
-                      </div>
-                      <div className="text-[11px] text-text-muted leading-relaxed">
-                        <p>Người nhận: {order.contact_name}</p>
-                        <p>Địa chỉ: {order.shipping_address}</p>
-                        <p className="font-bold text-text-main mt-1">Tổng cộng: {order.total_amount.toLocaleString('vi-VN')}đ</p>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setViewingDetailOrder(order)}
-                          className="w-full rounded bg-bg-card border py-1.5 text-[10px] font-bold text-text-main hover:bg-border-light transition"
-                        >
-                          Xem chi tiết
-                        </button>
-                        {(order.order_status === 'Pending' || order.order_status === 'Confirmed') && (
-                          <button
-                            onClick={() => handleStartCancel(order)}
-                            className="w-full rounded bg-danger-light border border-danger/10 py-1.5 text-[10px] font-bold text-danger hover:bg-danger hover:text-white transition"
-                          >
-                            Hủy đơn
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* OTP VERIFICATION MODAL FOR CANCELLATION */}
-      {cancellingOrder && otpSent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setCancellingOrder(null)}></div>
-
-          <div className="relative w-full max-w-sm rounded-2xl border border-border-light bg-bg-card p-6 shadow-premium-lg page-enter space-y-5 text-center">
-            <h3 className="text-base font-bold text-text-main">Xác thực hủy đơn hàng</h3>
-            <p className="text-xs text-text-muted leading-relaxed">
-              Vui lòng nhập mã OTP vừa được gửi đến số điện thoại <span className="font-bold text-text-main">{cancellingOrder.contact_phone}</span> để xác minh hủy đơn hàng <span className="font-bold text-text-main">#{cancellingOrder.order_code}</span>.
-            </p>
-
-            {cancelError && (
-              <div className="rounded-lg bg-danger-light border border-danger/30 p-2 text-[10px] font-bold text-danger">
-                ⚠️ {cancelError}
-              </div>
-            )}
-            {cancelSuccess && (
-              <div className="rounded-lg bg-primary-light border border-primary/30 p-2 text-[10px] font-bold text-primary">
-                ✓ {cancelSuccess}
-              </div>
-            )}
-
-            <form onSubmit={handleConfirmCancelSubmit} className="space-y-4">
-              <div>
-                <input
-                  type="text"
-                  value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value)}
-                  placeholder="Mã OTP thử nghiệm: 1234"
-                  maxLength={6}
-                  className="w-full rounded-xl border border-border-light bg-bg-main px-4 py-3 text-center text-sm font-bold focus:border-primary focus:outline-none tracking-widest transition"
-                />
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setCancellingOrder(null)}
-                  className="w-full rounded-xl border border-border-light bg-bg-card py-2.5 text-xs font-bold text-text-main hover:bg-bg-main transition"
-                >
-                  Quay lại
-                </button>
-                <button
-                  type="submit"
-                  disabled={cancelLoading}
-                  className="w-full rounded-xl bg-danger py-2.5 text-xs font-bold text-white shadow-sm hover:bg-red-700 transition"
-                >
-                  {cancelLoading ? 'Đang xử lý...' : 'Xác nhận hủy đơn'}
-                </button>
-              </div>
-            </form>
-            <p className="text-[10px] text-text-muted">Chưa nhận được mã? Gửi lại mã (59s)</p>
-          </div>
-        </div>
-      )}
-
-      {/* GENERAL ORDER DETAILS VIEW MODAL */}
-      {viewingDetailOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-modal="true">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setViewingDetailOrder(null)}></div>
-
-          <div className="relative w-full max-w-md rounded-2xl border border-border-light bg-bg-card p-6 shadow-premium-lg page-enter space-y-5">
-            <button
-              onClick={() => setViewingDetailOrder(null)}
-              className="absolute top-4 right-4 rounded-full p-2 text-text-muted hover:bg-bg-main transition"
-            >
-              ✕
-            </button>
-
-            <div className="border-b border-border-light pb-3">
-              <h3 className="text-base font-bold text-text-main">Chi tiết đơn hàng</h3>
-              <p className="text-[10px] text-text-muted mt-0.5">Mã đơn: #{viewingDetailOrder.order_code}</p>
-            </div>
-
-            {/* Dish lists */}
-            <div className="space-y-3">
-              <p className="text-xs font-bold text-text-main">Danh sách món ăn:</p>
-              {viewingDetailOrder.items.map((item, idx) => (
-                <div key={idx} className="flex justify-between items-center text-xs py-1 border-b border-border-light pb-2">
+                <form onSubmit={handleGuestLookup} className="space-y-4">
                   <div>
-                    <p className="font-bold text-text-main">{item.dish_name}</p>
-                    <p className="text-[10px] text-text-muted">Kích cỡ: {item.size_name} | SL: {item.quantity}</p>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-text-main mb-1.5">
+                      Số điện thoại của bạn
+                    </label>
+                    <input
+                      type="text"
+                      value={guestPhone}
+                      onChange={(e) => setGuestPhone(e.target.value)}
+                      placeholder="Ví dụ: 0901234567"
+                      className="w-full rounded-xl border border-border-light bg-bg-main px-4 py-2.5 text-xs focus:border-primary focus:outline-none transition"
+                    />
                   </div>
-                  <span className="font-semibold text-text-main">{item.subtotal.toLocaleString('vi-VN')}đ</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Recipient Details */}
-            <div className="text-xs text-text-muted space-y-1 bg-bg-main p-3 rounded-xl border border-border-light">
-              <p className="font-bold text-text-main text-[11px] mb-1">Thông tin giao nhận:</p>
-              <p>Người nhận: <span className="text-text-main font-medium">{viewingDetailOrder.contact_name}</span></p>
-              <p>Số điện thoại: <span className="text-text-main font-medium">{viewingDetailOrder.contact_phone}</span></p>
-              <p className="leading-relaxed">Địa chỉ: <span className="text-text-main font-medium">{viewingDetailOrder.shipping_address}</span></p>
-            </div>
-
-            {/* Cost Summary */}
-            <div className="text-xs text-text-muted space-y-2 border-t border-border-light pt-4">
-              <div className="flex justify-between">
-                <span>Tạm tính</span>
-                <span>{(viewingDetailOrder.total_amount - 15000).toLocaleString('vi-VN')}đ</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Phí giao hàng</span>
-                <span>15.000đ</span>
-              </div>
-              <div className="flex justify-between font-bold text-text-main pt-2 border-t border-border-light text-sm">
-                <span>Tổng cộng</span>
-                <span className="text-primary">{viewingDetailOrder.total_amount.toLocaleString('vi-VN')}đ</span>
+                  <button
+                    type="submit"
+                    disabled={lookupLoading}
+                    className="w-full rounded-xl bg-primary py-3 text-center text-xs font-bold text-white shadow-premium hover:bg-primary-dark transition"
+                  >
+                    {lookupLoading ? 'Đang tra cứu...' : 'Tra cứu đơn hàng'}
+                  </button>
+                </form>
               </div>
             </div>
+          )
+        )}
 
-            <button
-              onClick={() => setViewingDetailOrder(null)}
-              className="w-full rounded-xl bg-primary py-2.5 text-center text-xs font-bold text-white hover:bg-primary-dark transition"
-            >
-              Đóng cửa sổ
-            </button>
-          </div>
-        </div>
-      )}
+      </div>
 
+      {/* Modals rendered atomically */}
+      <OrderDetailModal
+        order={viewingDetailOrder}
+        onClose={() => setViewingDetailOrder(null)}
+        onReorder={handleStartReorder}
+      />
+
+      <CancelOrderModal
+        order={cancellingOrder}
+        onClose={() => setCancellingOrder(null)}
+        onConfirm={handleConfirmCancelSubmit}
+      />
+
+      <ReorderConfirmModal
+        order={reorderingOrder}
+        onClose={() => setReorderingOrder(null)}
+        onConfirm={handleConfirmReorder}
+      />
     </div>
   );
 }

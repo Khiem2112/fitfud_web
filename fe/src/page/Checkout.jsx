@@ -13,7 +13,6 @@ import { useCheckoutDraft } from '../hook/useCheckoutDraft';
 
 export default function Checkout() {
   const { user, cart, updateCartQty, clearCart, selectedCartItemIds, toggleSelectAllCartItems, toggleSelectCartItem } = useApp();
-  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [globalError, setGlobalError] = useState('');
   const [orderSuccessData, setOrderSuccessData] = useState(null);
@@ -96,6 +95,8 @@ export default function Checkout() {
         payment_method: data.payment_method,
         items: selectedItems.map((item) => ({
           dish_size_id: item.id,
+          dish_id: item.dish_id,
+          image_url: item.image_url,
           dish_name: item.dish_name,
           size_name: item.size_name,
           price: item.price,

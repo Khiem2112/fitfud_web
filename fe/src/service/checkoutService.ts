@@ -175,14 +175,16 @@ export const createOrder = async (input: CheckoutInput, userId: string): Promise
     shipping_address: fullAddress,
     created_at: new Date().toISOString(),
     estimated_shipped_time: input.delivery_time || new Date(Date.now() + 60 * 60 * 1000).toISOString(), // Use form input if available
-    items: input.items.map((item: any) => {
+    items: input.items.map((item) => {
       // Find details from cart item (in a real app, this would query backend)
       return {
+        dish_id: item.dish_id,
         dish_name: item.dish_name || 'Cơm Cá Hồi Áp Chảo',
         size_name: item.size_name || 'M',
         quantity: item.quantity,
         unit_price: item.price || 99000,
-        subtotal: item.subtotal
+        subtotal: item.subtotal,
+        image_url: item.image_url
       };
     }),
     tracking_logs: [

@@ -22,6 +22,11 @@ export type CheckoutInput = {
   payment_method: 'COD' | 'Online';
   items: {
     dish_size_id: string;
+    dish_id: string;
+    dish_name: string;
+    size_name: string;
+    price: number;
+    image_url?: string;
     quantity: number;
     subtotal: number;
   }[];

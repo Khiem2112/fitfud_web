@@ -62,6 +62,27 @@ export const AppProvider = ({ children }) => {
     setCartMode(CartMode.PINNED);
   };
 
+  const handleAddMultipleToCart = (items) => {
+    let currentCart = [...cart];
+    const newAddedIds = [];
+
+    items.forEach((item) => {
+      currentCart = serviceAddToCart(item);
+      const addedItem = currentCart.find(
+        c => c.dish_id === item.dish_id && c.size_name === item.size_name && c.chef_notes === item.chef_notes
+      );
+      if (addedItem && !selectedCartItemIds.includes(addedItem.id) && !newAddedIds.includes(addedItem.id)) {
+        newAddedIds.push(addedItem.id);
+      }
+    });
+
+    setCart(currentCart);
+    if (newAddedIds.length > 0) {
+      setSelectedCartItemIds(prev => [...prev, ...newAddedIds]);
+    }
+    setCartMode(CartMode.PINNED);
+  };
+
   const handleUpdateQty = (id, qty) => {
     const updatedCart = serviceUpdateCartQty(id, qty);
     setCart([...updatedCart]);
@@ -124,6 +145,7 @@ export const AppProvider = ({ children }) => {
         logout,
         updateSurveyStatus,
         addToCart: handleAddToCart,
+        addMultipleToCart: handleAddMultipleToCart,
         updateCartQty: handleUpdateQty,
         removeFromCart: handleRemove,
         clearCart: handleClearCart,

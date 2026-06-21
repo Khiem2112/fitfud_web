@@ -6,11 +6,13 @@ export type TrackingLog = {
 };
 
 export type OrderItemDetail = {
+  dish_id: string;
   dish_name: string;
   size_name: string;
   quantity: number;
   unit_price: number;
   subtotal: number;
+  image_url?: string;
 };
 
 export type OrderDetail = {
@@ -31,4 +33,17 @@ export type OrderDetail = {
 
 export type GuestLookupInput = {
   phone: string;
+};
+
+export type OrderHistorySummary = {
+  id: string;
+  order_code: string;
+  order_status: OrderStatus;
+  total_amount: number;
+  created_at: string;
+  items_count: number;
+  first_item_name: string;
+  first_item_image: string;
+  estimated_shipped_time?: string;
+  userId?: string;
 };
