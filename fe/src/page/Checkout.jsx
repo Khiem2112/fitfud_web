@@ -126,8 +126,8 @@ export default function Checkout() {
   };
 
   return (
-    <div className="mx-auto max-w-[1280px] px-4 py-12 sm:px-[40px]">
-      <div className="flex flex-col gap-8 w-full bg-[#FAFAFA] rounded-xl px-[24px] py-[32px] pt-[79px]">
+    <div className="mx-auto max-w-[1280px] px-4 py-6 lg:py-8 lg:px-0">
+      <div className="flex flex-col gap-6 w-full bg-[#FAFAFA] rounded-xl p-4 sm:p-6 lg:p-8">
         <div className="flex items-center justify-between">
           <h1 className="font-be-vietnam text-[32px] font-bold leading-[41.6px] text-brand-main">
             Hoàn tất đơn hàng
@@ -141,7 +141,7 @@ export default function Checkout() {
         )}
 
         <FormProvider {...methods}>
-          <form onSubmit={methods.handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <form onSubmit={methods.handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative">
 
             {/* Left Column: Checkout Details */}
             <div className="lg:col-span-8 flex flex-col gap-6">
@@ -158,22 +158,24 @@ export default function Checkout() {
             </div>
 
             {/* Right Column: Cart Summary */}
-            <div className="lg:col-span-4 sticky top-[100px]">
-              <Controller
-                name="payment_method"
-                control={methods.control}
-                render={({ field }) => (
-                  <OrderSummarySidebarCard
-                    cartItems={cart}
-                    onUpdateQuantity={updateCartQty}
-                    isSubmitting={isSubmitting}
-                    paymentMethod={field.value}
-                    selectedItemIds={selectedCartItemIds}
-                    onToggleSelectAll={toggleSelectAllCartItems}
-                    onToggleSelect={toggleSelectCartItem}
-                  />
-                )}
-              />
+            <div className="lg:col-span-4 relative">
+              <div className="sticky top-[100px]">
+                <Controller
+                  name="payment_method"
+                  control={methods.control}
+                  render={({ field }) => (
+                    <OrderSummarySidebarCard
+                      cartItems={cart}
+                      onUpdateQuantity={updateCartQty}
+                      isSubmitting={isSubmitting}
+                      paymentMethod={field.value}
+                      selectedItemIds={selectedCartItemIds}
+                      onToggleSelectAll={toggleSelectAllCartItems}
+                      onToggleSelect={toggleSelectCartItem}
+                    />
+                  )}
+                />
+              </div>
             </div>
 
           </form>

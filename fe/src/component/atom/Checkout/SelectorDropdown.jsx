@@ -1,8 +1,8 @@
 import React from 'react';
 
-export const SelectorDropdown = ({ value, onChange, onBlur, name, label, options, placeholder, disabled, error }) => {
+export const SelectorDropdown = ({ value, onChange, onBlur, name, label, options, placeholder, disabled, error, onDisabledClick }) => {
   return (
-    <div className="flex flex-col items-stretch gap-1 w-full">
+    <div className="flex flex-col items-stretch gap-1 w-full relative">
       {label && (
         <label className="font-be-vietnam text-[16px] font-normal leading-[24px] text-text-secondary">
           {label}
@@ -10,6 +10,9 @@ export const SelectorDropdown = ({ value, onChange, onBlur, name, label, options
       )}
       <div className="flex flex-col gap-1 w-full">
         <div className="relative">
+          {disabled && onDisabledClick && (
+            <div className="absolute inset-0 z-10 cursor-not-allowed" onClick={onDisabledClick} />
+          )}
           <select
             name={name}
             value={value}

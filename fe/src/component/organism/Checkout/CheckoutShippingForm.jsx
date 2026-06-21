@@ -149,6 +149,11 @@ export const CheckoutShippingForm = ({ control, watch, setValue, onReset }) => {
                   placeholder={isLoadingDistricts ? "Đang tải..." : "Chọn quận/huyện"}
                   options={districts}
                   disabled={isLoadingDistricts || !cityId}
+                  onDisabledClick={() => {
+                    if (!cityId) {
+                      addToast('Vui lòng chọn Tỉnh/Thành phố trước', 'error');
+                    }
+                  }}
                 />
               )}
             />
@@ -165,6 +170,13 @@ export const CheckoutShippingForm = ({ control, watch, setValue, onReset }) => {
                   placeholder={isLoadingWards ? "Đang tải..." : "Chọn phường/xã"}
                   options={wards}
                   disabled={isLoadingWards || !districtId}
+                  onDisabledClick={() => {
+                    if (!cityId) {
+                      addToast('Vui lòng chọn Tỉnh/Thành phố trước', 'error');
+                    } else if (!districtId) {
+                      addToast('Vui lòng chọn Quận/Huyện trước', 'error');
+                    }
+                  }}
                 />
               )}
             />
