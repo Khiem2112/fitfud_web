@@ -86,11 +86,10 @@ export default function DishGrid({ isLoading, isError, menuData, page, setPage, 
             <button
               key={i}
               onClick={() => setPage(i + 1)}
-              className={`rounded-xl h-8 w-8 text-xs font-bold transition ${
-                page === i + 1
+              className={`rounded-xl h-8 w-8 text-xs font-bold transition ${page === i + 1
                   ? 'bg-primary text-white shadow-sm'
                   : 'border border-border-light bg-bg-card text-text-main hover:bg-bg-main'
-              }`}
+                }`}
             >
               {i + 1}
             </button>

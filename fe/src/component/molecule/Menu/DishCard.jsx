@@ -12,7 +12,10 @@ export default function DishCard({ dish, onOpenQuickView }) {
   const defaultSize = dish.sizes.find((s) => s.size_name === 'M') || dish.sizes[0];
 
   return (
-    <div className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-border-light bg-bg-card p-4 hover:shadow-premium hover:-translate-y-0.5 transition duration-300 relative">
+    <div
+      onClick={() => !isOutOfStock && navigate(`/dish/${dish.id}`)}
+      className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-border-light bg-bg-card p-4 hover:shadow-premium hover:-translate-y-0.5 transition duration-300 relative cursor-pointer"
+    >
       {/* Badges */}
       {dish.id === 'dish_2' && <ProductBadge type="discount" label="-13%" />}
       {isOutOfStock && <ProductBadge type="out-of-stock" />}
@@ -45,9 +48,8 @@ export default function DishCard({ dish, onOpenQuickView }) {
           </div>
 
           <h3
-            onClick={() => !isOutOfStock && navigate(`/dish/${dish.id}`)}
             className={`text-sm font-bold text-text-main leading-snug ${
-              isOutOfStock ? 'opacity-60' : 'cursor-pointer hover:text-primary transition'
+              isOutOfStock ? 'opacity-60' : 'group-hover:text-primary transition'
             }`}
           >
             {dish.dish_name}
@@ -75,7 +77,10 @@ export default function DishCard({ dish, onOpenQuickView }) {
 
         {/* Add to Cart button */}
         <button
-          onClick={() => onOpenQuickView(dish)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenQuickView(dish);
+          }}
           disabled={isOutOfStock}
           className={`w-full mt-4 rounded-xl py-3 text-center text-xs font-bold shadow-sm transition ${
             isOutOfStock
