@@ -1,5 +1,5 @@
 export type ActivityLevel = 'Sedentary' | 'Lightly Active' | 'Moderately Active' | 'Very Active' | 'Extra Active';
-export type HealthGoal = 'Weight Loss' | 'Muscle Gain' | 'Eat Clean' | 'Calorie Control' | 'Convenience';
+export type HealthGoal = 'Weight Loss' | 'Muscle Gain' | 'Healthy Eating' | 'Calorie Control' | 'Maintain Weight' | 'Convenience';
 export type Gender = 'Male' | 'Female' | 'Other';
 
 export type SurveyInput = {
@@ -10,7 +10,6 @@ export type SurveyInput = {
   weight: number;
   activity_level: ActivityLevel;
   allergyIds: string[];
-  cuisine_preference?: string;
 };
 
 export type SurveyOutput = {
@@ -19,4 +18,33 @@ export type SurveyOutput = {
   target_protein: number;
   bmi: number;
   tdee: number;
+};
+
+export type SurveyMasterDataOutput = {
+  healthGoals: {
+    id: HealthGoal;
+    name: string;
+    description?: string;
+  }[];
+  activityLevels: {
+    id: ActivityLevel;
+    name: string;
+    description?: string;
+  }[];
+  allergies: {
+    id: string;
+    name: string;
+  }[];
+};
+
+export type SurveyDraft = {
+  step: number;
+  formData: Partial<SurveyInput>;
+  updatedAt: number;
+};
+
+export type SurveyStore = {
+  draft: SurveyDraft | null;
+  saveDraft: (data: Partial<SurveyDraft>) => void;
+  clearDraft: () => void;
 };
