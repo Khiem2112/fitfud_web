@@ -6,8 +6,12 @@
 
 **Mô tả**
 
-Popup cho phép người dùng đã đăng nhập đổi mật khẩu trong khu vực quản lý tài khoản.
+## Luồng tiếp cận
 
+- Người dùng đã đăng nhập truy cập trang Hồ sơ cá nhân qua icon tài khoản trên Header.
+- Trong trang Hồ sơ cá nhân, người dùng click nút "Đổi mật khẩu" tại khu vực quản lý tài khoản.
+- Popup này không được mở từ trang Đăng nhập/Đăng ký.
+- Popup này không dùng cho luồng Quên mật khẩu.
 **Đối tượng**
 
 - Người dùng đã đăng nhập.
@@ -28,7 +32,7 @@ Hỗ trợ người dùng bảo mật tài khoản mà không cần rời khỏi
 
 ## Luồng tiếp cận
 
-- Click "Đổi mật khẩu" trong trang Hồ sơ cá nhân hoặc menu tài khoản.
+- Click "Đổi mật khẩu" trong trang Hồ sơ cá nhân.
 
 ---
 
