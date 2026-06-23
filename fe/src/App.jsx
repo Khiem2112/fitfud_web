@@ -10,6 +10,7 @@ import Footer from './component/Footer';
 import { ToastContainer } from './component/molecule/Toast/ToastContainer';
 
 // Pages
+import Home from './page/Home';
 import Menu from './page/Menu';
 import DishDetail from './page/DishDetail';
 import About from './page/About';
@@ -47,27 +48,30 @@ function App() {
               {/* Main Content Area */}
               <main className="grow">
                 <Routes>
-                  {/* Public Shop Menu is landing page */}
-                  <Route path="/" element={<Menu />} />
-                  
+                  {/* Home landing page */}
+                  <Route path="/" element={<Home />} />
+
+                  {/* Public Shop Menu */}
+                  <Route path="/menu" element={<Menu />} />
+
                   {/* Dish Detail */}
                   <Route path="/dish/:id" element={<DishDetail />} />
-                  
+
                   {/* About & Operational Process */}
                   <Route path="/about" element={<About />} />
-                  
+
                   {/* Auth: Login/Register */}
                   <Route path="/auth" element={<Auth />} />
-                  
+
                   {/* Survey Onboarding */}
                   <Route path="/survey" element={<Survey />} />
-                  
+
                   {/* Checkout Page */}
                   <Route path="/checkout" element={<Checkout />} />
-                  
+
                   {/* Orders tracking */}
                   <Route path="/orders" element={<Orders />} />
-                  
+
                   {/* Profile Dashboard */}
                   <Route path="/profile" element={<Profile />} />
 

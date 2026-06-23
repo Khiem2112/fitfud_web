@@ -53,13 +53,16 @@ export default function Header() {
         {/* Navigation Links */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
           <Link to="/" className={`transition-colors ${isActive('/')}`}>
+            Trang chủ
+          </Link>
+          <Link to="/about" className={`transition-colors ${isActive('/about')}`}>
+            Về chúng tôi
+          </Link>
+          <Link to="/menu" className={`transition-colors ${isActive('/menu')}`}>
             Thực đơn
           </Link>
           <Link to="/orders" className={`transition-colors ${isActive('/orders')}`}>
             Đơn hàng
-          </Link>
-          <Link to="/about" className={`transition-colors ${isActive('/about')}`}>
-            Về chúng tôi
           </Link>
         </nav>
 

@@ -1,12 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useForm, FormProvider } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
 import { useApp } from '../context/AppContext';
-import { submitSurvey } from '../service/surveyService';
-import { mockMasterData } from '../service/menuService';
+import { submitSurvey, fetchSurveyMasterData } from '../service/surveyService';
+import { useSurveyDraft } from '../hook/useSurveyDraft';
+import { surveySchema } from '../schema/surveySchema';
+
+import { HealthGoalForm } from '../component/organism/Survey/HealthGoalForm';
+import { BodyMetricsForm } from '../component/organism/Survey/BodyMetricsForm';
+import { AllergensForm } from '../component/organism/Survey/AllergensForm';
+import { AIAnalyzerScreen } from '../component/organism/Survey/AIAnalyzerScreen';
+import { SurveyStickyFooter } from '../component/molecule/Survey/SurveyStickyFooter';
+
+import { useSurveyMasterData } from '../hook/useSurveyMasterData';
 
 export default function Survey() {
   const { user, updateSurveyStatus } = useApp();
   const navigate = useNavigate();
+  const { getDraftData, updateDraft, clearDraft } = useSurveyDraft();
+
+  // Use React Query Hook
+  const { data: masterData, isLoading } = useSurveyMasterData();
 
   // Redirect if not logged in
   useEffect(() => {
@@ -15,86 +31,67 @@ export default function Survey() {
     }
   }, [user, navigate]);
 
-  const [step, setStep] = useState(1); // 1: Goals, 2: Metrics, 3: Allergies
   const [analyzing, setAnalyzing] = useState(false);
-  const [loadingTextIndex, setLoadingTextIndex] = useState(0);
+  const [showSkipModal, setShowSkipModal] = useState(false);
 
-  // Form state
-  const [healthGoal, setHealthGoal] = useState('Muscle Gain');
-  const [gender, setGender] = useState('Male');
-  const [age, setAge] = useState('');
-  const [height, setHeight] = useState('');
-  const [weight, setWeight] = useState('');
-  const [activityLevel, setActivityLevel] = useState('Moderately Active');
-  const [allergyIds, setAllergyIds] = useState([]);
-  const [cuisinePreference, setCuisinePreference] = useState('Chế độ Eat Clean');
+  const methods = useForm({
+    resolver: zodResolver(surveySchema),
+    defaultValues: {
+      health_goal: '',
+      gender: '',
+      age: '',
+      height: '',
+      weight: '',
+      activity_level: '',
+      allergyIds: [],
+    },
+    mode: 'onTouched'
+  });
 
-  const loadingSteps = [
-    'Phân tích hồ sơ sức khỏe...',
-    'Tính toán định mức Calo & Macro dinh dưỡng...',
-    'Lọc các món ăn phù hợp khẩu vị Việt...',
-    'Xây dựng lộ trình thực đơn đề xuất...',
-    'Sẵn sàng!'
-  ];
-
-  // Animate loading text index during AI analysis
+  // Initialize draft data
   useEffect(() => {
-    let timer;
-    if (analyzing) {
-      timer = setInterval(() => {
-        setLoadingTextIndex((prev) => {
-          if (prev < loadingSteps.length - 1) {
-            return prev + 1;
-          }
-          clearInterval(timer);
-          return prev;
-        });
-      }, 800);
+    const draft = getDraftData();
+    if (draft && draft.formData) {
+      Object.entries(draft.formData).forEach(([key, value]) => {
+        methods.setValue(key, value, { shouldValidate: true });
+      });
     }
-    return () => clearInterval(timer);
-  }, [analyzing]);
+  }, []);
 
-  const handleAllergyToggle = (id) => {
-    setAllergyIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+  const handleSkipConfirm = () => {
+    // Generate default profile and set has_surveyed to true
+    updateSurveyStatus(true);
+    clearDraft();
+    navigate('/profile');
   };
 
-  const handleNextStep = () => {
-    if (step === 2) {
-      if (!age || !height || !weight) {
-        alert('Vui lòng điền đầy đủ các chỉ số cơ thể.');
-        return;
+  // Sync draft on change
+  useEffect(() => {
+    const subscription = methods.watch((value) => {
+      if (!analyzing) {
+        updateDraft(1, value);
       }
-    }
-    setStep(step + 1);
-  };
+    });
+    return () => subscription.unsubscribe();
+  }, [methods.watch, updateDraft, analyzing]);
 
-  const handlePrevStep = () => {
-    setStep(step - 1);
-  };
-
-  const handleSkip = () => {
-    navigate('/');
-  };
-
-  const handleSubmit = async () => {
+  const onSubmit = async (data) => {
     setAnalyzing(true);
     try {
       await submitSurvey(
         {
-          health_goal: healthGoal,
-          gender,
-          age: Number(age) || 25,
-          height: Number(height) || 170,
-          weight: Number(weight) || 65,
-          activity_level: activityLevel,
-          allergyIds,
-          cuisine_preference: cuisinePreference
+          health_goal: data.health_goal,
+          gender: data.gender,
+          age: Number(data.age),
+          height: Number(data.height),
+          weight: Number(data.weight),
+          activity_level: data.activity_level,
+          allergyIds: data.allergyIds,
         },
         user.id
       );
       updateSurveyStatus(true);
+      clearDraft(); // Clear draft when successfully submitted
       setTimeout(() => {
         navigate('/profile');
       }, 4000);
@@ -105,295 +102,72 @@ export default function Survey() {
   };
 
   if (analyzing) {
-    return (
-      <div className="flex min-h-[70vh] flex-col items-center justify-center text-center px-4 page-enter">
-        <div className="relative mb-8">
-          <div className="h-20 w-20 animate-spin rounded-full border-4 border-primary-light border-t-primary"></div>
-          <span className="absolute inset-0 flex items-center justify-center text-3xl">🌱</span>
-        </div>
-        <h2 className="text-xl font-bold text-text-main mb-2">FitFud đang tạo thực đơn cho riêng bạn...</h2>
-        <p className="text-sm text-text-muted max-w-sm mb-6">
-          AI của chúng tôi đang tính toán tỉ lệ dinh dưỡng dựa trên chỉ số cơ thể của bạn.
-        </p>
-
-        {/* Dynamic loading process details */}
-        <div className="w-full max-w-xs bg-bg-card border border-border-light rounded-2xl p-4 shadow-premium text-left">
-          <p className="text-xs font-bold text-primary mb-2 uppercase tracking-widest">Premium Nutrition Engine</p>
-          <div className="space-y-2">
-            {loadingSteps.map((s, idx) => (
-              <div key={idx} className="flex items-center gap-2 text-xs">
-                <span className={idx <= loadingTextIndex ? 'text-primary font-bold' : 'text-text-muted'}>
-                  {idx < loadingTextIndex ? '✓' : idx === loadingTextIndex ? '⊙' : '○'}
-                </span>
-                <span className={idx === loadingTextIndex ? 'text-text-main font-semibold' : 'text-text-muted'}>
-                  {s}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <AIAnalyzerScreen />;
   }
 
   return (
-    <div className="mx-auto my-12 w-full max-w-2xl px-4 sm:px-6 page-enter">
-      <div className="rounded-2xl border border-border-light bg-bg-card p-6 shadow-premium sm:p-8">
-        
-        {/* Header */}
-        <div className="flex justify-between items-center border-b border-border-light pb-4 mb-6">
-          <div>
-            <h1 className="text-xl font-extrabold text-text-main">Chào mừng bạn đến với FitFud</h1>
-            <p className="text-xs text-text-muted mt-0.5">Bước {step}/3 khảo sát dinh dưỡng</p>
-          </div>
-          <button onClick={handleSkip} className="text-xs font-semibold text-text-muted hover:text-primary transition">
-            Bỏ qua & khám phá thực đơn
-          </button>
+    <div className="bg-[#FAFBFB] min-h-screen py-10 w-full">
+      <div className="mx-auto w-full max-w-3xl px-4 sm:px-6 page-enter">
+
+        {/* Progress Bar & Header Text */}
+        <div className="mb-10 text-center relative pt-4">
+          <h1 className="text-3xl font-extrabold text-primary mt-8 mb-3">Chào mừng bạn đến với FitFud</h1>
+          <p className="text-sm text-text-muted">
+            Hãy giúp chúng tôi hiểu rõ hơn về bạn để thiết kế một lộ trình dinh<br />dưỡng cá nhân hóa hoàn hảo.
+          </p>
         </div>
 
-        {/* Step Indicator Bar */}
-        <div className="w-full bg-border-light h-1 rounded-full mb-8 overflow-hidden">
-          <div
-            className="bg-primary h-full transition-all duration-300"
-            style={{ width: `${(step / 3) * 100}%` }}
-          ></div>
-        </div>
-
-        {/* STEP 1: HEALTH GOAL */}
-        {step === 1 && (
-          <div>
-            <h2 className="text-lg font-bold text-text-main mb-1">Mục tiêu sức khỏe của bạn là gì?</h2>
-            <p className="text-xs text-text-muted mb-6">
-              Chúng tôi sẽ thiết kế và cân bằng lượng calo thâm hụt dựa trên lựa chọn này.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[
-                { val: 'Weight Loss', label: '📉 Giảm cân khoa học', desc: 'Tập trung thâm hụt calo, duy trì đạm bảo vệ cơ bắp.' },
-                { val: 'Muscle Gain', label: '💪 Tăng cơ bắp (Bulking)', desc: 'Dư thừa calo nhẹ, tối ưu lượng Protein xây dựng cơ.' },
-                { val: 'Eat Clean', label: '🥗 Ăn sạch sống khỏe', desc: 'Cân bằng vi chất, sử dụng thực phẩm nguyên bản, lành mạnh.' },
-                { val: 'Calorie Control', label: '⚖️ Kiểm soát năng lượng', desc: 'Duy trì vóc dáng lý tưởng và năng lượng ổn định.' },
-                { val: 'Convenience', label: '⚡ Tiện lợi / Tiết kiệm', desc: 'Bữa ăn nhanh gọn, giao nóng, giàu dinh dưỡng.' }
-              ].map((g) => (
-                <div
-                  key={g.val}
-                  onClick={() => setHealthGoal(g.val)}
-                  className={`cursor-pointer rounded-2xl border-2 p-4 transition-all hover:shadow-premium ${
-                    healthGoal === g.val
-                      ? 'border-primary bg-primary-light/40 shadow-sm'
-                      : 'border-border-light bg-bg-card'
-                  }`}
-                >
-                  <p className="font-bold text-sm text-text-main">{g.label}</p>
-                  <p className="text-xs text-text-muted mt-1 leading-normal">{g.desc}</p>
-                </div>
-              ))}
-            </div>
+        {/* Loading State for Master Data */}
+        {!masterData ? (
+          <div className="flex justify-center py-20">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-light border-t-primary"></div>
           </div>
+        ) : (
+          <FormProvider {...methods}>
+            <form id="survey-form" onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6">
+
+              <HealthGoalForm healthGoals={masterData.healthGoals} />
+              <BodyMetricsForm activityLevels={masterData.activityLevels} />
+              <AllergensForm allergies={masterData.allergies} />
+
+              <SurveyStickyFooter onSkip={() => setShowSkipModal(true)} />
+
+              <div className="h-24"></div>
+            </form>
+          </FormProvider>
         )}
-
-        {/* STEP 2: BODY METRICS */}
-        {step === 2 && (
-          <div>
-            <h2 className="text-lg font-bold text-text-main mb-1">Chỉ số cơ thể & Vận động</h2>
-            <p className="text-xs text-text-muted mb-6">
-              Để thuật toán AI tính toán chính xác nhu cầu TDEE và định mức đạm hằng ngày của bạn.
-            </p>
-
-            <div className="space-y-5">
-              {/* Gender */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-text-main mb-2">
-                  Giới tính sinh học
-                </label>
-                <div className="flex gap-4">
-                  {['Male', 'Female', 'Other'].map((g) => (
-                    <label key={g} className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        checked={gender === g}
-                        onChange={() => setGender(g)}
-                        className="h-4 w-4 border-border-light text-primary focus:ring-primary"
-                      />
-                      <span className="text-sm font-semibold text-text-main">
-                        {g === 'Male' ? 'Nam' : g === 'Female' ? 'Nữ' : 'Khác'}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Age, Height, Weight */}
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-text-main mb-1.5">
-                    Tuổi
-                  </label>
-                  <input
-                    type="number"
-                    value={age}
-                    onChange={(e) => setAge(e.target.value)}
-                    placeholder="ví dụ: 25"
-                    className="w-full rounded-xl border border-border-light bg-bg-main px-4 py-2.5 text-sm focus:border-primary focus:outline-none transition"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-text-main mb-1.5">
-                    Chiều cao (cm)
-                  </label>
-                  <input
-                    type="number"
-                    value={height}
-                    onChange={(e) => setHeight(e.target.value)}
-                    placeholder="ví dụ: 175"
-                    className="w-full rounded-xl border border-border-light bg-bg-main px-4 py-2.5 text-sm focus:border-primary focus:outline-none transition"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-text-main mb-1.5">
-                    Cân nặng (kg)
-                  </label>
-                  <input
-                    type="number"
-                    value={weight}
-                    onChange={(e) => setWeight(e.target.value)}
-                    placeholder="ví dụ: 68"
-                    className="w-full rounded-xl border border-border-light bg-bg-main px-4 py-2.5 text-sm focus:border-primary focus:outline-none transition"
-                  />
-                </div>
-              </div>
-
-              {/* Activity Level */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-text-main mb-2">
-                  Cường độ vận động hằng tuần
-                </label>
-                <div className="space-y-2.5">
-                  {[
-                    { val: 'Sedentary', label: '🛋️ Ít vận động', desc: 'Chủ yếu ngồi làm việc văn phòng, rất ít đi lại, không tập luyện.' },
-                    { val: 'Lightly Active', label: '🚶 Vận động nhẹ', desc: 'Có đi bộ nhẹ hoặc tập luyện nhẹ nhàng 1 - 2 buổi/tuần.' },
-                    { val: 'Moderately Active', label: '🏃 Vận động vừa phải', desc: 'Đi lại nhiều, tập luyện thể thao đều đặn 3 - 4 buổi/tuần.' },
-                    { val: 'Very Active', label: '🏋️ Vận động nhiều', desc: 'Tập gym cường độ cao 5 - 6 buổi/tuần, năng động.' },
-                    { val: 'Extra Active', label: '⚡ Vận động rất nhiều', desc: 'Vận động viên hoặc tập nặng 2 buổi/ngày, lao động thể chất nặng.' }
-                  ].map((act) => (
-                    <div
-                      key={act.val}
-                      onClick={() => setActivityLevel(act.val)}
-                      className={`cursor-pointer rounded-xl border p-3 flex justify-between items-center transition ${
-                        activityLevel === act.val
-                          ? 'border-primary bg-primary-light/30'
-                          : 'border-border-light hover:bg-bg-main/50'
-                      }`}
-                    >
-                      <div>
-                        <p className="font-bold text-xs text-text-main">{act.label}</p>
-                        <p className="text-[11px] text-text-muted mt-0.5 leading-normal">{act.desc}</p>
-                      </div>
-                      <input
-                        type="radio"
-                        checked={activityLevel === act.val}
-                        readOnly
-                        className="h-4 w-4 border-border-light text-primary"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* STEP 3: ALLERGIES & PREFERENCES */}
-        {step === 3 && (
-          <div>
-            <h2 className="text-lg font-bold text-text-main mb-1">Dị ứng cần loại trừ & Sở thích</h2>
-            <p className="text-xs text-text-muted mb-6">
-              An toàn của bạn là ưu tiên hàng đầu của FitFud. Các món chứa thành phần gây dị ứng sẽ bị lọc bỏ hoặc cảnh báo mạnh mẽ.
-            </p>
-
-            <div className="space-y-6">
-              {/* Allergies list */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-text-main mb-3">
-                  Chọn các thành phần gây dị ứng cho bạn
-                </label>
-                <div className="flex flex-wrap gap-2.5">
-                  {mockMasterData.allergies.map((allergy) => {
-                    const isSelected = allergyIds.includes(allergy.id);
-                    return (
-                      <button
-                        key={allergy.id}
-                        type="button"
-                        onClick={() => handleAllergyToggle(allergy.id)}
-                        className={`rounded-full px-4 py-2 text-xs font-semibold border transition ${
-                          isSelected
-                            ? 'bg-danger/10 border-danger text-danger'
-                            : 'bg-bg-card border-border-light text-text-muted hover:border-primary hover:text-primary'
-                        }`}
-                      >
-                        {isSelected ? '❌' : '＋'} {allergy.name}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Cuisine Preferences */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-text-main mb-3">
-                  Phong cách ẩm thực ưa thích
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  {['Chế độ Eat Clean', 'Truyền thống Việt', 'Phong cách Âu', 'Thuần chay (Vegan)'].map((p) => (
-                    <div
-                      key={p}
-                      onClick={() => setCuisinePreference(p)}
-                      className={`cursor-pointer rounded-xl border p-3 text-center text-xs font-bold transition ${
-                        cuisinePreference === p
-                          ? 'border-primary bg-primary-light/40 text-primary'
-                          : 'border-border-light hover:bg-bg-main/50 text-text-main'
-                      }`}
-                    >
-                      {p}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Navigation Action Buttons */}
-        <div className="mt-8 flex justify-between gap-4 border-t border-border-light pt-6">
-          {step > 1 ? (
-            <button
-              onClick={handlePrevStep}
-              className="rounded-xl border border-border-light bg-bg-card px-6 py-3 text-sm font-bold text-text-main hover:bg-bg-main transition"
-            >
-              Quay lại
-            </button>
-          ) : (
-            <div></div> /* Placeholder for spacing */
-          )}
-
-          {step < 3 ? (
-            <button
-              onClick={handleNextStep}
-              className="rounded-xl bg-primary px-8 py-3 text-sm font-bold text-white shadow-premium hover:bg-primary-dark transition"
-            >
-              Tiếp tục
-            </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              className="rounded-xl bg-primary px-8 py-3 text-sm font-bold text-white shadow-premium hover:bg-primary-dark transition"
-            >
-              Hoàn tất & Phân tích AI
-            </button>
-          )}
-        </div>
-
       </div>
+
+      {/* Skip Confirmation Modal */}
+      {showSkipModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-premium text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-danger/10 text-2xl text-danger">
+              ⚠️
+            </div>
+            <h3 className="mb-2 text-lg font-extrabold text-text-main">Bỏ qua khảo sát?</h3>
+            <p className="mb-6 text-sm text-text-muted">
+              Nếu bỏ qua, FitFud sẽ thiết lập thông tin sức khỏe của bạn về mặc định. Bạn có chắc chắn muốn bỏ qua?
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={handleSkipConfirm}
+                className="w-full rounded-xl bg-danger px-4 py-3 text-sm font-bold text-white transition hover:bg-danger/90"
+              >
+                Vẫn bỏ qua
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowSkipModal(false)}
+                className="w-full rounded-xl border border-border-light bg-white px-4 py-3 text-sm font-bold text-text-main transition hover:bg-bg-main"
+              >
+                Quay lại làm khảo sát
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
