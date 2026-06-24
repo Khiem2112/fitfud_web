@@ -19,8 +19,10 @@ import Orders from './page/Orders';
 import Profile from './page/Profile';
 import Auth from './page/Auth';
 import Survey from './page/Survey';
+import AiRecommendation from './page/AiRecommendation';
 
-import { DraftNotification } from './component/molecule/Checkout/DraftNotification';
+import { GlobalNotification } from './component/molecule/Notification/GlobalNotification';
+import { NotificationWatcher } from './component/molecule/Notification/NotificationWatcher';
 
 // App.css import
 import './App.css';
@@ -75,13 +77,17 @@ function App() {
                   {/* Profile Dashboard */}
                   <Route path="/profile" element={<Profile />} />
 
+                  {/* AI Recommendation */}
+                  <Route path="/ai-recommendation" element={<AiRecommendation />} />
+
                   {/* Fallback redirect to home */}
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </main>
 
-              {/* Global Draft Checkout Notification */}
-              <DraftNotification />
+              {/* Global Notifications */}
+              <GlobalNotification />
+              <NotificationWatcher />
 
               {/* Global Toast Notification */}
               <ToastContainer />

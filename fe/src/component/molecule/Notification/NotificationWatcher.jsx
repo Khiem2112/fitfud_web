@@ -45,7 +45,25 @@ export const NotificationWatcher = () => {
   // Watch for Survey
   const hasSurveyDraft = useHasSurveyDraft();
   const { clearDraft: clearSurveyDraft } = useSurveyDraft();
-  const { user, updateSurveyStatus } = useApp();
+  const { user, updateSurveyStatus, isAIAnalyzing } = useApp();
+
+  // Watch for AI analyzing
+  useEffect(() => {
+    if (isAIAnalyzing) {
+      addNotification({
+        id: 'ai_analyzing',
+        title: 'Đang phân tích món ăn từ ảnh...',
+        description: 'AI đang nhận diện và tính toán dinh dưỡng, sẽ mất vài giây...',
+        hideOnPaths: [],
+        icon: (
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary-light border-t-primary"></div>
+        ),
+        actions: [],
+      });
+    } else {
+      removeNotification('ai_analyzing');
+    }
+  }, [isAIAnalyzing, addNotification, removeNotification]);
 
   useEffect(() => {
     // Luôn hiện nếu chưa làm khảo sát (has_surveyed = false) HOẶC có draft
