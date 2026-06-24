@@ -1,6 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function TodayProgressBox({ dashboardData }) {
+  const navigate = useNavigate();
+
   if (!dashboardData) return null;
 
   const caloriesPercent = Math.min(
@@ -13,8 +16,15 @@ export default function TodayProgressBox({ dashboardData }) {
     Math.round((dashboardData.today_protein_logged / dashboardData.target_protein) * 100)
   );
 
+  const handleClick = () => {
+    navigate('/ai-recommendation?source=PROFILE_PAGE');
+  };
+
   return (
-    <div className="bg-primary-dark text-white rounded-3xl p-6 shadow-premium relative overflow-hidden">
+    <div 
+      onClick={handleClick}
+      className="bg-primary-dark text-white rounded-3xl p-6 shadow-premium relative overflow-hidden cursor-pointer hover:scale-[1.02] transition-transform duration-300"
+    >
       <div className="flex justify-between items-center mb-6">
         <span className="text-[10px] font-bold uppercase tracking-widest opacity-90">Hôm nay</span>
         <span className="text-[9px] bg-black/20 px-2 py-1 rounded-full font-bold">{caloriesPercent}% Hoàn thành</span>

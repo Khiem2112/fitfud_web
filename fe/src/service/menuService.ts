@@ -28,7 +28,7 @@ export const mockMasterData: FilterMasterDataOutput = {
 };
 
 // Raw Mock Dishes (Matching Figma content)
-const mockDishes: DishItem[] = [
+export const mockDishes: DishItem[] = [
   {
     id: 'dish_1',
     dish_name: 'Cơm cá hồi áp chảo',
