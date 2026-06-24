@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getCurrentUser, logoutUser as serviceLogout } from '../service/authService';
 import { getCart, addToCart as serviceAddToCart, updateCartQty as serviceUpdateCartQty, removeFromCart as serviceRemoveFromCart, clearCart as serviceClearCart } from '../service/checkoutService';
 import { CartMode } from '../type/cart';
+import { analyzeMealImage, logMeal } from '../service/profileService';
 
 const AppContext = createContext(undefined);
 
@@ -11,6 +12,7 @@ export const AppProvider = ({ children }) => {
   const [selectedCartItemIds, setSelectedCartItemIds] = useState([]);
   const [cartMode, setCartMode] = useState(CartMode.CLOSED);
   const [loading, setLoading] = useState(true);
+  const [isAIAnalyzing, setIsAIAnalyzing] = useState(false);
 
   // Load initial session and cart
   useEffect(() => {
@@ -42,6 +44,21 @@ export const AppProvider = ({ children }) => {
     if (user) {
       const updatedUser = { ...user, has_surveyed: status };
       setUser(updatedUser);
+    }
+  };
+
+  const startAILogMeal = async (file, onComplete) => {
+    if (!user) return;
+    setIsAIAnalyzing(true);
+    try {
+      const res = await analyzeMealImage(file);
+      await logMeal(user.id, { ...res, source: 'AIImage' });
+      if (onComplete) onComplete();
+    } catch (err) {
+      console.error(err);
+      alert('AI không thể nhận diện được hình ảnh này.');
+    } finally {
+      setIsAIAnalyzing(false);
     }
   };
 
@@ -141,9 +158,11 @@ export const AppProvider = ({ children }) => {
         cartMode,
         setCartMode,
         loading,
+        isAIAnalyzing,
         login,
         logout,
         updateSurveyStatus,
+        startAILogMeal,
         addToCart: handleAddToCart,
         addMultipleToCart: handleAddMultipleToCart,
         updateCartQty: handleUpdateQty,

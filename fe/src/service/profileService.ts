@@ -147,7 +147,7 @@ export const updateProfileHealth = async (userId: string, input: UpdateProfileHe
 };
 
 export const analyzeMealImage = async (imageFile: File): Promise<Omit<MealLogInput, 'source'>> => {
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+  await new Promise((resolve) => setTimeout(resolve, 12000));
 
   const mockPredictions = [
     { dish_name: 'Bowl Ngũ Cốc Cầu Vồng', calories: 320, protein: 16, fat: 8, carb: 42 },

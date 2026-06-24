@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
@@ -22,7 +22,7 @@ import ChangePasswordPopup from '../component/organism/Profile/ChangePasswordPop
 import AddAddressPopup from '../component/organism/Profile/AddAddressPopup';
 
 export default function Profile() {
-  const { user, logout } = useApp();
+  const { user, logout, isAIAnalyzing } = useApp();
   const { addToast } = useToast();
   const navigate = useNavigate();
 
@@ -57,6 +57,15 @@ export default function Profile() {
   useEffect(() => {
     loadDashboardData();
   }, [user]);
+
+  const prevIsAIAnalyzing = useRef(isAIAnalyzing);
+  useEffect(() => {
+    if (prevIsAIAnalyzing.current === true && isAIAnalyzing === false) {
+      loadDashboardData();
+      addToast('Đã phân tích và thêm bữa ăn từ ảnh!', 'success');
+    }
+    prevIsAIAnalyzing.current = isAIAnalyzing;
+  }, [isAIAnalyzing]);
 
   const handleLogMeal = async (mealInput) => {
     try {
