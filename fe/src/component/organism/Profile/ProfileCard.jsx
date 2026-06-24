@@ -6,20 +6,20 @@ export default function ProfileCard({ dashboardData, onChangePassword }) {
   return (
     <div className="bg-bg-card border border-border-light rounded-3xl p-6 shadow-premium flex flex-col items-center text-center space-y-4 relative">
       <div className="relative">
-        <div className="h-24 w-24 rounded-full bg-primary-light flex items-center justify-center text-4xl overflow-hidden border-4 border-white shadow-sm">
+        <div className="h-32 w-32 rounded-full bg-primary-light flex items-center justify-center text-5xl overflow-hidden border-4 border-white shadow-sm">
           {dashboardData.avatar ? (
             <img src={dashboardData.avatar} alt="Avatar" className="w-full h-full object-cover" />
           ) : (
             '👩‍💼'
           )}
         </div>
-        <button className="absolute bottom-0 right-0 bg-primary text-white rounded-full p-1.5 shadow-md hover:bg-primary-dark transition text-[10px]">
+        <button className="absolute bottom-2 right-2 bg-primary text-white rounded-full p-2 shadow-md hover:bg-primary-dark transition text-xs">
           ✏️
         </button>
       </div>
 
       <div>
-        <h2 className="text-lg font-extrabold text-text-main">{dashboardData.fullName}</h2>
+        <h2 className="text-2xl font-extrabold text-text-main">{dashboardData.fullName}</h2>
       </div>
 
       <button

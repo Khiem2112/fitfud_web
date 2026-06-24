@@ -1,6 +1,7 @@
 import { MealLogInput, MealLogOutput, ProfileDashboardOutput, UpdateProfileHealthInput, UpdateProfileHealthOutput, SearchFitFudDishForLogOutput, ChangePasswordInput } from '../type/profile.types';
 import { getCustomerProfile } from './surveyService';
 import { getSavedAddresses } from './checkoutService';
+import { fetchHealthyMenu } from './menuService';
 
 const MEAL_LOGS_KEY_PREFIX = 'fitfud_meal_logs_';
 
@@ -62,13 +63,13 @@ export const getProfileDashboard = async (userId: string, fullName: string): Pro
   });
 
   const weekly_trend = [
-    { day: 'T2', calories: 1550, protein: 120 },
-    { day: 'T3', calories: 1800, protein: 130 },
-    { day: 'T4', calories: 1450, protein: 110 },
-    { day: 'T5', calories: 1650, protein: 125 },
-    { day: 'T6', calories: 1750, protein: 138 },
-    { day: 'T7', calories: 1900, protein: 140 },
-    { day: 'CN', calories: todayCal || 1250, protein: todayPro || 90 }
+    { day: 'T2', calories: 2100, protein: 110 },
+    { day: 'T3', calories: 1950, protein: 95 },
+    { day: 'T4', calories: 2200, protein: 120 },
+    { day: 'T5', calories: 1800, protein: 85 },
+    { day: 'T6', calories: 2350, protein: 130 },
+    { day: 'T7', calories: 1700, protein: 80 },
+    { day: 'CN', calories: todayCal || 2150, protein: todayPro || 115 }
   ];
 
   const addresses = await getSavedAddresses(userId);
@@ -81,24 +82,29 @@ export const getProfileDashboard = async (userId: string, fullName: string): Pro
     full_address: `${defaultAddress.shipping_address_text}, ${defaultAddress.wardName}, ${defaultAddress.districtName}, ${defaultAddress.cityName}`
   } : undefined;
 
+  const mappedAddresses = addresses.map(addr => ({
+    id: addr.id,
+    receiver_name: addr.name,
+    receiver_phone: addr.phone,
+    full_address: `${addr.shipping_address_text}, ${addr.wardName}, ${addr.districtName}, ${addr.cityName}`
+  }));
+
+  // Lấy món ăn bất kỳ từ menu
+  const { dishes } = await fetchHealthyMenu({ limit: 10, page: 1 });
+  const randomDish = dishes[Math.floor(Math.random() * dishes.length)];
+  const randomSize = randomDish.sizes.find(s => s.size_name === 'M') || randomDish.sizes[0];
+
   const aiRecommendedDishes: ProfileDashboardOutput['aiRecommendedDishes'] = [
     {
-      id: 'ai_1',
-      dish_name: 'Gà Teriyaki & Cơm Lứt',
-      reason: 'Giàu protein, phù hợp mục tiêu tăng cơ',
-      price_from: 65000,
-      calories: 450,
-      protein: 38,
-      status: 'Active'
-    },
-    {
-      id: 'ai_2',
-      dish_name: 'Salad Tôm Bơ',
-      reason: 'Ít calo, giàu chất béo tốt',
-      price_from: 75000,
-      calories: 320,
-      protein: 25,
-      status: 'Active'
+      id: 'ai_' + randomDish.id,
+      dish_name: randomDish.dish_name,
+      reason: 'Dựa trên phân tích thói quen ăn uống và mục tiêu sức khỏe hiện tại của bạn, AI của FitFud đề xuất món ăn này giúp bổ sung lượng protein cần thiết mà vẫn duy trì mức calo hợp lý. Món ăn chứa đầy đủ dưỡng chất và hương vị thơm ngon giúp bạn có một bữa ăn hoàn hảo!',
+      price_from: randomSize.price,
+      calories: randomSize.calories,
+      protein: randomSize.protein,
+      status: randomDish.status,
+      image_url: randomDish.image_url,
+      originalDish: randomDish
     }
   ];
 
@@ -115,21 +121,22 @@ export const getProfileDashboard = async (userId: string, fullName: string): Pro
     today_protein_logged: todayPro || 90,
     weekly_trend,
     defaultAddress: mappedAddress,
+    addresses: mappedAddresses,
     aiRecommendedDishes,
-    recentMeals: logs.slice(0, 3)
+    recentMeals: logs.filter((log) => new Date(log.logged_at) >= startOfToday)
   };
 };
 
 export const updateProfileHealth = async (userId: string, input: UpdateProfileHealthInput): Promise<UpdateProfileHealthOutput> => {
   await new Promise((resolve) => setTimeout(resolve, 500));
   const profile = getCustomerProfile(userId);
-  
+
   const updatedWeight = input.weight || profile.weight;
   const updatedHeight = input.height || profile.height;
-  
+
   const heightM = updatedHeight / 100;
   const bmi = Number((updatedWeight / (heightM * heightM)).toFixed(1));
-  
+
   return {
     success: true,
     bmi: bmi,
@@ -154,7 +161,7 @@ export const analyzeMealImage = async (imageFile: File): Promise<Omit<MealLogInp
 
 export const searchFitFudDishForLog = async (keyword: string): Promise<SearchFitFudDishForLogOutput> => {
   await new Promise((resolve) => setTimeout(resolve, 300));
-  
+
   const allDishes = [
     { id: 'dish_1', dish_name: 'Cơm cá hồi áp chảo', calories: 542, protein: 35, carb: 48, fat: 19 },
     { id: 'dish_2', dish_name: 'Cơm gà gạo lứt', calories: 420, protein: 32, carb: 45, fat: 12 },
@@ -165,20 +172,51 @@ export const searchFitFudDishForLog = async (keyword: string): Promise<SearchFit
   ];
 
   if (!keyword) return { dishes: allDishes };
-  
+
   const filtered = allDishes.filter(d => d.dish_name.toLowerCase().includes(keyword.toLowerCase()));
   return { dishes: filtered };
 };
 
-export const changePassword = async (input: ChangePasswordInput): Promise<{success: boolean, message: string}> => {
+export const changePassword = async (input: ChangePasswordInput): Promise<{ success: boolean, message: string }> => {
   await new Promise((resolve) => setTimeout(resolve, 800));
-  
+
   if (input.current_password !== '123456') { // Mock check
     throw new Error('Mật khẩu hiện tại không chính xác');
   }
-  
+
   return {
     success: true,
     message: 'Đổi mật khẩu thành công'
   };
+};
+
+export const getNutritionHistory = async (userId: string) => {
+  await new Promise((resolve) => setTimeout(resolve, 600));
+  const logs = getMealLogs(userId);
+
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
+  let todayCal = 0;
+  let todayPro = 0;
+
+  logs.forEach((log) => {
+    const logDate = new Date(log.logged_at);
+    if (logDate >= startOfToday) {
+      todayCal += log.calories;
+      todayPro += log.protein;
+    }
+  });
+
+  const weekly_trend = [
+    { day: 'T2', calories: 2100, protein: 110 },
+    { day: 'T3', calories: 1950, protein: 95 },
+    { day: 'T4', calories: 2200, protein: 120 },
+    { day: 'T5', calories: 1800, protein: 85 },
+    { day: 'T6', calories: 2350, protein: 130 },
+    { day: 'T7', calories: 1700, protein: 80 },
+    { day: 'CN', calories: todayCal || 2150, protein: todayPro || 115 }
+  ];
+
+  return weekly_trend;
 };

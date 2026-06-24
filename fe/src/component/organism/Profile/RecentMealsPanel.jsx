@@ -6,7 +6,7 @@ export default function RecentMealsPanel({ recentMeals }) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
       {recentMeals.map((log) => (
         <div key={log.id} className="flex items-center gap-3 bg-bg-main p-4 rounded-2xl border border-border-light shadow-sm">
           <div className="h-10 w-10 bg-white border border-border-light rounded-xl flex items-center justify-center text-primary text-xl flex-shrink-0">

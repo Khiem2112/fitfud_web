@@ -1,7 +1,32 @@
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { getNutritionHistory } from '../../../service/profileService';
+import { useApp } from '../../../context/AppContext';
 
-export default function NutritionChartGrid({ weeklyTrend }) {
-  if (!weeklyTrend || weeklyTrend.length === 0) return null;
+export default function NutritionChartGrid() {
+  const { user } = useApp();
+
+  const { data: weeklyTrend, isLoading } = useQuery({
+    queryKey: ['nutritionHistory', user?.id],
+    queryFn: () => getNutritionHistory(user?.id),
+    enabled: !!user?.id,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="bg-bg-card border border-border-light rounded-3xl p-6 shadow-premium h-[300px] flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-light border-t-primary"></div>
+      </div>
+    );
+  }
+
+  if (!weeklyTrend || weeklyTrend.length === 0) {
+    return (
+      <div className="bg-bg-card border border-border-light rounded-3xl p-6 shadow-premium text-center text-text-muted h-[300px] flex flex-col justify-center">
+        Chưa có dữ liệu biểu đồ
+      </div>
+    );
+  }
 
   return (
     <div className="bg-bg-card border border-border-light rounded-3xl p-6 shadow-premium space-y-4">
@@ -20,14 +45,14 @@ export default function NutritionChartGrid({ weeklyTrend }) {
       </div>
 
       {/* Custom Responsive HTML/CSS Chart bars */}
-      <div className="flex justify-between items-end h-44 pt-4 px-2">
+      <div className="flex justify-between items-end h-64 pt-4 px-2">
         {weeklyTrend.map((t) => {
-          // Dummy logic to show 2 bars per day to mimic Figma
-          const calPercent = Math.min(100, Math.round((t.calories / 2500) * 100));
-          const proPercent = Math.min(100, Math.round((t.calories * 0.4 / 2500) * 100)); // just a dummy mock for the second bar
-          
+          // Calculate percentages based on 2500 max cal and 150g max protein
+          const calPercent = Math.max(5, Math.min(100, Math.round((t.calories / 2500) * 100)));
+          const proPercent = Math.max(5, Math.min(100, Math.round((t.protein / 150) * 100)));
+
           return (
-            <div key={t.day} className="flex flex-col items-center gap-2 flex-1 group">
+            <div key={t.day} className="flex flex-col items-center justify-end gap-2 flex-1 group h-full">
               <div className="flex items-end gap-1 h-full w-full justify-center relative">
                 {/* Hover tooltip */}
                 <div className="opacity-0 group-hover:opacity-100 transition absolute z-10 bg-text-main text-white text-[9px] px-1.5 py-0.5 rounded -translate-y-8 font-bold shadow-md whitespace-nowrap">
@@ -49,16 +74,6 @@ export default function NutritionChartGrid({ weeklyTrend }) {
             </div>
           );
         })}
-      </div>
-      
-      {/* Legend below the chart */}
-      <div className="flex justify-center gap-4 text-[9px] font-bold text-text-muted mt-2 border-t border-border-light pt-4">
-         <div className="flex items-center gap-1">
-            <span className="w-2 h-2 bg-primary-dark rounded-sm"></span> Calo
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="w-2 h-2 bg-accent rounded-sm"></span> Protein
-          </div>
       </div>
     </div>
   );

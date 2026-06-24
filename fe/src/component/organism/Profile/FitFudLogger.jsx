@@ -85,7 +85,7 @@ export default function FitFudLogger({ onLogMeal }) {
             </div>
             <button
               onClick={handleSave}
-              className="w-full py-2.5 mt-4 rounded-lg bg-primary text-white text-sm font-bold shadow-sm hover:bg-primary-dark transition"
+              className="w-full py-2.5 mt-4 rounded-lg bg-primary-light text-primary-dark text-sm font-bold shadow-sm hover:bg-primary/20 transition"
             >
               Chọn món
             </button>

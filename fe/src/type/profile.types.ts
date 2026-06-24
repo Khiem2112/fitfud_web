@@ -26,6 +26,14 @@ export type ProfileDashboardOutput = {
     full_address: string;
   };
 
+  addresses?: {
+    id: string;
+    receiver_name: string;
+    receiver_phone: string;
+    full_address: string;
+  }[];
+
+
   aiRecommendedDishes?: {
     id: string;
     dish_name: string;
@@ -35,6 +43,7 @@ export type ProfileDashboardOutput = {
     calories?: number;
     protein?: number;
     status: 'Active' | 'Inactive' | 'Out of Stock';
+    originalDish?: any;
   }[];
 
   recentMeals?: {
