@@ -14,14 +14,14 @@ export default function DishCard({ dish, onOpenQuickView }) {
   return (
     <div
       onClick={() => !isOutOfStock && navigate(`/dish/${dish.id}`)}
-      className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-border-light bg-bg-card p-3 hover:shadow-premium hover:-translate-y-0.5 transition duration-300 relative cursor-pointer"
+      className="group flex flex-col justify-between overflow-hidden rounded-xl border border-border-light bg-bg-card p-2.5 hover:shadow-premium hover:-translate-y-0.5 transition duration-300 relative cursor-pointer"
     >
       {/* Badges */}
       {dish.id === 'dish_2' && <ProductBadge type="discount" label="-13%" />}
       {isOutOfStock && <ProductBadge type="out-of-stock" />}
 
       {/* Image block */}
-      <div className="relative overflow-hidden rounded-xl bg-bg-main h-36 mb-3">
+      <div className="relative overflow-hidden rounded-lg bg-bg-main h-28 mb-2">
         {dish.image_url ? (
           <img
             src={dish.image_url}
@@ -39,38 +39,38 @@ export default function DishCard({ dish, onOpenQuickView }) {
       <div className="flex-1 flex flex-col justify-between">
         <div className="space-y-1">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-[9px] font-bold uppercase tracking-wider text-primary">
+            <span className="text-[8px] font-bold uppercase tracking-wider text-primary">
               {dish.category_name}
             </span>
-            <div className="flex items-center text-[10px] text-accent font-semibold gap-0.5">
+            <div className="flex items-center text-[9px] text-accent font-semibold gap-0.5">
               <i className="bi bi-star-fill" aria-hidden="true" />
               <span>{dish.rating_avg}</span>
             </div>
           </div>
 
           <h3
-            className={`text-sm font-bold text-text-main leading-snug ${
+            className={`text-[13px] font-bold text-text-main leading-tight line-clamp-1 ${
               isOutOfStock ? 'opacity-60' : 'group-hover:text-primary transition'
             }`}
           >
             {dish.dish_name}
           </h3>
 
-          <p className="text-[10px] text-text-muted line-clamp-2 leading-relaxed">
+          <p className="text-[9px] text-text-muted line-clamp-1 leading-relaxed">
             {dish.description}
           </p>
         </div>
 
         {/* Nutrient specs & Price */}
-        <div className="pt-3 mt-2 border-t border-border-light flex items-center justify-between">
+        <div className="pt-2 mt-2 border-t border-border-light flex items-center justify-between">
           <div className="text-left">
-            <span className="block text-[10px] text-text-muted font-medium">Lượng calo (M)</span>
-            <span className="text-[11px] font-bold text-text-main">{defaultSize.calories} kcal</span>
+            <span className="block text-[9px] text-text-muted font-medium">Calo (M)</span>
+            <span className="text-[10px] font-bold text-text-main">{defaultSize.calories} kcal</span>
           </div>
 
           <div className="text-right">
-            <span className="block text-[10px] text-text-muted font-medium">Giá tiền</span>
-            <span className="text-xs font-extrabold text-primary">
+            <span className="block text-[9px] text-text-muted font-medium">Giá tiền</span>
+            <span className="text-[11px] font-extrabold text-primary">
               {defaultSize.price.toLocaleString('vi-VN')}đ
             </span>
           </div>
@@ -83,7 +83,7 @@ export default function DishCard({ dish, onOpenQuickView }) {
             onOpenQuickView(dish);
           }}
           disabled={isOutOfStock}
-          className={`w-full mt-3 rounded-xl py-2.5 text-center text-xs font-bold shadow-sm transition ${
+          className={`w-full mt-2 rounded-lg py-2 text-center text-[11px] font-bold shadow-sm transition ${
             isOutOfStock
               ? 'bg-border-light text-text-muted cursor-not-allowed'
               : 'bg-primary-light text-primary hover:bg-primary hover:text-white hover:shadow-premium'

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { changePassword } from '../../../service/profileService';
 import { useToast } from '../../../context/ToastContext';
@@ -32,9 +33,9 @@ export default function ChangePasswordPopup({ isOpen, onClose }) {
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="w-full max-w-sm rounded-3xl bg-bg-card p-6 shadow-premium border border-border-light relative">
+  return createPortal(
+    <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm">
+      <div className="fixed left-1/2 top-1/2 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-border-light bg-bg-card p-5 shadow-premium max-h-[calc(100vh-2rem)] overflow-y-auto">
         <button 
           onClick={() => { onClose(); reset(); setApiError(''); }}
           className="absolute top-4 right-4 text-text-muted hover:text-text-main"
@@ -91,6 +92,7 @@ export default function ChangePasswordPopup({ isOpen, onClose }) {
           </button>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

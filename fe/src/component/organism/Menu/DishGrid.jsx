@@ -7,7 +7,7 @@ import DishCard from '../../molecule/Menu/DishCard';
  */
 export default function DishGrid({ isLoading, isError, menuData, page, setPage, onOpenQuickView, onClearAllFilters }) {
   return (
-    <section className="lg:col-span-4 space-y-4">
+    <section className="lg:col-span-4 space-y-3">
       {/* Header & Meta */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -20,10 +20,10 @@ export default function DishGrid({ isLoading, isError, menuData, page, setPage, 
 
       {/* LOADING STATE */}
       {isLoading && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
           {[...Array(8)].map((_, idx) => (
-            <div key={idx} className="animate-pulse rounded-2xl border border-border-light bg-bg-card p-4 space-y-4">
-              <div className="bg-border-light rounded-xl h-36 w-full"></div>
+            <div key={idx} className="animate-pulse rounded-xl border border-border-light bg-bg-card p-3 space-y-3">
+              <div className="bg-border-light rounded-lg h-28 w-full"></div>
               <div className="h-4 bg-border-light rounded w-3/4"></div>
               <div className="h-3 bg-border-light rounded w-1/2"></div>
               <div className="h-8 bg-border-light rounded w-full pt-4"></div>
@@ -65,7 +65,7 @@ export default function DishGrid({ isLoading, isError, menuData, page, setPage, 
 
       {/* DISHES LIST GRID */}
       {!isLoading && !isError && menuData && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
           {menuData.dishes.map((dish) => (
             <DishCard key={dish.id} dish={dish} onOpenQuickView={onOpenQuickView} />
           ))}

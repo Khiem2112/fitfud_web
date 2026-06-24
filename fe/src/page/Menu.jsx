@@ -42,7 +42,7 @@ export default function Menu() {
   const appliedFilters = {
     ...debouncedFilters,
     page,
-    limit: 12,
+    limit: 18,
   };
 
   // Tanstack Query for menu list
