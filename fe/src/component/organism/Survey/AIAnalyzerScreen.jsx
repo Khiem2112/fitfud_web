@@ -33,7 +33,7 @@ export const AIAnalyzerScreen = ({
     <div className="flex min-h-[70vh] flex-col items-center justify-center text-center px-4 page-enter">
       <div className="relative mb-8">
         <div className="h-20 w-20 animate-spin rounded-full border-4 border-primary-light border-t-primary"></div>
-        <span className="absolute inset-0 flex items-center justify-center text-3xl">🌱</span>
+        <i className="bi bi-leaf absolute inset-0 flex items-center justify-center text-3xl leading-none text-primary" aria-hidden="true" />
       </div>
       <h2 className="text-xl font-bold text-text-main mb-2">{title}</h2>
       <p className="text-sm text-text-muted max-w-sm mb-6">
@@ -47,7 +47,13 @@ export const AIAnalyzerScreen = ({
           {steps.map((s, idx) => (
             <div key={idx} className="flex items-center gap-2 text-xs">
               <span className={idx <= loadingTextIndex ? 'text-primary font-bold' : 'text-text-muted'}>
-                {idx < loadingTextIndex ? '✓' : idx === loadingTextIndex ? '⊙' : '○'}
+                {idx < loadingTextIndex ? (
+                  <i className="bi bi-check-circle-fill" aria-hidden="true" />
+                ) : idx === loadingTextIndex ? (
+                  <i className="bi bi-record-circle" aria-hidden="true" />
+                ) : (
+                  <i className="bi bi-circle" aria-hidden="true" />
+                )}
               </span>
               <span className={idx === loadingTextIndex ? 'text-text-main font-semibold' : 'text-text-muted'}>
                 {s}

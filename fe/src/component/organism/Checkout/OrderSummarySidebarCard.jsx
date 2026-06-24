@@ -3,7 +3,7 @@ import { CartLineItem } from '../../molecule/Checkout/CartLineItem';
 import { SummaryRow } from '../../molecule/Checkout/SummaryRow';
 import { useFormContext } from 'react-hook-form';
 
-export const OrderSummarySidebarCard = ({ cartItems, onUpdateQuantity, isSubmitting, selectedItemIds, onToggleSelectAll, onToggleSelect }) => {
+export const OrderSummarySidebarCard = ({ cartItems, onUpdateQuantity, onRemoveItem, onEditItem, isSubmitting, selectedItemIds, onToggleSelectAll, onToggleSelect }) => {
   const { watch } = useFormContext();
   const paymentMethod = watch('payment_method');
   const hasTransferred = watch('has_transferred');
@@ -17,14 +17,14 @@ export const OrderSummarySidebarCard = ({ cartItems, onUpdateQuantity, isSubmitt
   const isAllSelected = cartItems.length > 0 && selectedItemIds.length === cartItems.length;
 
   return (
-    <div className="flex flex-col w-full rounded-[12px] bg-white shadow-[0px_4px_20px_0px_rgba(27,67,50,0.06)] overflow-hidden max-h-[calc(100vh-120px)]">
-      <div className="p-[24px] flex flex-col h-full overflow-hidden">
-        <h2 className="font-be-vietnam text-[24px] font-bold text-text-main mb-[16px] shrink-0">
+    <div className="flex flex-col w-full rounded-[12px] bg-white shadow-[0px_4px_20px_0px_rgba(27,67,50,0.06)] overflow-hidden">
+      <div className="p-3.5 flex flex-col overflow-hidden">
+        <h2 className="font-be-vietnam text-lg font-bold text-text-main mb-2.5 shrink-0">
           Tóm tắt đơn hàng
         </h2>
 
         {/* Select all header */}
-        <div className="flex items-center gap-2 pb-4 border-b border-border-light shrink-0">
+        <div className="flex items-center gap-2 pb-2.5 border-b border-border-light shrink-0">
           <button
             type="button"
             onClick={onToggleSelectAll}
@@ -37,18 +37,20 @@ export const OrderSummarySidebarCard = ({ cartItems, onUpdateQuantity, isSubmitt
               </svg>
             )}
           </button>
-          <span className="font-be-vietnam text-[16px] font-normal text-text-main cursor-pointer" onClick={onToggleSelectAll}>
+          <span className="font-be-vietnam text-sm font-normal text-text-main cursor-pointer" onClick={onToggleSelectAll}>
             Chọn tất cả ({selectedItemIds.length}/{cartItems.length})
           </span>
         </div>
 
         {/* Cart Items List */}
-        <div className="flex flex-col py-4 border-b border-border-light flex-1 overflow-y-auto min-h-[50px] pr-2">
+        <div className="flex flex-col py-2 border-b border-border-light max-h-[42vh] min-h-[180px] overflow-y-auto pr-2 custom-scrollbar">
           {cartItems.map((item) => (
             <CartLineItem
               key={item.id}
               item={item}
               onUpdateQuantity={onUpdateQuantity}
+              onRemove={onRemoveItem}
+              onEdit={onEditItem}
               isSelected={selectedItemIds.includes(item.id)}
               onToggleSelect={onToggleSelect}
             />
@@ -56,32 +58,33 @@ export const OrderSummarySidebarCard = ({ cartItems, onUpdateQuantity, isSubmitt
         </div>
 
         {/* Macros Summary */}
-        <div className="mt-4 flex flex-col gap-2 rounded-[12px] border border-border-light bg-[#F9F9F9] p-[16px] shrink-0">
-          <span className="font-be-vietnam text-[12px] font-bold tracking-[0.05em] text-text-main uppercase">
+        <div className="mt-2 flex flex-col gap-2 shrink-0">
+        <div className="flex flex-col gap-1.5 rounded-[10px] border border-border-light bg-[#F9F9F9] px-3 py-2">
+          <span className="font-be-vietnam text-[10px] font-bold tracking-[0.05em] text-text-main uppercase">
             TỔNG DINH DƯỠNG
           </span>
-          <div className="flex w-full justify-between items-center mt-2">
+          <div className="flex w-full justify-between items-center">
             <div className="flex flex-col items-center flex-1">
-              <span className="font-be-vietnam text-[24px] font-bold text-text-main">
+              <span className="font-be-vietnam text-sm font-bold text-text-main">
                 {totalCalories}
               </span>
-              <span className="font-be-vietnam text-[12px] font-medium text-text-light">
+              <span className="font-be-vietnam text-[10px] font-medium text-text-light">
                 Kcal
               </span>
             </div>
             <div className="flex flex-col items-center flex-1">
-              <span className="font-be-vietnam text-[24px] font-bold text-accent-dark">
+              <span className="font-be-vietnam text-sm font-bold text-accent-dark">
                 {totalProtein}g
               </span>
-              <span className="font-be-vietnam text-[12px] font-medium text-text-light">
+              <span className="font-be-vietnam text-[10px] font-medium text-text-light">
                 Protein
               </span>
             </div>
             <div className="flex flex-col items-center flex-1">
-              <span className="font-be-vietnam text-[24px] font-bold text-primary-dark">
+              <span className="font-be-vietnam text-sm font-bold text-primary-dark">
                 {totalCarb}g
               </span>
-              <span className="font-be-vietnam text-[12px] font-medium text-text-light">
+              <span className="font-be-vietnam text-[10px] font-medium text-text-light">
                 Carbs
               </span>
             </div>
@@ -89,7 +92,7 @@ export const OrderSummarySidebarCard = ({ cartItems, onUpdateQuantity, isSubmitt
         </div>
 
         {/* Totals */}
-        <div className="mt-4 flex flex-col gap-2 pt-4 shrink-0">
+        <div className="flex flex-col gap-1.5 pt-1.5">
           <SummaryRow
             label="Tổng cộng"
             value={`${grandTotal.toLocaleString('vi-VN')}đ`}
@@ -101,9 +104,9 @@ export const OrderSummarySidebarCard = ({ cartItems, onUpdateQuantity, isSubmitt
         <button
           type="submit"
           disabled={isSubmitting || selectedItemIds.length === 0 || (paymentMethod === 'Online' && !hasTransferred)}
-          className="mt-6 flex w-full items-center justify-center gap-2 rounded-[12px] bg-accent-dark py-[16px] transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+          className="mt-1.5 flex w-full items-center justify-center gap-2 rounded-[12px] bg-accent-dark py-2.5 transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <span className="font-be-vietnam text-[16px] font-bold text-white">
+          <span className="font-be-vietnam text-sm font-bold text-white">
             {isSubmitting ? 'Đang xử lý...' : 'Thanh toán ngay'}
           </span>
           {!isSubmitting && (
@@ -113,13 +116,14 @@ export const OrderSummarySidebarCard = ({ cartItems, onUpdateQuantity, isSubmitt
           )}
         </button>
 
-        <div className="mt-4 flex items-center justify-center gap-2 shrink-0">
+        <div className="mt-1.5 flex items-center justify-center gap-2">
           <svg width="10" height="12" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M1 5V4C1 2.89543 1.8954s3 2 3 2H7C8.10457 2 9 2.89543 9 4V5M1 5V10C1 10.5523 1.44772 11 2 11H8C8.55228 11 9 10.5523 9 10V5M1 5H9" stroke="#707973" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          <span className="font-be-vietnam text-[12px] font-medium text-text-light">
+          <span className="font-be-vietnam text-[10px] font-medium text-text-light">
             Thanh toán bảo mật bởi SSL
           </span>
+        </div>
         </div>
       </div>
     </div>

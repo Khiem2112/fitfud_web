@@ -49,10 +49,10 @@ export const CheckoutShippingForm = ({ control, watch, setValue, onReset }) => {
 
   return (
     <>
-    <div className="flex flex-col w-full gap-4 rounded-[12px] bg-white p-[24px] shadow-[0px_4px_20px_0px_rgba(27,67,50,0.06)]">
+    <div className="flex flex-col w-full gap-3 rounded-[12px] bg-white p-4 shadow-[0px_4px_20px_0px_rgba(27,67,50,0.06)]">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h2 className="font-be-vietnam text-[24px] font-bold text-text-main">
+          <h2 className="font-be-vietnam text-[20px] font-bold text-text-main">
             Địa chỉ giao hàng
           </h2>
           <button type="button" onClick={onReset} className="text-text-light hover:text-primary transition-colors" title="Làm mới form">
@@ -64,7 +64,7 @@ export const CheckoutShippingForm = ({ control, watch, setValue, onReset }) => {
         <button 
           type="button" 
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 text-primary font-be-vietnam font-bold hover:underline"
+          className="flex items-center gap-2 text-sm text-primary font-be-vietnam font-bold hover:underline"
         >
           <svg width="16" height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M8 10C9.65685 10 11 8.65685 11 7C11 5.34315 9.65685 4 8 4C6.34315 4 5 5.34315 5 7C5 8.65685 6.34315 10 8 10Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -74,8 +74,8 @@ export const CheckoutShippingForm = ({ control, watch, setValue, onReset }) => {
         </button>
       </div>
 
-      <div className="flex w-full flex-col gap-4">
-        <div className="flex w-full gap-4">
+      <div className="flex w-full flex-col gap-3">
+        <div className="flex w-full gap-3">
           <div className="flex-1">
             <Controller
               name="contact_name"
@@ -120,7 +120,7 @@ export const CheckoutShippingForm = ({ control, watch, setValue, onReset }) => {
           )}
         />
 
-        <div className="flex w-full gap-4">
+        <div className="flex w-full gap-3">
           <div className="flex-1">
             <Controller
               name="cityId"
@@ -196,7 +196,7 @@ export const CheckoutShippingForm = ({ control, watch, setValue, onReset }) => {
       </div>
 
       <div 
-        className="mt-4 flex items-center gap-4 rounded-[12px] border border-[rgba(15,82,56,0.2)] bg-[rgba(45,106,79,0.1)] p-4 cursor-pointer hover:bg-[rgba(45,106,79,0.15)] transition-colors"
+        className="mt-2 flex items-center gap-3 rounded-[12px] border border-[rgba(15,82,56,0.2)] bg-[rgba(45,106,79,0.1)] p-3 cursor-pointer hover:bg-[rgba(45,106,79,0.15)] transition-colors"
         onClick={() => setIsTimeModalOpen(true)}
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -204,7 +204,7 @@ export const CheckoutShippingForm = ({ control, watch, setValue, onReset }) => {
           <path d="M12 6V12L16 14" stroke="#0F5238" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
         <div className="flex flex-col flex-1">
-          <span className="font-be-vietnam text-[16px] font-normal text-brand-main">
+          <span className="font-be-vietnam text-sm font-normal text-brand-main">
             Thời gian giao hàng dự kiến <span className="text-red-500">*</span>
           </span>
           <Controller
@@ -212,7 +212,7 @@ export const CheckoutShippingForm = ({ control, watch, setValue, onReset }) => {
             control={control}
             render={({ field, fieldState }) => (
               <>
-                <span className={`font-be-vietnam text-[16px] font-bold ${field.value ? 'text-text-main' : 'text-text-muted italic'}`}>
+                <span className={`font-be-vietnam text-sm font-bold ${field.value ? 'text-text-main' : 'text-text-muted italic'}`}>
                   {field.value || 'Nhấn để chọn ngày giờ giao hàng'}
                 </span>
                 {fieldState.error && (

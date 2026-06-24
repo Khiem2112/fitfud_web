@@ -1,13 +1,13 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
-const goalIcons = {
-  'Weight Loss': '📉',
-  'Muscle Gain': '🏋️',
-  'Healthy Eating': '🍃',
-  'Calorie Control': '🧮',
-  'Maintain Weight': '🧍',
-  'Convenience': '⚡'
+const goalIconClasses = {
+  'Weight Loss': 'bi-graph-down-arrow',
+  'Muscle Gain': 'bi-activity',
+  'Healthy Eating': 'bi-leaf',
+  'Calorie Control': 'bi-calculator',
+  'Maintain Weight': 'bi-person-check',
+  'Convenience': 'bi-lightning-charge'
 };
 
 export const HealthGoalForm = ({ healthGoals = [] }) => {
@@ -31,7 +31,7 @@ export const HealthGoalForm = ({ healthGoals = [] }) => {
           }}
           className="text-xs font-semibold text-text-muted hover:text-primary transition flex items-center gap-1"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          <i className="bi bi-arrow-counterclockwise text-sm leading-none" aria-hidden="true" />
           Đặt lại
         </button>
       </div>
@@ -48,7 +48,10 @@ export const HealthGoalForm = ({ healthGoals = [] }) => {
                   : 'border-border-light hover:border-primary/50'
                 }`}
             >
-              <span className="text-2xl">{goalIcons[g.id] || '✨'}</span>
+              <i
+                className={`bi ${goalIconClasses[g.id] || 'bi-stars'} text-2xl leading-none`}
+                aria-hidden="true"
+              />
               <span className={`text-sm font-semibold ${isSelected ? 'text-primary' : 'text-text-main'}`}>
                 {g.name}
               </span>

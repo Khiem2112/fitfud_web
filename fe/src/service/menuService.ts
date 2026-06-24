@@ -1,4 +1,5 @@
 import { DishItem, FilterMasterDataOutput, FilterMenuInput, FilterMenuOutput } from '../type/menu.types';
+import salmonBowlImage from '../assets/salmon-bowl.png';
 
 // Mock Master Data
 export const mockMasterData: FilterMasterDataOutput = {
@@ -33,7 +34,7 @@ export const mockDishes: DishItem[] = [
     id: 'dish_1',
     dish_name: 'Cơm cá hồi áp chảo',
     description: 'Bữa ăn giàu dinh dưỡng với phi lê cá hồi áp chảo giòn da, cơm gạo lứt huyết rồng dẻo thơm và rau xanh luộc tươi mát kèm sốt chanh đậm vị.',
-    image_url: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=600',
+    image_url: salmonBowlImage,
     status: 'Active',
     category_name: 'Món chính',
     diet_tags: ['Giàu Protein', 'Low Carb'],

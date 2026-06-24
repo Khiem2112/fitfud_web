@@ -42,7 +42,7 @@ export default function Menu() {
   const appliedFilters = {
     ...debouncedFilters,
     page,
-    limit: 6,
+    limit: 12,
   };
 
   // Tanstack Query for menu list
@@ -108,9 +108,9 @@ export default function Menu() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 page-enter">
+    <div className="mx-auto max-w-[1440px] px-4 py-5 sm:px-5 lg:px-6 page-enter">
       {/* Grid container with sidebar and content */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
         {/* SIDEBAR FILTER (Left) */}
         <SidebarFilter />
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Info, PackageCheck } from 'lucide-react';
 
 const QuickLinksSection = () => {
   const navigate = useNavigate();
@@ -13,7 +12,7 @@ const QuickLinksSection = () => {
         <div className="flex-1 bg-primary-forest p-10 md:p-12 rounded-[40px] flex flex-col justify-between items-start min-h-[320px] shadow-premium">
           <div className="flex flex-col gap-4">
             <div className="w-12 h-12 bg-primary-light rounded-xl flex items-center justify-center mb-2">
-              <Info className="w-6 h-6 text-primary-forest" />
+              <i className="bi bi-info-circle text-2xl leading-none text-primary-forest" aria-hidden="true" />
             </div>
             <h3 className="text-3xl md:text-4xl font-bold text-white">Về FitFud</h3>
             <p className="text-primary-light text-lg mt-2 leading-relaxed">
@@ -33,7 +32,7 @@ const QuickLinksSection = () => {
         <div className="flex-1 bg-accent p-10 md:p-12 rounded-[40px] flex flex-col justify-between items-start min-h-[320px] shadow-premium">
           <div className="flex flex-col gap-4">
             <div className="w-12 h-12 bg-[#663B00]/10 rounded-xl flex items-center justify-center mb-2">
-              <PackageCheck className="w-6 h-6 text-[#663B00]" />
+              <i className="bi bi-bag-check text-2xl leading-none text-[#663B00]" aria-hidden="true" />
             </div>
             <h3 className="text-3xl md:text-4xl font-bold text-[#663B00]">Đơn hàng của bạn</h3>
             <p className="text-[#663B00]/80 text-lg mt-2 leading-relaxed">

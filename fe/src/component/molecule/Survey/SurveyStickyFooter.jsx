@@ -1,7 +1,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 
-export const SurveyStickyFooter = ({ onSkip }) => {
+export const SurveyStickyFooter = ({ onSkip, onFinish, isSubmitting }) => {
   const footerContent = (
     <div className="fixed bottom-0 left-0 w-full bg-white border-t border-border-light shadow-[0_-10px_30px_rgba(0,0,0,0.05)] z-[100]">
       <div className="mx-auto w-full max-w-3xl px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -22,11 +22,13 @@ export const SurveyStickyFooter = ({ onSkip }) => {
             Bỏ qua và khám phá thực đơn
           </button>
           <button
-            type="submit"
-            form="survey-form"
+            type="button"
+            onClick={onFinish}
+            disabled={isSubmitting}
             className="flex-1 sm:flex-none rounded-xl bg-[#F59E0B] px-8 py-3.5 text-sm font-bold text-white shadow-premium hover:bg-[#D97706] transition flex items-center justify-center gap-2"
           >
-            Hoàn tất khảo sát <span className="text-lg leading-none">✨</span>
+            {isSubmitting ? 'Đang lưu...' : 'Hoàn tất khảo sát'}
+            <i className="bi bi-stars text-lg leading-none" aria-hidden="true" />
           </button>
         </div>
 

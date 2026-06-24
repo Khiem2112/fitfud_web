@@ -18,7 +18,7 @@ export default function AILogger() {
       {!isAIAnalyzing ? (
         <div className="flex-1 border-2 border-dashed border-border-light rounded-lg flex flex-col items-center justify-center gap-3 p-6 cursor-pointer hover:bg-bg-main transition relative">
           <input type="file" accept="image/*" onChange={handleImageChange} className="absolute inset-0 opacity-0 cursor-pointer" />
-          <span className="text-4xl text-primary">📸</span>
+          <i className="bi bi-camera text-4xl leading-none text-primary" aria-hidden="true" />
           <span className="text-sm font-bold text-text-main text-center">Chụp/Tải ảnh</span>
           <span className="text-xs text-text-muted text-center">AI nhận diện tự động</span>
         </div>

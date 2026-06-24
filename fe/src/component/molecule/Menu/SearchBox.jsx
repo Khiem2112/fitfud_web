@@ -6,7 +6,7 @@ import React from 'react';
  */
 export default function SearchBox({ search, setSearch }) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       <label className="block text-xs font-bold uppercase tracking-wider text-text-main">Từ khóa</label>
       <div className="relative">
         <input
@@ -14,7 +14,7 @@ export default function SearchBox({ search, setSearch }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Tên món hoặc nguyên liệu..."
-          className="w-full rounded-xl border border-border-light bg-bg-main px-4 py-2.5 text-xs focus:border-primary focus:outline-none transition"
+          className="w-full rounded-lg border border-border-light bg-bg-main px-3 py-2 text-xs focus:border-primary focus:outline-none transition"
         />
       </div>
     </div>

@@ -157,7 +157,29 @@ export default function Orders() {
   const renderOrdersDashboard = (dashboardOrders, isGuest = false) => (
     <div className="flex flex-col flex-1 min-h-0 bg-bg-main mt-4">
       {isGuest && (
-        <div className="shrink-0 mb-6">
+        <div className="shrink-0 mb-4 space-y-3">
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-primary-dark">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="font-bold">FitFud đã giữ sẵn tài khoản tạm cho bạn.</p>
+                <p className="text-xs text-text-muted">Xác thực lại để lưu lịch sử đơn hàng và địa chỉ giao hàng vào tài khoản mới.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const params = new URLSearchParams({
+                    mode: 'register',
+                    phone: guestPhone || dashboardOrders.activeOrder?.contact_phone || ''
+                  });
+                  navigate(`/auth?${params.toString()}`);
+                }}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-white hover:bg-primary-dark transition"
+              >
+                <i className="bi bi-person-plus" aria-hidden="true" />
+                Tạo tài khoản
+              </button>
+            </div>
+          </div>
           <button
             onClick={() => { resetGuestOrders(); setGuestPhone(''); }}
             className="text-xs font-bold text-primary hover:underline flex items-center gap-1 bg-primary/5 px-4 py-2 rounded-xl w-fit"
@@ -193,11 +215,6 @@ export default function Orders() {
       <div className="pt-4 border-t border-border-light flex flex-col flex-1 min-h-0">
         <div className="flex justify-between items-center mb-4 shrink-0">
           <h2 className="text-sm font-bold text-text-main">Lịch sử đơn hàng</h2>
-          {!isGuest && (
-            <button className="text-xs font-bold text-text-muted hover:text-text-main transition flex items-center gap-1">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6h16M7 12h10M10 18h4" /></svg> Lọc theo tháng
-            </button>
-          )}
         </div>
 
         <div className="flex-1 overflow-y-auto min-h-0 pr-2 pb-12 custom-scrollbar">

@@ -1,16 +1,20 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { CartMode } from '../../type/cart';
 import { EmptyCartState } from '../molecule/CartPopup/EmptyCartState';
 import { CartPopupLineItem } from '../molecule/CartPopup/CartPopupLineItem';
 import { CartSubtotalRow } from '../molecule/CartPopup/CartSubtotalRow';
+import QuickViewModal from './Menu/QuickViewModal';
+import { fetchDishDetail } from '../../service/menuService';
 
 export const CartPopup = ({ mode, onClose }) => {
-  const { cart, selectedCartItemIds, updateCartQty, removeFromCart, getCartTotals, toggleSelectCartItem, toggleSelectAllCartItems } = useApp();
+  const { cart, selectedCartItemIds, updateCartQty, removeFromCart, addToCart, getCartTotals, toggleSelectCartItem, toggleSelectAllCartItems } = useApp();
   const navigate = useNavigate();
   const totals = getCartTotals(true); // only calculate totals for selected items
   const popupRef = useRef(null);
+  const [editingCartItem, setEditingCartItem] = useState(null);
+  const [editingDish, setEditingDish] = useState(null);
 
   const isPinned = mode === CartMode.PINNED;
   const isAllSelected = cart.length > 0 && selectedCartItemIds.length === cart.length;
@@ -38,15 +42,21 @@ export const CartPopup = ({ mode, onClose }) => {
     navigate('/checkout');
   };
 
+  const handleEditCartItem = async (item) => {
+    const dish = await fetchDishDetail(item.dish_id);
+    setEditingCartItem(item);
+    setEditingDish(dish);
+  };
+
   return (
     <div
       ref={popupRef}
-      className={`absolute right-0 top-[calc(100%+8px)] z-50 w-[420px] rounded-[16px] bg-bg-card shadow-premium border border-border-light transition-all duration-300 transform origin-top-right ${mode !== CartMode.CLOSED ? 'scale-100 opacity-100 visible' : 'scale-95 opacity-0 invisible pointer-events-none'}`}
+      className={`absolute right-0 top-[calc(100%+8px)] z-50 w-[340px] rounded-[14px] bg-bg-card shadow-premium border border-border-light transition-all duration-300 transform origin-top-right ${mode !== CartMode.CLOSED ? 'scale-100 opacity-100 visible' : 'scale-95 opacity-0 invisible pointer-events-none'}`}
     >
-      <div className="flex flex-col max-h-[80vh] overflow-hidden">
+      <div className="flex flex-col max-h-[min(460px,calc(100vh-96px))] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border-light px-5 py-4 shrink-0">
-          <h2 className="text-lg font-bold text-text-main flex items-center gap-2">
+        <div className="flex items-center justify-between border-b border-border-light px-4 py-3 shrink-0">
+          <h2 className="text-base font-bold text-text-main flex items-center gap-2">
             Giỏ hàng
             <span className="text-sm font-medium text-text-muted bg-bg-main px-2 py-0.5 rounded-full">{cart.length}</span>
           </h2>
@@ -63,11 +73,11 @@ export const CartPopup = ({ mode, onClose }) => {
         </div>
 
         {/* List */}
-        <div className="flex-1 overflow-y-auto px-5 py-2 min-h-[150px]">
+        <div className="flex-1 overflow-y-auto px-4 py-1.5 min-h-[180px] custom-scrollbar">
           {cart.length === 0 ? (
             <EmptyCartState onClose={onClose} />
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-2.5">
               <div className="flex items-center gap-2 pt-2">
                 <button
                   type="button"
@@ -94,6 +104,7 @@ export const CartPopup = ({ mode, onClose }) => {
                   onToggleSelect={toggleSelectCartItem}
                   onUpdateQty={updateCartQty}
                   onRemove={removeFromCart}
+                  onEdit={handleEditCartItem}
                 />
               ))}
             </div>
@@ -109,6 +120,25 @@ export const CartPopup = ({ mode, onClose }) => {
           />
         )}
       </div>
+      {editingCartItem && editingDish && (
+        <QuickViewModal
+          dish={editingDish}
+          initialSize={editingCartItem.size_name}
+          initialQuantity={editingCartItem.quantity}
+          initialChefNotes={editingCartItem.chef_notes || ''}
+          submitLabel="Lưu thay đổi"
+          onClose={() => {
+            setEditingCartItem(null);
+            setEditingDish(null);
+          }}
+          onAddToCart={(updatedItem) => {
+            removeFromCart(editingCartItem.id);
+            addToCart(updatedItem);
+            setEditingCartItem(null);
+            setEditingDish(null);
+          }}
+        />
+      )}
     </div>
   );
 };

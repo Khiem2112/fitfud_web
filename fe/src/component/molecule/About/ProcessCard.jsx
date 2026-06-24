@@ -4,7 +4,7 @@ export default function ProcessCard({ title, desc, icon }) {
   return (
     <div className="flex flex-col items-center bg-bg-card rounded-xl border border-border-light shadow-sm p-6 hover:-translate-y-1 transition-all duration-300 text-center relative mt-8">
       <div className="absolute -top-8 flex h-16 w-16 items-center justify-center rounded-full bg-primary-forest text-primary-light shadow-md border-4 border-bg-main">
-        <span className="text-2xl">{icon}</span>
+        <i className={`bi ${icon} text-2xl leading-none`} aria-hidden="true" />
       </div>
       
       <div className="pt-8 w-full flex flex-col items-center gap-3">

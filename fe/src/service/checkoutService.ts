@@ -39,13 +39,10 @@ export const addToCart = (item: Omit<CartItemState, 'id'>): CartItemState[] => {
 };
 
 export const updateCartQty = (id: string, qty: number): CartItemState[] => {
-  let cart = getCart();
+  const cart = getCart();
   const item = cart.find((c) => c.id === id);
   if (item) {
-    item.quantity = qty;
-    if (item.quantity <= 0) {
-      cart = cart.filter((c) => c.id !== id);
-    }
+    item.quantity = Math.max(1, qty);
   }
   saveCart(cart);
   return cart;

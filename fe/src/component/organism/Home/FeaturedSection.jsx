@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
 import DishCard from '../../molecule/Menu/DishCard';
 
 /**
@@ -26,7 +25,7 @@ const FeaturedSection = ({ dishes, onOpenQuickView }) => {
             className="flex items-center gap-2 text-primary font-bold hover:text-primary-dark group"
           >
             Khám phá tất cả
-            <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
+            <i className="bi bi-arrow-right text-xl leading-none transform group-hover:translate-x-1 transition-transform" aria-hidden="true" />
           </button>
         </div>
 
@@ -47,7 +46,7 @@ const FeaturedSection = ({ dishes, onOpenQuickView }) => {
           >
             <div className="flex flex-col items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <ArrowRight className="w-8 h-8 text-primary" />
+                <i className="bi bi-arrow-right text-3xl leading-none text-primary" aria-hidden="true" />
               </div>
               <span className="font-bold text-primary text-center">Xem thêm món khác</span>
             </div>

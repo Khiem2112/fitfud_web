@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
-import { getProfileDashboard, logMeal } from '../service/profileService';
+import { getProfileDashboard, logMeal, updateProfileHealth } from '../service/profileService';
 
 // Left Column Components
 import ProfileCard from '../component/organism/Profile/ProfileCard';
@@ -87,16 +87,21 @@ export default function Profile() {
   }
 
   return (
-    <div className="mx-auto max-w-[1400px] px-4 py-8 page-enter relative">
+    <div className="mx-auto max-w-[1280px] px-4 py-5 page-enter relative">
 
       {/* 3-Column Layout exactly like Figma */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
 
         {/* LEFT COLUMN: Profile info, Health Goal, Address */}
-        <div className="lg:col-span-1 flex flex-col gap-6">
+        <div className="lg:col-span-1 flex flex-col gap-4">
           <ProfileCard
             dashboardData={dashboardData}
             onChangePassword={() => setIsChangePasswordOpen(true)}
+            onUpdateHealth={async (input) => {
+              await updateProfileHealth(user.id, input);
+              await loadDashboardData();
+              addToast('Đã cập nhật chiều cao/cân nặng.', 'success');
+            }}
           />
           <HealthGoalPanel />
           <DefaultAddressPanel
@@ -106,15 +111,16 @@ export default function Profile() {
         </div>
 
         {/* MIDDLE COLUMN: Chart, Logger, Recent Meals */}
-        <div className="lg:col-span-2 flex flex-col gap-6">
+        <div className="lg:col-span-2 flex flex-col gap-4">
           <NutritionChartGrid />
 
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4">
             <MealLoggerPanel onLogMeal={handleLogMeal} />
 
-            <div className="bg-bg-card border border-border-light rounded-3xl p-6 shadow-premium">
+            <div className="bg-bg-card border border-border-light rounded-2xl p-4 shadow-premium">
               <h2 className="text-sm font-bold text-text-main flex items-center gap-2 mb-4">
-                <span>🕒</span> Bữa ăn gần đây
+                <i className="bi bi-clock-history text-base leading-none text-primary" aria-hidden="true" />
+                <span>Bữa ăn gần đây</span>
               </h2>
               <RecentMealsPanel recentMeals={dashboardData.recentMeals} />
             </div>
@@ -122,7 +128,7 @@ export default function Profile() {
         </div>
 
         {/* RIGHT COLUMN: Progress Box, AI Dinner */}
-        <div className="lg:col-span-1 flex flex-col gap-6">
+        <div className="lg:col-span-1 flex flex-col gap-4">
           <TodayProgressBox dashboardData={dashboardData} />
           <div className="flex-1">
             <AIRecommendedMealsPanel recommendedDishes={dashboardData.aiRecommendedDishes} />

@@ -3,7 +3,7 @@ import React from 'react';
 export const RadioButton = ({ name, checked, onChange, value, label, icon }) => {
   return (
     <label
-      className={`flex flex-1 cursor-pointer items-center gap-2 rounded-[12px] border p-[8px] pr-[12px] transition-colors ${
+      className={`flex flex-1 cursor-pointer items-center gap-2 rounded-[12px] border p-2 pr-3 transition-colors ${
         checked
           ? 'border-primary bg-primary-light/30'
           : 'border-border-light bg-white'
@@ -29,7 +29,7 @@ export const RadioButton = ({ name, checked, onChange, value, label, icon }) => 
         )}
       </div>
       {icon && <div className="flex h-[24px] w-[24px] items-center justify-center">{icon}</div>}
-      <span className="font-be-vietnam text-[16px] font-normal leading-[24px] text-text-main">
+      <span className="font-be-vietnam text-sm font-medium leading-5 text-text-main">
         {label}
       </span>
     </label>
