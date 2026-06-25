@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 export const CancelOrderModal = ({ 
   order, 
@@ -30,9 +31,9 @@ export const CancelOrderModal = ({
 
   if (!order) return null;
 
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm modal-overlay-enter">
-      <div className="w-full max-w-sm rounded-2xl bg-bg-card p-6 shadow-2xl modal-enter relative text-center">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm modal-overlay-enter">
+      <div className="fixed left-1/2 top-1/2 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-bg-card p-6 shadow-2xl modal-enter relative text-center">
         <h2 className="text-lg font-extrabold text-text-main mb-2">Xác nhận hủy đơn</h2>
         <p className="text-xs text-text-muted mb-6">
           Chúng tôi đã gửi mã OTP gồm 4 số đến số điện thoại <span className="font-bold text-text-main">{order.contact_phone}</span>.
@@ -79,6 +80,7 @@ export const CancelOrderModal = ({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

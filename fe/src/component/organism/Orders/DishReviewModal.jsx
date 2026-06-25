@@ -16,28 +16,28 @@ export const DishReviewModal = ({ item, onClose, onSubmit }) => {
 
   return (
     <div 
-      className="relative bg-bg-card rounded-2xl w-full md:w-[320px] flex flex-col shadow-2xl animate-fade-in-left h-full"
+      className="relative bg-bg-card rounded-2xl w-full md:w-[280px] flex flex-col shadow-2xl animate-fade-in-left h-full"
       onClick={e => e.stopPropagation()}
     >
-      <div className="flex items-center justify-between p-4 border-b border-border-light shrink-0">
-        <h2 className="text-base font-bold text-text-main">Đánh giá món ăn</h2>
-        <button onClick={onClose} className="p-2 rounded-full text-text-muted hover:bg-bg-main hover:text-text-main transition-colors">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <div className="flex items-center justify-between p-3 border-b border-border-light shrink-0">
+        <h2 className="text-sm font-bold text-text-main">Đánh giá món ăn</h2>
+        <button onClick={onClose} className="p-1.5 rounded-full text-text-muted hover:bg-bg-main hover:text-text-main transition-colors">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M18 6L6 18M6 6l12 12" />
           </svg>
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="p-4 flex flex-col gap-4 overflow-y-auto">
+      <form onSubmit={handleSubmit} className="p-3 flex flex-col gap-3 overflow-y-auto">
         <div className="flex flex-col items-center gap-2">
           {item.image_url ? (
-            <img src={item.image_url} alt={item.dish_name} className="w-16 h-16 rounded-xl object-cover shadow-sm" />
+            <img src={item.image_url} alt={item.dish_name} className="w-14 h-14 rounded-xl object-cover shadow-sm" />
           ) : (
-            <div className="w-16 h-16 rounded-xl bg-border-light flex items-center justify-center">
+            <div className="w-14 h-14 rounded-xl bg-border-light flex items-center justify-center">
               <span className="text-xs text-text-muted">Ảnh</span>
             </div>
           )}
-          <h3 className="font-bold text-text-main text-center text-sm">{item.dish_name}</h3>
+          <h3 className="font-bold text-text-main text-center text-xs">{item.dish_name}</h3>
         </div>
 
         <div className="flex justify-center gap-2">
@@ -48,7 +48,7 @@ export const DishReviewModal = ({ item, onClose, onSubmit }) => {
               onClick={() => setRating(star)}
               className={`transition-all hover:scale-110 ${star <= rating ? 'text-[#FFD700]' : 'text-gray-200'} hover:text-[#FFD700]`}
             >
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
             </button>
@@ -56,19 +56,19 @@ export const DishReviewModal = ({ item, onClose, onSubmit }) => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-bold text-text-main">Nhận xét của bạn (Tùy chọn)</label>
+          <label className="text-xs font-bold text-text-main">Nhận xét của bạn (Tùy chọn)</label>
           <textarea 
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="Chia sẻ cảm nhận của bạn về món ăn này..."
-            className="w-full rounded-xl border border-border-light bg-bg-main px-3 py-2 text-sm focus:border-primary focus:outline-none transition resize-none h-24"
+            className="w-full rounded-xl border border-border-light bg-bg-main px-3 py-2 text-xs focus:border-primary focus:outline-none transition resize-none h-20"
           />
         </div>
 
         <button 
           type="submit"
           disabled={rating === 0}
-          className="mt-auto w-full py-2.5 rounded-xl bg-primary text-sm text-white font-bold shadow-premium hover:bg-primary-dark transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-auto w-full py-2.5 rounded-xl bg-primary text-xs text-white font-bold shadow-premium hover:bg-primary-dark transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Gửi đánh giá
         </button>

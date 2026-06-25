@@ -154,8 +154,11 @@ export default function Orders() {
     return parsed;
   };
 
-  const renderOrdersDashboard = (dashboardOrders, isGuest = false) => (
-    <div className="flex flex-col flex-1 min-h-0 bg-bg-main mt-4">
+  const renderOrdersDashboard = (dashboardOrders, isGuest = false) => {
+    const shouldScrollHistory = dashboardOrders.historyOrders.length > 10;
+
+    return (
+    <div className="flex flex-col bg-bg-main mt-4">
       {isGuest && (
         <div className="shrink-0 mb-4 space-y-3">
           <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-primary-dark">
@@ -212,12 +215,12 @@ export default function Orders() {
       </div>
 
       {/* Past orders list */}
-      <div className="pt-4 border-t border-border-light flex flex-col flex-1 min-h-0">
+      <div className="pt-4 border-t border-border-light">
         <div className="flex justify-between items-center mb-4 shrink-0">
           <h2 className="text-sm font-bold text-text-main">Lịch sử đơn hàng</h2>
         </div>
 
-        <div className="flex-1 overflow-y-auto min-h-0 pr-2 pb-12 custom-scrollbar">
+        <div className={`${shouldScrollHistory ? 'max-h-[760px] overflow-y-auto pr-2 custom-scrollbar' : ''} pb-12`}>
           <OrderHistoryList
             orders={dashboardOrders.historyOrders}
             onViewDetail={setViewingDetailOrder}
@@ -231,11 +234,12 @@ export default function Orders() {
         </div>
       </div>
     </div>
-  );
+    );
+  };
 
   return (
-    <div className="fixed inset-x-0 bottom-0 top-[80px] overflow-hidden flex flex-col bg-bg-main page-enter">
-      <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8 flex flex-col h-full overflow-hidden">
+    <div className="min-h-[calc(100vh-80px)] bg-bg-main page-enter">
+      <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Title */}
         <div className="shrink-0 mb-2">
           <h1 className="text-2xl font-extrabold text-text-main tracking-tight">Lịch sử & Trạng thái đơn hàng</h1>
@@ -256,7 +260,7 @@ export default function Orders() {
           guestOrdersData ? (
             renderOrdersDashboard(formatGuestOrders(guestOrdersData), true)
           ) : (
-            <div className="flex-1 overflow-y-auto min-h-0 pb-12 pt-8">
+            <div className="pb-12 pt-8">
               <div className="max-w-md mx-auto bg-bg-card border border-border-light rounded-2xl p-6 sm:p-8 shadow-premium space-y-6">
                 <div className="text-center space-y-1.5">
                   <h2 className="text-lg font-bold text-text-main">Tra cứu đơn hàng cho khách</h2>
