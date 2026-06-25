@@ -3,12 +3,14 @@ import { SavedAddressItem } from '../../molecule/Checkout/SavedAddressItem';
 import { EmptyAddressState } from '../../molecule/Checkout/EmptyAddressState';
 import { getSavedAddresses } from '../../../service/checkoutService';
 import { useToast } from '../../../context/ToastContext';
+import { useApp } from '../../../context/AppContext';
 
 export const SavedAddressModal = ({ isOpen, onClose, onSelectAddress }) => {
   const [addresses, setAddresses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const { addToast } = useToast();
+  const { user } = useApp();
 
   useEffect(() => {
     if (isOpen) {
@@ -21,8 +23,7 @@ export const SavedAddressModal = ({ isOpen, onClose, onSelectAddress }) => {
   const loadAddresses = async () => {
     setIsLoading(true);
     try {
-      // Assuming userId is available or managed by service inside
-      const data = await getSavedAddresses('current_user_id');
+      const data = await getSavedAddresses(user?.id || 'guest');
       // Sort default address to top
       const sorted = [...data].sort((a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0));
       setAddresses(sorted);

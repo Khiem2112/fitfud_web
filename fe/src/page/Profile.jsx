@@ -145,6 +145,7 @@ export default function Profile() {
       <AddAddressPopup
         isOpen={isAddAddressOpen}
         onClose={() => setIsAddAddressOpen(false)}
+        onSuccess={loadDashboardData}
       />
     </div>
   );

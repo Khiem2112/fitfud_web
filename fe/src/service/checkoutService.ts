@@ -146,8 +146,40 @@ const mockAddresses: SavedAddress[] = [
   }
 ];
 
+const ADDRESSES_KEY_PREFIX = 'fitfud_addresses_';
+
 export const getSavedAddresses = async (userId: string): Promise<SavedAddress[]> => {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const stored = localStorage.getItem(ADDRESSES_KEY_PREFIX + userId);
+  if (stored) {
+    return JSON.parse(stored);
+  }
+  
+  // Set mock as initial state
+  localStorage.setItem(ADDRESSES_KEY_PREFIX + userId, JSON.stringify(mockAddresses));
   return mockAddresses;
+};
+
+export const addAddress = async (userId: string, input: Omit<SavedAddress, 'id'>): Promise<SavedAddress> => {
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  const addresses = await getSavedAddresses(userId);
+  
+  // If this is set to default, unset others
+  if (input.isDefault) {
+    addresses.forEach(a => a.isDefault = false);
+  } else if (addresses.length === 0) {
+    input.isDefault = true; // First address is always default
+  }
+
+  const newAddress: SavedAddress = {
+    ...input,
+    id: `addr_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`
+  };
+
+  addresses.unshift(newAddress);
+  localStorage.setItem(ADDRESSES_KEY_PREFIX + userId, JSON.stringify(addresses));
+
+  return newAddress;
 };
 
 // --- Checkout and Order Creation ---

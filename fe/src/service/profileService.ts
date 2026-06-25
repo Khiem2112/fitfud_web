@@ -90,7 +90,7 @@ export const getProfileDashboard = async (userId: string, fullName: string): Pro
   }));
 
   // Lấy món ăn bất kỳ từ menu
-  const { dishes } = await fetchHealthyMenu({ limit: 10, page: 1 });
+  const { dishes } = await fetchHealthyMenu({ limit: 10, page: 1, inStockOnly: false });
   const randomDish = dishes[Math.floor(Math.random() * dishes.length)];
   const randomSize = randomDish.sizes.find(s => s.size_name === 'M') || randomDish.sizes[0];
 
@@ -102,7 +102,7 @@ export const getProfileDashboard = async (userId: string, fullName: string): Pro
       price_from: randomSize.price,
       calories: randomSize.calories,
       protein: randomSize.protein,
-      status: randomDish.status,
+      status: randomDish.status as 'Active' | 'Inactive' | 'Out of Stock',
       image_url: randomDish.image_url,
       originalDish: randomDish
     }
@@ -185,12 +185,26 @@ export const searchFitFudDishForLog = async (keyword: string): Promise<SearchFit
   return { dishes: filtered };
 };
 
-export const changePassword = async (input: ChangePasswordInput): Promise<{ success: boolean, message: string }> => {
+export const changePassword = async (userId: string, input: ChangePasswordInput): Promise<{ success: boolean, message: string }> => {
   await new Promise((resolve) => setTimeout(resolve, 800));
 
-  if (input.current_password !== '123456') { // Mock check
+  const STORAGE_USERS_KEY = 'fitfud_mock_users';
+  const usersStr = localStorage.getItem(STORAGE_USERS_KEY);
+  if (!usersStr) throw new Error('Hệ thống chưa khởi tạo CSDL người dùng');
+
+  const users = JSON.parse(usersStr);
+  const index = users.findIndex((u: any) => u.id === userId);
+
+  if (index === -1) {
+    throw new Error('Không tìm thấy tài khoản người dùng');
+  }
+
+  if (users[index].password_hash !== input.current_password) {
     throw new Error('Mật khẩu hiện tại không chính xác');
   }
+
+  users[index].password_hash = input.new_password;
+  localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
 
   return {
     success: true,

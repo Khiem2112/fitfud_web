@@ -1453,6 +1453,36 @@ export interface ApiSizeSize extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiTestTypeTestType extends Struct.CollectionTypeSchema {
+  collectionName: 'test_types';
+  info: {
+    displayName: 'testType';
+    pluralName: 'test-types';
+    singularName: 'test-type';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    efw: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::test-type.test-type'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    test2: Schema.Attribute.String;
+    tett42: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiUserExtendedUserExtended
   extends Struct.CollectionTypeSchema {
   collectionName: 'users_extended';
@@ -2073,6 +2103,7 @@ declare module '@strapi/strapi' {
       'api::payment.payment': ApiPaymentPayment;
       'api::review.review': ApiReviewReview;
       'api::size.size': ApiSizeSize;
+      'api::test-type.test-type': ApiTestTypeTestType;
       'api::user-extended.user-extended': ApiUserExtendedUserExtended;
       'api::ward.ward': ApiWardWard;
       'plugin::content-releases.release': PluginContentReleasesRelease;
