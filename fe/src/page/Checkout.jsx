@@ -10,12 +10,17 @@ import { PaymentMethodSelectorBox } from '../component/organism/Checkout/Payment
 import { OrderSummarySidebarCard } from '../component/organism/Checkout/OrderSummarySidebarCard';
 import { OrderSuccessModal } from '../component/organism/Checkout/OrderSuccessModal';
 import { useCheckoutDraft } from '../hook/useCheckoutDraft';
+import QuickViewModal from '../component/organism/Menu/QuickViewModal';
+import { fetchDishDetail } from '../service/menuService';
 
 export default function Checkout() {
-  const { user, cart, updateCartQty, clearCart, selectedCartItemIds, toggleSelectAllCartItems, toggleSelectCartItem } = useApp();
+  const { user, cart, updateCartQty, removeFromCart, addToCart, clearCart, selectedCartItemIds, toggleSelectAllCartItems, toggleSelectCartItem } = useApp();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [globalError, setGlobalError] = useState('');
   const [orderSuccessData, setOrderSuccessData] = useState(null);
+  const [editingCartItem, setEditingCartItem] = useState(null);
+  const [editingDish, setEditingDish] = useState(null);
+  const navigate = useNavigate();
 
   // Use checkout draft hook
   const { getDraftFormData, updateDraft, clearDraft } = useCheckoutDraft();
@@ -36,6 +41,16 @@ export default function Checkout() {
     },
     mode: 'onBlur',
   });
+
+  const handleEditCartItem = async (item) => {
+    try {
+      const dish = await fetchDishDetail(item.dish_id);
+      setEditingCartItem(item);
+      setEditingDish(dish);
+    } catch {
+      setGlobalError('Không thể mở chi tiết món để chỉnh sửa.');
+    }
+  };
 
   const handleResetForm = () => {
     clearDraft();
@@ -126,10 +141,10 @@ export default function Checkout() {
   };
 
   return (
-    <div className="mx-auto max-w-[1280px] px-4 py-6 lg:py-8 lg:px-0">
-      <div className="flex flex-col gap-6 w-full bg-[#FAFAFA] rounded-xl p-4 sm:p-6 lg:p-8">
+    <div className="mx-auto max-w-[1280px] px-3 py-4 lg:py-5">
+      <div className="flex flex-col gap-4 w-full bg-[#FAFAFA] rounded-xl p-3 sm:p-4 lg:p-5">
         <div className="flex items-center justify-between">
-          <h1 className="font-be-vietnam text-[32px] font-bold leading-[41.6px] text-brand-main">
+          <h1 className="font-be-vietnam text-[24px] font-bold leading-tight text-brand-main">
             Hoàn tất đơn hàng
           </h1>
         </div>
@@ -139,9 +154,35 @@ export default function Checkout() {
             {globalError}
           </div>
         )}
+        {!user && (
+          <div className="rounded-[12px] border border-primary/20 bg-primary/5 p-4 text-sm text-primary-dark">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="font-bold">FitFud đã giữ sẵn tài khoản tạm cho bạn.</p>
+                <p className="text-text-muted">Xác thực lại để lưu đơn hàng, địa chỉ và thông tin mua hàng vào tài khoản mới.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const values = methods.getValues();
+                  const params = new URLSearchParams({
+                    mode: 'register',
+                    name: values.contact_name || '',
+                    phone: values.contact_phone || ''
+                  });
+                  navigate(`/auth?${params.toString()}`);
+                }}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-white hover:bg-primary-dark transition"
+              >
+                <i className="bi bi-person-plus" aria-hidden="true" />
+                Tạo tài khoản từ thông tin này
+              </button>
+            </div>
+          </div>
+        )}
 
         <FormProvider {...methods}>
-          <form onSubmit={methods.handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative">
+          <form onSubmit={methods.handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-12 gap-5 relative">
 
             {/* Left Column: Checkout Details */}
             <div className="lg:col-span-8 flex flex-col gap-6">
@@ -159,7 +200,7 @@ export default function Checkout() {
 
             {/* Right Column: Cart Summary */}
             <div className="lg:col-span-4 relative">
-              <div className="sticky top-[100px]">
+              <div className="sticky top-[88px]">
                 <Controller
                   name="payment_method"
                   control={methods.control}
@@ -167,6 +208,8 @@ export default function Checkout() {
                     <OrderSummarySidebarCard
                       cartItems={cart}
                       onUpdateQuantity={updateCartQty}
+                      onRemoveItem={removeFromCart}
+                      onEditItem={handleEditCartItem}
                       isSubmitting={isSubmitting}
                       paymentMethod={field.value}
                       selectedItemIds={selectedCartItemIds}
@@ -186,6 +229,25 @@ export default function Checkout() {
         isOpen={!!orderSuccessData}
         data={orderSuccessData}
       />
+      {editingCartItem && editingDish && (
+        <QuickViewModal
+          dish={editingDish}
+          initialSize={editingCartItem.size_name}
+          initialQuantity={editingCartItem.quantity}
+          initialChefNotes={editingCartItem.chef_notes || ''}
+          submitLabel="Lưu thay đổi"
+          onClose={() => {
+            setEditingCartItem(null);
+            setEditingDish(null);
+          }}
+          onAddToCart={(updatedItem) => {
+            removeFromCart(editingCartItem.id);
+            addToCart(updatedItem);
+            setEditingCartItem(null);
+            setEditingDish(null);
+          }}
+        />
+      )}
     </div>
   );
 }

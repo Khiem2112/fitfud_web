@@ -4,7 +4,7 @@ export const Input = ({ value, onChange, onBlur, name, label, placeholder, type 
   return (
     <div className="flex flex-col items-stretch gap-1 w-full">
       {label && (
-        <label className="font-be-vietnam text-[16px] font-normal leading-[24px] text-text-secondary">
+        <label className="font-be-vietnam text-sm font-medium leading-5 text-text-secondary">
           {label}
         </label>
       )}
@@ -16,7 +16,7 @@ export const Input = ({ value, onChange, onBlur, name, label, placeholder, type 
           onBlur={onBlur}
           type={type}
           placeholder={placeholder}
-          className={`w-full rounded-[8px] border bg-white px-[16px] py-[15px] font-be-vietnam text-[16px] font-normal outline-none transition-colors 
+          className={`w-full rounded-[8px] border bg-white px-3 py-2.5 font-be-vietnam text-sm font-normal outline-none transition-colors 
           ${error ? 'border-red-500 text-red-500 placeholder-red-300' : 'border-border-light text-text-main placeholder-text-placeholder focus:border-primary'}
           `}
         />

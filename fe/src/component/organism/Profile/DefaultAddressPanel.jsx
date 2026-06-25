@@ -31,18 +31,19 @@ export default function DefaultAddressPanel({ addresses, onChangeAddress }) {
   };
 
   return (
-    <div className="bg-bg-card border border-border-light rounded-3xl p-6 shadow-premium space-y-4 relative">
+    <div className="bg-bg-card border border-border-light rounded-2xl p-4 shadow-premium space-y-3 relative">
       <h3 className="text-sm font-bold text-text-main flex items-center gap-2 mb-2">
-        <span>📍</span> Địa chỉ giao hàng
+        <i className="bi bi-geo-alt text-base leading-none" aria-hidden="true" />
+        <span>Địa chỉ giao hàng</span>
       </h3>
 
       {addresses && addresses.length > 0 ? (
-        <div className="space-y-3 max-h-[220px] overflow-y-auto pr-2 custom-scrollbar">
+        <div className="space-y-2 max-h-[160px] overflow-y-auto pr-2 custom-scrollbar">
           {addresses.map((address) => (
             <div
               key={address.id}
               onClick={() => handleSelectAddress(address.id)}
-              className={`border rounded-xl p-4 cursor-pointer transition ${selectedAddressId === address.id
+              className={`border rounded-xl p-3 cursor-pointer transition ${selectedAddressId === address.id
                   ? 'border-primary-dark bg-[#F8FAFC]'
                   : 'border-border-light hover:border-primary-light bg-white'
                 }`}
@@ -69,9 +70,10 @@ export default function DefaultAddressPanel({ addresses, onChangeAddress }) {
 
       <button
         onClick={onChangeAddress}
-        className="w-full rounded-xl border border-primary-dark py-2.5 text-xs font-bold text-primary-dark hover:bg-bg-main transition mt-2"
+        className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-primary-dark py-2 text-xs font-bold text-primary-dark hover:bg-bg-main transition mt-1"
       >
-        <span>➕</span> Thêm địa chỉ mới
+        <i className="bi bi-plus-circle text-sm leading-none" aria-hidden="true" />
+        <span>Thêm địa chỉ mới</span>
       </button>
 
       {/* Confirmation Popup */}

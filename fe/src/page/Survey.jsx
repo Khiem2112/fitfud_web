@@ -130,7 +130,11 @@ export default function Survey() {
               <BodyMetricsForm activityLevels={masterData.activityLevels} />
               <AllergensForm allergies={masterData.allergies} />
 
-              <SurveyStickyFooter onSkip={() => setShowSkipModal(true)} />
+              <SurveyStickyFooter
+                onSkip={() => setShowSkipModal(true)}
+                onFinish={methods.handleSubmit(onSubmit)}
+                isSubmitting={analyzing}
+              />
 
               <div className="h-24"></div>
             </form>

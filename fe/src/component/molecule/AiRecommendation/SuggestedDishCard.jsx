@@ -10,13 +10,13 @@ export default function SuggestedDishCard({ dish, onOpenQuickView }) {
   return (
     <div
       onClick={() => !isOutOfStock && onOpenQuickView(dish)}
-      className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-border-light bg-white p-5 hover:shadow-premium hover:-translate-y-0.5 transition duration-300 relative cursor-pointer h-full"
+      className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-border-light bg-white p-3.5 hover:shadow-premium hover:-translate-y-0.5 transition duration-300 relative cursor-pointer h-full"
     >
       {/* Badges */}
       {isOutOfStock && <ProductBadge type="out-of-stock" />}
 
       {/* Image block */}
-      <div className="relative overflow-hidden rounded-xl bg-bg-main h-48 mb-4">
+      <div className="relative overflow-hidden rounded-xl bg-bg-main h-36 mb-3">
         {dish.image_url ? (
           <img
             src={dish.image_url}
@@ -25,7 +25,7 @@ export default function SuggestedDishCard({ dish, onOpenQuickView }) {
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-4xl bg-primary-light">
-            🥗
+            <i className="bi bi-egg-fried leading-none text-primary" aria-hidden="true" />
           </div>
         )}
         
@@ -39,7 +39,7 @@ export default function SuggestedDishCard({ dish, onOpenQuickView }) {
       <div className="flex-1 flex flex-col">
         <div className="flex justify-between items-start mb-2">
           <h3
-            className={`text-lg font-bold text-text-main leading-snug flex-1 pr-2 ${
+            className={`text-base font-bold text-text-main leading-snug flex-1 pr-2 ${
               isOutOfStock ? 'opacity-60' : 'group-hover:text-primary transition'
             }`}
           >
@@ -50,12 +50,12 @@ export default function SuggestedDishCard({ dish, onOpenQuickView }) {
           </span>
         </div>
 
-        <p className="text-xs text-text-muted line-clamp-3 mb-4 flex-1">
+        <p className="text-[11px] text-text-muted line-clamp-2 mb-3 flex-1">
           {dish.description}
         </p>
 
         {/* Nutrient specs */}
-        <div className="flex items-center gap-6 mb-4">
+        <div className="flex items-center gap-5 mb-3">
           <div>
             <span className="block text-[9px] text-text-muted font-bold uppercase tracking-wider">Protein</span>
             <span className="text-sm font-bold text-[#12563F]">{defaultSize.protein}g</span>
@@ -74,13 +74,13 @@ export default function SuggestedDishCard({ dish, onOpenQuickView }) {
             onOpenQuickView(dish);
           }}
           disabled={isOutOfStock}
-          className={`w-full rounded-xl py-3 text-center text-sm font-bold shadow-sm transition flex items-center justify-center gap-2 ${
+          className={`w-full rounded-xl py-2.5 text-center text-xs font-bold shadow-sm transition flex items-center justify-center gap-2 ${
             isOutOfStock
               ? 'bg-border-light text-text-muted cursor-not-allowed'
               : 'bg-[#12563F] text-white hover:bg-primary-dark hover:shadow-premium'
           }`}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+          <i className="bi bi-bag" aria-hidden="true" />
           {isOutOfStock ? 'Tạm hết hàng' : 'Thêm vào giỏ'}
         </button>
       </div>

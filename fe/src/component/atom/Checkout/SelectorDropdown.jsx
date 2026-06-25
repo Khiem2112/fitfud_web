@@ -4,7 +4,7 @@ export const SelectorDropdown = ({ value, onChange, onBlur, name, label, options
   return (
     <div className="flex flex-col items-stretch gap-1 w-full relative">
       {label && (
-        <label className="font-be-vietnam text-[16px] font-normal leading-[24px] text-text-secondary">
+        <label className="font-be-vietnam text-sm font-medium leading-5 text-text-secondary">
           {label}
         </label>
       )}
@@ -19,7 +19,7 @@ export const SelectorDropdown = ({ value, onChange, onBlur, name, label, options
             onChange={onChange}
             onBlur={onBlur}
             disabled={disabled}
-            className={`w-full appearance-none rounded-[8px] border bg-white px-[16px] py-[15px] font-be-vietnam text-[16px] font-normal outline-none transition-colors 
+            className={`w-full appearance-none rounded-[8px] border bg-white px-3 py-2.5 pr-10 font-be-vietnam text-sm font-normal outline-none transition-colors 
             ${error ? 'border-red-500 text-red-500' : 'border-border-light text-text-main focus:border-primary'}
             ${disabled ? 'bg-bg-main cursor-not-allowed text-text-light' : ''}
             ${!value ? 'text-text-light' : ''}`}

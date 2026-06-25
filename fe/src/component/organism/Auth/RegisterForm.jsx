@@ -20,19 +20,21 @@ export default function RegisterForm({
   handleRegisterSubmit,
   loading,
   setMode,
-  resetMessages
+  resetMessages,
+  defaultValues
 }) {
   const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: zodResolver(registerSchema)
+    resolver: zodResolver(registerSchema),
+    defaultValues
   });
 
-  const inputClass = "w-full rounded-xl border border-border-light bg-bg-card px-4 py-3.5 text-sm text-text-main shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all duration-200";
-  const labelClass = "block text-sm font-semibold text-text-main mb-1.5";
+  const inputClass = "w-full rounded-xl border border-border-light bg-bg-card px-3.5 py-2.5 text-sm text-text-main shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all duration-200";
+  const labelClass = "block text-sm font-semibold text-text-main mb-1";
   const errorClass = "text-danger text-xs font-medium mt-1.5";
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <form onSubmit={handleSubmit(handleRegisterSubmit)} noValidate className="space-y-4">
+      <form onSubmit={handleSubmit(handleRegisterSubmit)} noValidate className="space-y-3">
         <div>
           <label className={labelClass}>Họ và tên</label>
           <input
@@ -66,7 +68,7 @@ export default function RegisterForm({
           {errors.phone && <p className={errorClass}>{errors.phone.message}</p>}
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3">
           <div>
             <label className={labelClass}>Mật khẩu</label>
             <input
@@ -89,7 +91,7 @@ export default function RegisterForm({
           </div>
         </div>
 
-        <div className="pt-2 pb-1">
+        <div className="pt-1">
           <div className="flex items-start">
             <input
               id="agree-terms"
@@ -97,7 +99,7 @@ export default function RegisterForm({
               className="h-4.5 w-4.5 rounded border-border-light text-primary focus:ring-primary/20 transition-all cursor-pointer mt-0.5"
               {...register('agreeTerms')}
             />
-            <label htmlFor="agree-terms" className="ml-2.5 text-sm font-medium text-text-muted cursor-pointer select-none leading-relaxed">
+            <label htmlFor="agree-terms" className="ml-2.5 text-xs font-medium text-text-muted cursor-pointer select-none leading-relaxed">
               Tôi đồng ý với <span className="text-primary font-bold hover:underline">Điều khoản dịch vụ</span> và <span className="text-primary font-bold hover:underline">Chính sách bảo mật</span> của FitFud.
             </label>
           </div>
@@ -107,13 +109,13 @@ export default function RegisterForm({
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-primary py-3.5 text-center text-sm font-bold text-white shadow-md hover:bg-primary-dark hover:shadow-lg transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed mt-2"
+          className="w-full rounded-xl bg-primary py-3 text-center text-sm font-bold text-white shadow-md hover:bg-primary-dark hover:shadow-lg transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed mt-1"
         >
           {loading ? 'Đang xử lý...' : 'Tạo tài khoản'}
         </button>
       </form>
 
-      <div className="text-center mt-8">
+      <div className="text-center mt-5">
         <span className="text-sm text-text-muted font-medium">
           Đã có tài khoản?{' '}
           <button

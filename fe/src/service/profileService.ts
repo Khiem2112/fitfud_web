@@ -136,6 +136,14 @@ export const updateProfileHealth = async (userId: string, input: UpdateProfileHe
 
   const heightM = updatedHeight / 100;
   const bmi = Number((updatedWeight / (heightM * heightM)).toFixed(1));
+  const updatedProfile = {
+    ...profile,
+    weight: updatedWeight,
+    height: updatedHeight,
+    bmi,
+  };
+
+  localStorage.setItem(`fitfud_profile_${userId}`, JSON.stringify(updatedProfile));
 
   return {
     success: true,
@@ -193,6 +201,7 @@ export const changePassword = async (input: ChangePasswordInput): Promise<{ succ
 export const getNutritionHistory = async (userId: string) => {
   await new Promise((resolve) => setTimeout(resolve, 600));
   const logs = getMealLogs(userId);
+  const profile = getCustomerProfile(userId);
 
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
@@ -218,5 +227,10 @@ export const getNutritionHistory = async (userId: string) => {
     { day: 'CN', calories: todayCal || 2150, protein: todayPro || 115 }
   ];
 
-  return weekly_trend;
+  return {
+    weekly_trend,
+    target_calories: profile.target_calories,
+    target_protein: profile.target_protein,
+    tdee: profile.tdee
+  };
 };

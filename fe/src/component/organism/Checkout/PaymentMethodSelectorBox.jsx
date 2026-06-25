@@ -10,18 +10,18 @@ export const PaymentMethodSelectorBox = ({ control, errors }) => {
   const hasTransferred = watch('has_transferred');
 
   return (
-    <div className="flex flex-col w-full gap-4 rounded-[12px] bg-white p-[24px] shadow-[0px_4px_20px_0px_rgba(27,67,50,0.06)]">
+    <div className="flex flex-col w-full gap-3 rounded-[12px] bg-white p-4 shadow-[0px_4px_20px_0px_rgba(27,67,50,0.06)]">
       <div className="flex items-center gap-2 text-text-main">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M21 4H3C1.89543 4 1 4.89543 1 6V18C1 19.1046 1.89543 20 3 20H21C22.1046 20 23 19.1046 23 18V6C23 4.89543 22.1046 4 21 4Z" stroke="#1A1C1C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           <path d="M1 10H23" stroke="#1A1C1C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <h2 className="font-be-vietnam text-[20px] font-normal leading-[30px]">
+        <h2 className="font-be-vietnam text-[18px] font-semibold leading-tight">
           Phương thức thanh toán
         </h2>
       </div>
 
-      <div className="flex w-full flex-col gap-4">
+      <div className="flex w-full flex-col gap-3">
         <Controller
           name="payment_method"
           control={control}

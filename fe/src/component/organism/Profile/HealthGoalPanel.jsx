@@ -15,12 +15,13 @@ export default function HealthGoalPanel() {
   };
 
   return (
-    <div className="bg-bg-card border border-border-light rounded-3xl p-6 shadow-premium space-y-5">
+    <div className="bg-bg-card border border-border-light rounded-2xl p-4 shadow-premium space-y-3">
       <h3 className="text-sm font-bold text-text-main flex items-center gap-2">
-        <span>🎯</span> Mục tiêu sức khỏe
+        <i className="bi bi-bullseye text-base leading-none text-primary" aria-hidden="true" />
+        <span>Mục tiêu sức khỏe</span>
       </h3>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div>
           <label className="block text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">Mục tiêu hiện tại</label>
           <select className="w-full rounded-xl border border-border-light bg-bg-card px-3 py-2 text-xs text-text-main focus:outline-none focus:border-primary appearance-none relative">
@@ -52,7 +53,7 @@ export default function HealthGoalPanel() {
         <button 
           onClick={handleUpdateGoal}
           disabled={isLoading}
-          className="w-full rounded-xl bg-primary-dark text-white py-2.5 text-xs font-bold hover:bg-primary transition shadow-md disabled:opacity-50"
+          className="w-full rounded-xl bg-primary-dark text-white py-2 text-xs font-bold hover:bg-primary transition shadow-md disabled:opacity-50"
         >
           {isLoading ? 'Đang cập nhật...' : 'Cập nhật mục tiêu'}
         </button>

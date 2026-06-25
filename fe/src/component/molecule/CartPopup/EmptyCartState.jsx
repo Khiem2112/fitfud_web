@@ -5,7 +5,7 @@ export const EmptyCartState = ({ onClose }) => {
   const navigate = useNavigate();
   return (
     <div className="flex h-40 flex-col items-center justify-center gap-3 text-center">
-      <span className="text-4xl">🥗</span>
+      <i className="bi bi-basket2 text-4xl leading-none text-primary" aria-hidden="true" />
       <p className="text-sm font-medium text-text-muted">Giỏ hàng của bạn đang trống.</p>
       <button
         onClick={() => {

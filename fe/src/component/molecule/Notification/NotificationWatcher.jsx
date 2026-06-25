@@ -21,9 +21,7 @@ export const NotificationWatcher = () => {
         description: 'Bạn có đơn hàng chưa hoàn tất.',
         hideOnPaths: ['/checkout'],
         icon: (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          <i className="bi bi-bag-check text-xl leading-none" aria-hidden="true" />
         ),
         actions: [
           {
@@ -46,6 +44,7 @@ export const NotificationWatcher = () => {
   const hasSurveyDraft = useHasSurveyDraft();
   const { clearDraft: clearSurveyDraft } = useSurveyDraft();
   const { user, updateSurveyStatus, isAIAnalyzing } = useApp();
+  const surveyPromptKey = user ? `fitfud_survey_prompt_seen_${user.id}` : 'fitfud_survey_prompt_seen_guest';
 
   // Watch for AI analyzing
   useEffect(() => {
@@ -66,36 +65,38 @@ export const NotificationWatcher = () => {
   }, [isAIAnalyzing, addNotification, removeNotification]);
 
   useEffect(() => {
-    // Luôn hiện nếu chưa làm khảo sát (has_surveyed = false) HOẶC có draft
-    if ((user && user.has_surveyed === false) || hasSurveyDraft) {
+    const hasSeenSurveyPrompt = localStorage.getItem(surveyPromptKey) === 'true';
+    if (((user && user.has_surveyed === false) || hasSurveyDraft) && !hasSeenSurveyPrompt) {
+      localStorage.setItem(surveyPromptKey, 'true');
       addNotification({
         id: 'survey_draft',
         title: 'Khảo sát sức khỏe chưa hoàn tất',
         description: 'Hãy hoàn thành khảo sát để FitFud có thể lên thực đơn tốt nhất cho bạn.',
         hideOnPaths: ['/survey', '/auth'],
         icon: (
-          <span className="text-xl leading-none">🌱</span>
+          <i className="bi bi-leaf text-xl leading-none" aria-hidden="true" />
         ),
         actions: [
           {
             label: 'Để sau',
             onClick: () => {
-              // Nếu người dùng ẩn đi thì xoá draft, nhưng notification sẽ vẫn hiện lại nếu navigate vì has_surveyed vẫn false.
-              // Tốt nhất là chỉ ẩn thông báo (removeNotification), nhưng lần sau render lại nó sẽ hiện tiếp.
               removeNotification('survey_draft');
             },
           },
           {
             label: 'Tiếp tục',
             primary: true,
-            onClick: () => navigate('/survey'),
+            onClick: () => {
+              removeNotification('survey_draft');
+              navigate('/survey');
+            },
           },
         ],
       });
     } else {
       removeNotification('survey_draft');
     }
-  }, [hasSurveyDraft, user, navigate, clearSurveyDraft, addNotification, removeNotification]);
+  }, [hasSurveyDraft, user, surveyPromptKey, navigate, clearSurveyDraft, addNotification, removeNotification]);
 
   return null;
 };

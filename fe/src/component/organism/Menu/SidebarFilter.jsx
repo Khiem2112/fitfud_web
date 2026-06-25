@@ -19,9 +19,12 @@ export default function SidebarFilter() {
   } = useMenuFilters();
 
   return (
-    <aside className="lg:col-span-1 bg-bg-card rounded-2xl border border-border-light p-6 shadow-premium self-start space-y-6">
-      <div className="flex items-center justify-between border-b border-border-light pb-4">
-        <h2 className="text-base font-bold text-text-main">Bộ lọc tìm kiếm</h2>
+    <aside className="lg:col-span-1 bg-bg-card rounded-xl border border-border-light p-3 shadow-premium self-start space-y-2.5 lg:sticky lg:top-24">
+      <div className="flex items-center justify-between border-b border-border-light pb-2">
+        <h2 className="flex items-center gap-1.5 text-sm font-bold text-text-main">
+          <i className="bi bi-sliders2 text-primary" aria-hidden="true" />
+          Bộ lọc
+        </h2>
         <button
           onClick={clearAll}
           className="text-xs font-semibold text-text-muted hover:text-danger hover:underline transition"
@@ -47,15 +50,15 @@ export default function SidebarFilter() {
       />
 
       {/* Calorie Range */}
-      <div className="space-y-2">
-        <label className="block text-xs font-bold uppercase tracking-wider text-text-main">Lượng calo (kcal)</label>
+      <div className="space-y-1">
+        <label className="block text-[11px] font-bold uppercase tracking-wider text-text-main">Lượng calo</label>
         <div className="flex items-center gap-2">
           <input
             type="number"
             value={minCal}
             onChange={(e) => setMinCal(e.target.value)}
             placeholder="Từ"
-            className="w-full rounded-xl border border-border-light bg-bg-main px-3 py-2 text-xs text-center focus:outline-none"
+            className="w-full rounded-lg border border-border-light bg-bg-main px-2 py-1.5 text-xs text-center focus:outline-none"
           />
           <span className="text-text-muted">-</span>
           <input
@@ -63,21 +66,21 @@ export default function SidebarFilter() {
             value={maxCal}
             onChange={(e) => setMaxCal(e.target.value)}
             placeholder="Đến"
-            className="w-full rounded-xl border border-border-light bg-bg-main px-3 py-2 text-xs text-center focus:outline-none"
+            className="w-full rounded-lg border border-border-light bg-bg-main px-2 py-1.5 text-xs text-center focus:outline-none"
           />
         </div>
       </div>
 
       {/* Price Range */}
-      <div className="space-y-2">
-        <label className="block text-xs font-bold uppercase tracking-wider text-text-main">Khoảng giá (đ)</label>
+      <div className="space-y-1">
+        <label className="block text-[11px] font-bold uppercase tracking-wider text-text-main">Khoảng giá</label>
         <div className="flex items-center gap-2">
           <input
             type="number"
             value={minPrice}
             onChange={(e) => setMinPrice(e.target.value)}
             placeholder="Từ"
-            className="w-full rounded-xl border border-border-light bg-bg-main px-3 py-2 text-xs text-center focus:outline-none"
+            className="w-full rounded-lg border border-border-light bg-bg-main px-2 py-1.5 text-xs text-center focus:outline-none"
           />
           <span className="text-text-muted">-</span>
           <input
@@ -85,31 +88,44 @@ export default function SidebarFilter() {
             value={maxPrice}
             onChange={(e) => setMaxPrice(e.target.value)}
             placeholder="Đến"
-            className="w-full rounded-xl border border-border-light bg-bg-main px-3 py-2 text-xs text-center focus:outline-none"
+            className="w-full rounded-lg border border-border-light bg-bg-main px-2 py-1.5 text-xs text-center focus:outline-none"
           />
         </div>
       </div>
 
-      <FilterSection
-        title="Loại trừ dị ứng"
-        items={mockMasterData.allergies}
-        selectedItems={allergiesExclude}
-        onToggle={toggleAllergy}
-        labelPrefix="Không chứa"
-      />
+      <div className="space-y-1">
+        <label className="block text-[11px] font-bold uppercase tracking-wider text-text-main">Loại trừ dị ứng</label>
+        <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+          {mockMasterData.allergies.map((item) => (
+            <label key={item.id} className="flex items-center gap-1.5 text-[11px] font-medium text-text-muted cursor-pointer">
+              <input
+                type="checkbox"
+                checked={allergiesExclude.includes(item.name)}
+                onChange={() => toggleAllergy(item.name)}
+                className="h-3.5 w-3.5 rounded border-border-light text-primary focus:ring-primary"
+              />
+              <span className={allergiesExclude.includes(item.name) ? 'text-text-main font-bold' : ''}>
+                {item.name}
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
 
       {/* Status filter toggle */}
       <div className="flex items-center justify-between pt-2 border-t border-border-light">
         <label htmlFor="inStock" className="text-xs font-bold text-text-main cursor-pointer">
-          Chỉ hiển thị món đang bán
+          Đang bán
         </label>
-        <input
+        <button
           id="inStock"
-          type="checkbox"
-          checked={inStockOnly}
-          onChange={(e) => setInStockOnly(e.target.checked)}
-          className="h-4 w-4 rounded border-border-light text-primary focus:ring-primary"
-        />
+          type="button"
+          onClick={() => setInStockOnly(!inStockOnly)}
+          className={`relative h-5 w-9 rounded-full transition ${inStockOnly ? 'bg-primary' : 'bg-border-light'}`}
+          aria-pressed={inStockOnly}
+        >
+          <span className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition ${inStockOnly ? 'translate-x-4' : 'translate-x-0'}`} />
+        </button>
       </div>
     </aside>
   );

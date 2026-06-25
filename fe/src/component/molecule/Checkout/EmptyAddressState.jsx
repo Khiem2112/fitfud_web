@@ -11,7 +11,7 @@ export const EmptyAddressState = () => {
   return (
     <div className="flex flex-col items-center justify-center py-10 gap-4">
       <div className="w-16 h-16 rounded-full bg-bg-main flex items-center justify-center">
-        <span className="text-2xl">📍</span>
+        <i className="bi bi-geo-alt text-2xl leading-none" aria-hidden="true" />
       </div>
       <p className="text-text-muted font-medium">Bạn chưa có địa chỉ nào được lưu.</p>
       <button 

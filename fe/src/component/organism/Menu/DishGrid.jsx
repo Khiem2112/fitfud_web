@@ -7,11 +7,11 @@ import DishCard from '../../molecule/Menu/DishCard';
  */
 export default function DishGrid({ isLoading, isError, menuData, page, setPage, onOpenQuickView, onClearAllFilters }) {
   return (
-    <section className="lg:col-span-3 space-y-6">
+    <section className="lg:col-span-4 space-y-3">
       {/* Header & Meta */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-text-main tracking-tight">Thực đơn lành mạnh</h1>
+          <h1 className="text-xl font-extrabold text-text-main tracking-tight">Thực đơn lành mạnh</h1>
           <p className="text-xs text-text-muted mt-0.5">
             Tìm thấy {menuData?.totalItems || 0} món ăn sức khỏe được tuyển chọn
           </p>
@@ -20,10 +20,10 @@ export default function DishGrid({ isLoading, isError, menuData, page, setPage, 
 
       {/* LOADING STATE */}
       {isLoading && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, idx) => (
-            <div key={idx} className="animate-pulse rounded-2xl border border-border-light bg-bg-card p-4 space-y-4">
-              <div className="bg-border-light rounded-xl h-44 w-full"></div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
+          {[...Array(8)].map((_, idx) => (
+            <div key={idx} className="animate-pulse rounded-xl border border-border-light bg-bg-card p-3 space-y-3">
+              <div className="bg-border-light rounded-lg h-28 w-full"></div>
               <div className="h-4 bg-border-light rounded w-3/4"></div>
               <div className="h-3 bg-border-light rounded w-1/2"></div>
               <div className="h-8 bg-border-light rounded w-full pt-4"></div>
@@ -35,7 +35,7 @@ export default function DishGrid({ isLoading, isError, menuData, page, setPage, 
       {/* ERROR STATE */}
       {isError && (
         <div className="rounded-2xl border border-danger/30 bg-danger-light p-12 text-center text-danger">
-          <span className="text-3xl block mb-2">⚠️</span>
+          <i className="bi bi-exclamation-triangle mb-2 block text-3xl leading-none" aria-hidden="true" />
           <p className="font-bold text-sm">Có lỗi xảy ra khi tải dữ liệu thực đơn!</p>
           <button
             onClick={() => window.location.reload()}
@@ -49,7 +49,7 @@ export default function DishGrid({ isLoading, isError, menuData, page, setPage, 
       {/* EMPTY STATE */}
       {!isLoading && !isError && menuData?.dishes.length === 0 && (
         <div className="rounded-2xl border border-border-light bg-bg-card p-16 text-center text-text-muted space-y-4">
-          <span className="text-5xl block">🥗</span>
+          <i className="bi bi-egg-fried block text-5xl leading-none text-primary" aria-hidden="true" />
           <p className="font-semibold text-sm text-text-main">Không tìm thấy món ăn nào khớp với bộ lọc của bạn.</p>
           <p className="text-xs max-w-sm mx-auto leading-relaxed">
             Vui lòng thử xóa bớt các tiêu chí lọc hoặc thay đổi từ khóa tìm kiếm để khám phá thêm món ngon khác nhé.
@@ -65,7 +65,7 @@ export default function DishGrid({ isLoading, isError, menuData, page, setPage, 
 
       {/* DISHES LIST GRID */}
       {!isLoading && !isError && menuData && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
           {menuData.dishes.map((dish) => (
             <DishCard key={dish.id} dish={dish} onOpenQuickView={onOpenQuickView} />
           ))}
@@ -80,7 +80,7 @@ export default function DishGrid({ isLoading, isError, menuData, page, setPage, 
             disabled={page === 1}
             className="rounded-xl border border-border-light bg-bg-card p-2 text-xs font-bold text-text-main hover:bg-bg-main transition disabled:opacity-30 disabled:hover:bg-bg-card"
           >
-            ◀
+            <i className="bi bi-chevron-left" aria-hidden="true" />
           </button>
           {[...Array(menuData.totalPages)].map((_, i) => (
             <button
@@ -99,7 +99,7 @@ export default function DishGrid({ isLoading, isError, menuData, page, setPage, 
             disabled={page === menuData.totalPages}
             className="rounded-xl border border-border-light bg-bg-card p-2 text-xs font-bold text-text-main hover:bg-bg-main transition disabled:opacity-30 disabled:hover:bg-bg-card"
           >
-            ▶
+            <i className="bi bi-chevron-right" aria-hidden="true" />
           </button>
         </div>
       )}

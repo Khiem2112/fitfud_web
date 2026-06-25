@@ -57,7 +57,7 @@ export default function FitFudLogger({ onLogMeal }) {
             placeholder="Tìm món ăn..."
             className="w-full rounded-lg border border-border-light bg-bg-main pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-primary transition"
           />
-          <span className="absolute left-4 top-3 text-text-muted text-sm">🔍</span>
+          <i className="bi bi-search absolute left-4 top-3.5 text-sm leading-none text-text-muted" aria-hidden="true" />
         </div>
 
         {/* Dropdown search results */}

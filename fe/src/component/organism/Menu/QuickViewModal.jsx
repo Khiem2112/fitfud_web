@@ -11,24 +11,32 @@ import AllergyWarning from '../../molecule/Menu/AllergyWarning';
  * QuickViewModal Organism
  * @param {{ dish: import('../../../type/menu.types').DishItem, onClose: function, onAddToCart: function }} props
  */
-export default function QuickViewModal({ dish, onClose, onAddToCart }) {
+export default function QuickViewModal({
+  dish,
+  onClose,
+  onAddToCart,
+  initialSize,
+  initialQuantity = 1,
+  initialChefNotes = '',
+  submitLabel
+}) {
   const { addToast } = useToast();
   const { user } = useApp();
   
   const { data: allergens, isLoading: isAllergyLoading, isError: isAllergyError } = useAllergyCheck(user?.id, dish?.ingredients);
 
-  const [quickViewSize, setQuickViewSize] = useState('M');
+  const [quickViewSize, setQuickViewSize] = useState(initialSize || 'M');
   const [removedIngredients, setRemovedIngredients] = useState([]);
-  const [chefNotes, setChefNotes] = useState('');
-  const [quantity, setQuantity] = useState(1);
+  const [chefNotes, setChefNotes] = useState(initialChefNotes);
+  const [quantity, setQuantity] = useState(initialQuantity);
 
   // Reset state when dish changes
   useEffect(() => {
-    setQuickViewSize('M');
+    setQuickViewSize(initialSize || 'M');
     setRemovedIngredients([]);
-    setChefNotes('');
-    setQuantity(1);
-  }, [dish]);
+    setChefNotes(initialChefNotes);
+    setQuantity(initialQuantity);
+  }, [dish, initialSize, initialQuantity, initialChefNotes]);
 
   const handleIngredientRemoveToggle = (ing) => {
     setRemovedIngredients((prev) =>
@@ -156,7 +164,8 @@ export default function QuickViewModal({ dish, onClose, onAddToCart }) {
             {/* Ingredients exclusion */}
             <div className="space-y-4">
               <label className="flex items-center gap-2 text-sm font-bold text-text-main">
-                <span className="text-lg">🥗</span> Nguyên liệu
+                <i className="bi bi-egg-fried text-lg leading-none text-primary" aria-hidden="true" />
+                <span>Nguyên liệu</span>
               </label>
               <div className="flex flex-wrap gap-2">
                 {dish.ingredients.map((ing) => {
@@ -203,7 +212,7 @@ export default function QuickViewModal({ dish, onClose, onAddToCart }) {
                 onClick={handleConfirmAddToCart}
                 className="flex-1 rounded-xl py-3.5 flex items-center justify-center gap-2 text-sm font-bold text-white shadow-premium transition bg-primary hover:bg-primary-dark"
               >
-                <span>{allergens && allergens.length > 0 ? 'Tôi hiểu cảnh báo - tiếp tục' : 'Thêm vào giỏ hàng'}</span>
+                <span>{submitLabel || (allergens && allergens.length > 0 ? 'Tôi hiểu cảnh báo - tiếp tục' : 'Thêm vào giỏ hàng')}</span>
                 <span className="opacity-50">•</span>
                 <span>{(activeSizeObj.price * quantity).toLocaleString('vi-VN')}đ</span>
               </button>

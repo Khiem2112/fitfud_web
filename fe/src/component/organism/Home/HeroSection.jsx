@@ -1,61 +1,50 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Sparkles } from 'lucide-react';
-import heroImage from '../../../assets/hero.png';
+import heroImage from '../../../assets/salmon-bowl.png';
 
 const HeroSection = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="w-full bg-bg-main py-12 md:py-24 px-6 md:px-12 flex justify-center">
-      <div className="max-w-7xl w-full flex flex-col-reverse md:flex-row items-center gap-12">
+    <section className="w-full bg-bg-main px-4 py-5 md:px-8 md:py-8 flex justify-center">
+      <div className="relative max-w-7xl w-full min-h-[440px] overflow-hidden rounded-3xl bg-primary-dark shadow-premium-lg">
+        <img
+          src={heroImage}
+          alt="Healthy Meal"
+          className="absolute inset-0 h-full w-full object-cover opacity-85"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-black/5" />
         {/* Text Content */}
-        <div className="flex-1 flex flex-col items-start gap-6">
-          <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full border border-primary/20">
-            <div className="w-2 h-2 rounded-full bg-primary"></div>
-            <span className="text-primary font-bold text-sm">Sống khỏe cùng FitFud</span>
+        <div className="relative z-10 flex min-h-[440px] max-w-2xl flex-col justify-center px-6 py-10 md:px-10">
+          <div className="mb-4 flex w-fit items-center gap-2 rounded-full border border-white/25 bg-white/15 px-3 py-1.5 backdrop-blur">
+            <div className="h-2 w-2 rounded-full bg-accent"></div>
+            <span className="text-xs font-bold text-white">Sống khỏe cùng FitFud</span>
           </div>
           
-          <h1 className="text-5xl md:text-6xl font-extrabold text-primary leading-tight tracking-tight">
+          <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight tracking-tight">
             Ăn sạch không có<br className="hidden md:block" /> nghĩa là ăn chán.
           </h1>
           
-          <p className="text-text-muted text-lg md:text-xl max-w-lg leading-relaxed">
+          <p className="mt-4 text-sm md:text-lg max-w-xl leading-relaxed text-white/90">
             Cá nhân hóa bữa ăn hàng ngày của bạn với sự hỗ trợ từ AI
             và đội ngũ chuyên gia dinh dưỡng hàng đầu Việt Nam.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 mt-4 w-full sm:w-auto">
+          <div className="mt-6 flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <button
               onClick={() => navigate('/menu')}
-              className="flex items-center justify-center gap-2 bg-primary text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-primary-dark transition-colors shadow-lg hover:shadow-xl"
+              className="flex items-center justify-center gap-2 bg-white text-primary px-5 py-3 rounded-xl font-bold text-sm hover:bg-primary-light transition-colors shadow-lg hover:shadow-xl"
             >
               Xem Thực Đơn
-              <ArrowRight className="w-5 h-5" />
+              <i className="bi bi-arrow-right text-xl leading-none" aria-hidden="true" />
             </button>
             <button
               onClick={() => navigate('/survey')}
-              className="flex items-center justify-center gap-2 bg-transparent text-primary border-2 border-primary/20 px-8 py-4 rounded-xl font-bold text-lg hover:bg-primary/5 transition-colors"
+              className="flex items-center justify-center gap-2 bg-white/10 text-white border border-white/30 px-5 py-3 rounded-xl font-bold text-sm hover:bg-white/20 transition-colors backdrop-blur"
             >
-              <Sparkles className="w-5 h-5 text-primary" />
+              <i className="bi bi-stars text-xl leading-none text-white" aria-hidden="true" />
               Tạo Hồ Sơ AI
             </button>
-          </div>
-        </div>
-        
-        {/* Image Content */}
-        <div className="flex-1 flex justify-center md:justify-end w-full">
-          <div className="relative w-full max-w-lg aspect-square">
-            <div className="absolute inset-0 bg-primary/5 rounded-3xl transform rotate-3"></div>
-            <img
-              src={heroImage}
-              alt="Healthy Meal"
-              className="relative z-10 w-full h-full object-cover rounded-3xl shadow-premium-lg"
-              onError={(e) => {
-                // Fallback if hero.png is not properly loaded or is missing
-                e.currentTarget.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800';
-              }}
-            />
           </div>
         </div>
       </div>

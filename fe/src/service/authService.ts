@@ -4,6 +4,24 @@ import { LoginInput, LoginOutput, RegisterInput, RegisterOutput, ResetPasswordIn
 const STORAGE_USERS_KEY = 'fitfud_mock_users';
 const CURRENT_USER_KEY = 'fitfud_current_user';
 const TOKEN_KEY = 'fitfud_jwt_token';
+const ORDERS_KEY = 'fitfud_orders';
+
+const migrateGuestOrdersToUser = (phone: string, userId: string) => {
+  const storedOrders = localStorage.getItem(ORDERS_KEY);
+  if (!storedOrders || !phone) return;
+
+  const normalizedPhone = phone.replace(/\s+/g, '');
+  const orders = JSON.parse(storedOrders);
+  const migratedOrders = orders.map((order: any) => {
+    const orderPhone = (order.contact_phone || '').replace(/\s+/g, '');
+    if (orderPhone === normalizedPhone) {
+      return { ...order, userId };
+    }
+    return order;
+  });
+
+  localStorage.setItem(ORDERS_KEY, JSON.stringify(migratedOrders));
+};
 
 const getMockUsers = () => {
   const users = localStorage.getItem(STORAGE_USERS_KEY);
@@ -59,6 +77,7 @@ export const loginUser = async (input: LoginInput): Promise<LoginOutput> => {
 
   localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(session.user));
   localStorage.setItem(TOKEN_KEY, session.jwt);
+  migrateGuestOrdersToUser(matchedUser.phone, matchedUser.id);
 
   return session;
 };
@@ -98,6 +117,7 @@ export const registerUser = async (input: RegisterInput): Promise<RegisterOutput
 
   localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(session.user));
   localStorage.setItem(TOKEN_KEY, session.jwt);
+  migrateGuestOrdersToUser(newUser.phone, newUser.id);
 
   return session;
 };

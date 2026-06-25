@@ -6,17 +6,17 @@ export default function HowItWorksSection() {
     {
       title: '1. Phân tích thể trạng',
       desc: 'Dựa trên các chỉ số cá nhân, FitFud tính toán chính xác nhu cầu dinh dưỡng mà cơ thể bạn cần.',
-      icon: '📊'
+      icon: 'bi-bar-chart-line'
     },
     {
       title: '2. Thiết kế thực đơn',
       desc: 'Chuyên gia dinh dưỡng xây dựng thực đơn đa dạng, cân bằng macro để đạt mục tiêu sức khỏe.',
-      icon: '📋'
+      icon: 'bi-clipboard2-pulse'
     },
     {
       title: '3. Giao tận tay',
       desc: 'Món ăn tươi ngon được chế biến và giao nóng hổi mỗi sáng, đảm bảo sự tiện lợi tối đa.',
-      icon: '🛵'
+      icon: 'bi-truck'
     }
   ];
 

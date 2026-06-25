@@ -105,7 +105,7 @@ export default function AiRecommendation() {
   if (!user || !profile) return null;
 
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-8 page-enter relative min-h-[70vh] bg-[#F7F9FA]">
+    <div className="mx-auto max-w-[1120px] px-4 py-5 page-enter relative min-h-[70vh] bg-[#F7F9FA]">
       
       {isLoading && <AiAnalysisLoadingPopup />}
 
@@ -117,9 +117,9 @@ export default function AiRecommendation() {
 
       {!isLoading && !error && recommendations && dashboardData && (
         <div className="animate-fade-in-up">
-          <div className="mb-8">
-            <h1 className="text-3xl font-extrabold text-[#12563F]">Kết quả phân tích từ FitFud</h1>
-            <p className="text-sm text-text-muted mt-2">
+          <div className="mb-5">
+            <h1 className="text-2xl font-extrabold text-[#12563F]">Kết quả phân tích từ FitFud</h1>
+            <p className="text-xs text-text-muted mt-1.5">
               Dựa trên chỉ số cơ thể và mục tiêu sức khỏe của bạn, AI đã tối ưu hóa lộ trình dinh dưỡng hôm nay.
             </p>
           </div>
@@ -132,13 +132,13 @@ export default function AiRecommendation() {
           />
 
           {/* Bottom Banner */}
-          <div className="mt-12 bg-[#336850] rounded-2xl p-8 relative overflow-hidden">
+          <div className="mt-8 bg-[#336850] rounded-2xl p-5 relative overflow-hidden">
             <div className="absolute right-0 top-0 bottom-0 opacity-10 flex items-center justify-end pr-12">
               <svg width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1"><path d="M7 2v10a2 2 0 002 2h2m6-12v10a2 2 0 01-2 2h-2m-3 0v10"></path></svg>
             </div>
             <div className="relative z-10 max-w-2xl">
-              <h2 className="text-2xl md:text-3xl font-extrabold text-[#95C2B4] mb-3">Tự động hóa sức khỏe của bạn</h2>
-              <p className="text-white/80 text-sm md:text-base leading-relaxed">
+              <h2 className="text-xl md:text-2xl font-extrabold text-[#95C2B4] mb-2">Tự động hóa sức khỏe của bạn</h2>
+              <p className="text-white/80 text-xs md:text-sm leading-relaxed">
                 Hãy để AI lên kế hoạch chi tiết cho cả tuần. Tiết kiệm thời gian, ăn ngon và đạt mục tiêu nhanh chóng.
               </p>
             </div>

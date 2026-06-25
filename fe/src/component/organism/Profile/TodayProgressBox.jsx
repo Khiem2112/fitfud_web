@@ -23,16 +23,16 @@ export default function TodayProgressBox({ dashboardData }) {
   return (
     <div 
       onClick={handleClick}
-      className="bg-primary-dark text-white rounded-3xl p-6 shadow-premium relative overflow-hidden cursor-pointer hover:scale-[1.02] transition-transform duration-300"
+      className="bg-primary-dark text-white rounded-2xl p-4 shadow-premium relative overflow-hidden cursor-pointer hover:scale-[1.02] transition-transform duration-300"
     >
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-4">
         <span className="text-[10px] font-bold uppercase tracking-widest opacity-90">Hôm nay</span>
         <span className="text-[9px] bg-black/20 px-2 py-1 rounded-full font-bold">{caloriesPercent}% Hoàn thành</span>
       </div>
 
-      <div className="mb-8">
+      <div className="mb-5">
         <div className="flex items-baseline gap-1">
-          <span className="text-4xl font-extrabold">{dashboardData.today_calories_logged.toLocaleString()}</span>
+          <span className="text-3xl font-extrabold">{dashboardData.today_calories_logged.toLocaleString()}</span>
           <span className="text-sm opacity-80">/ {dashboardData.target_calories.toLocaleString()} kcal</span>
         </div>
       </div>
