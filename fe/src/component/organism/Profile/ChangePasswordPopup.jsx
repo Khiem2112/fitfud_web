@@ -3,10 +3,12 @@ import { createPortal } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { changePassword } from '../../../service/profileService';
 import { useToast } from '../../../context/ToastContext';
+import { useApp } from '../../../context/AppContext';
 
 export default function ChangePasswordPopup({ isOpen, onClose }) {
   const { register, handleSubmit, formState: { errors }, reset, watch } = useForm();
   const { addToast } = useToast();
+  const { user } = useApp();
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState('');
 
@@ -16,7 +18,7 @@ export default function ChangePasswordPopup({ isOpen, onClose }) {
     setApiError('');
     setIsLoading(true);
     try {
-      const res = await changePassword({
+      const res = await changePassword(user.id, {
         current_password: data.currentPassword,
         new_password: data.newPassword,
         confirm_password: data.confirmPassword

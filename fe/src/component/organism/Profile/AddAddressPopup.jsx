@@ -2,27 +2,46 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { useToast } from '../../../context/ToastContext';
+import { useApp } from '../../../context/AppContext';
+import { addAddress } from '../../../service/checkoutService';
 
-export default function AddAddressPopup({ isOpen, onClose }) {
+export default function AddAddressPopup({ isOpen, onClose, onSuccess }) {
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
   const { addToast } = useToast();
+  const { user } = useApp();
   const [isLoading, setIsLoading] = useState(false);
 
   if (!isOpen) return null;
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     setIsLoading(true);
     
-    // Mock API call to save address
-    setTimeout(() => {
+    try {
+      await addAddress(user.id, {
+        name: data.receiver_name,
+        phone: data.receiver_phone,
+        shipping_address_text: data.street,
+        wardId: data.ward,
+        districtId: data.district,
+        cityId: data.city,
+        wardName: data.ward,
+        districtName: data.district,
+        cityName: data.city,
+        isDefault: data.is_default
+      });
+      
       addToast('Đã thêm địa chỉ thành công!', 'success');
       setIsLoading(false);
       onClose();
       reset();
       
-      // In a real app, this should trigger a re-fetch of the dashboard data
-      // or call a callback to update the UI
-    }, 600);
+      if (onSuccess) {
+        onSuccess();
+      }
+    } catch (error) {
+      addToast('Có lỗi xảy ra khi thêm địa chỉ!', 'error');
+      setIsLoading(false);
+    }
   };
 
   return createPortal(

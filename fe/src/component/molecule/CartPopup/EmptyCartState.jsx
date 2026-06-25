@@ -10,7 +10,7 @@ export const EmptyCartState = ({ onClose }) => {
       <button
         onClick={() => {
           onClose();
-          navigate('/');
+          navigate('/menu');
         }}
         className="mt-2 text-xs font-semibold text-primary hover:underline"
       >

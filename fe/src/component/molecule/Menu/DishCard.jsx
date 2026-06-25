@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import ProductBadge from '../../atom/Menu/ProductBadge';
 
 /**
  * DishCard Molecule
@@ -11,69 +10,69 @@ export default function DishCard({ dish, onOpenQuickView }) {
   const isOutOfStock = dish.status === 'Out of Stock';
   const defaultSize = dish.sizes.find((s) => s.size_name === 'M') || dish.sizes[0];
 
+  // Derive price display like '74k' or '115k'
+  const priceDisplay = defaultSize.price >= 1000 ? `${Math.floor(defaultSize.price / 1000)}k` : defaultSize.price;
+
   return (
     <div
       onClick={() => !isOutOfStock && navigate(`/dish/${dish.id}`)}
-      className="group flex flex-col justify-between overflow-hidden rounded-xl border border-border-light bg-bg-card p-2.5 hover:shadow-premium hover:-translate-y-0.5 transition duration-300 relative cursor-pointer"
+      className="group flex flex-col justify-between overflow-hidden rounded-lg border border-gray-100 bg-white hover:shadow-lg transition duration-300 relative cursor-pointer h-full"
     >
-      {/* Badges */}
-      {dish.id === 'dish_2' && <ProductBadge type="discount" label="-13%" />}
-      {isOutOfStock && <ProductBadge type="out-of-stock" />}
-
       {/* Image block */}
-      <div className="relative overflow-hidden rounded-lg bg-bg-main h-28 mb-2">
+      <div className="relative overflow-hidden bg-gray-100 h-[180px]">
         {dish.image_url ? (
           <img
             src={dish.image_url}
             alt={dish.dish_name}
-            className="h-full w-full object-cover group-hover:scale-105 transition duration-500"
+            className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-4xl bg-primary-light">
-            <i className="bi bi-egg-fried leading-none text-primary" aria-hidden="true" />
+          <div className="flex h-full w-full items-center justify-center bg-gray-200">
+            <span className="text-gray-400">No Image</span>
+          </div>
+        )}
+
+        {/* Badges */}
+        {!isOutOfStock && dish.id === 'dish_2' && (
+          <div className="absolute top-2 left-2 bg-[#b45309] text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+            -13%
+          </div>
+        )}
+        {!isOutOfStock && dish.dish_name.includes('Bò') && (
+          <div className="absolute top-2 left-2 bg-[#194b33] text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+            PRO
+          </div>
+        )}
+
+        {/* Out of stock overlay */}
+        {isOutOfStock && (
+          <div className="absolute inset-0 bg-white/40 flex items-center justify-center">
+            <span className="bg-white/80 text-gray-500 text-xs font-bold px-3 py-1 rounded-full uppercase">
+              HẾT HÀNG
+            </span>
           </div>
         )}
       </div>
 
       {/* Content info */}
-      <div className="flex-1 flex flex-col justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-[8px] font-bold uppercase tracking-wider text-primary">
-              {dish.category_name}
-            </span>
-            <div className="flex items-center text-[9px] text-accent font-semibold gap-0.5">
-              <i className="bi bi-star-fill" aria-hidden="true" />
-              <span>{dish.rating_avg}</span>
-            </div>
-          </div>
-
-          <h3
-            className={`text-[13px] font-bold text-text-main leading-tight line-clamp-1 ${
-              isOutOfStock ? 'opacity-60' : 'group-hover:text-primary transition'
-            }`}
-          >
+      <div className="flex flex-col p-4 flex-1">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-[13px] font-bold text-gray-900 leading-tight line-clamp-1">
             {dish.dish_name}
           </h3>
-
-          <p className="text-[9px] text-text-muted line-clamp-1 leading-relaxed">
-            {dish.description}
-          </p>
+          <div className="flex items-center text-[11px] font-bold text-gray-700 gap-1">
+            <i className="bi bi-star-fill text-[#f59e0b] text-[10px]" aria-hidden="true" />
+            <span>{dish.rating_avg || '4.8'}</span>
+          </div>
         </div>
 
-        {/* Nutrient specs & Price */}
-        <div className="pt-2 mt-2 border-t border-border-light flex items-center justify-between">
-          <div className="text-left">
-            <span className="block text-[9px] text-text-muted font-medium">Calo (M)</span>
-            <span className="text-[10px] font-bold text-text-main">{defaultSize.calories} kcal</span>
-          </div>
+        <p className="text-[11px] text-gray-500 mt-1 line-clamp-1">
+          {dish.description}
+        </p>
 
-          <div className="text-right">
-            <span className="block text-[9px] text-text-muted font-medium">Giá tiền</span>
-            <span className="text-[11px] font-extrabold text-primary">
-              {defaultSize.price.toLocaleString('vi-VN')}đ
-            </span>
-          </div>
+        <div className="flex items-center justify-between mt-auto pt-4">
+          <span className="text-[11px] font-bold text-[#194b33]">{defaultSize.calories} kcal</span>
+          <span className="text-[12px] font-extrabold text-gray-900">{priceDisplay}</span>
         </div>
 
         {/* Add to Cart button */}
@@ -83,13 +82,12 @@ export default function DishCard({ dish, onOpenQuickView }) {
             onOpenQuickView(dish);
           }}
           disabled={isOutOfStock}
-          className={`w-full mt-2 rounded-lg py-2 text-center text-[11px] font-bold shadow-sm transition ${
-            isOutOfStock
-              ? 'bg-border-light text-text-muted cursor-not-allowed'
-              : 'bg-primary-light text-primary hover:bg-primary hover:text-white hover:shadow-premium'
-          }`}
+          className={`w-full mt-4 rounded border border-transparent py-2 text-center text-[12px] font-bold transition-colors ${isOutOfStock
+              ? 'bg-[#e5e7eb] text-[#9ca3af] cursor-not-allowed'
+              : 'bg-[#194b33] text-white hover:bg-[#123825]'
+            }`}
         >
-          {isOutOfStock ? 'Tạm hết hàng' : 'Thêm vào giỏ'}
+          {isOutOfStock ? 'Hết hàng' : 'Thêm vào giỏ'}
         </button>
       </div>
     </div>

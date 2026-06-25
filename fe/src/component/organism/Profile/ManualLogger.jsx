@@ -34,20 +34,20 @@ export default function ManualLogger({ onLogMeal }) {
           placeholder="Tên bữa ăn"
           className="w-full rounded-lg border border-border-light bg-bg-main px-4 py-3 text-sm focus:outline-none focus:border-primary"
         />
-        <div className="flex gap-4">
+        <div className="flex flex-col gap-4">
           <input
             type="number"
             value={cal}
             onChange={(e) => setCal(e.target.value)}
             placeholder="Calo"
-            className="flex-1 w-full rounded-lg border border-border-light bg-bg-main px-3 py-3 text-sm focus:outline-none focus:border-primary text-center"
+            className="w-full rounded-lg border border-border-light bg-bg-main px-3 py-3 text-sm focus:outline-none focus:border-primary"
           />
           <input
             type="number"
             value={pro}
             onChange={(e) => setPro(e.target.value)}
             placeholder="Pro (g)"
-            className="flex-1 w-full rounded-lg border border-border-light bg-bg-main px-3 py-3 text-sm focus:outline-none focus:border-primary text-center"
+            className="w-full rounded-lg border border-border-light bg-bg-main px-3 py-3 text-sm focus:outline-none focus:border-primary"
           />
         </div>
         
