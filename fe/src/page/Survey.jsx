@@ -4,7 +4,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { useApp } from '../context/AppContext';
-import { submitSurvey, fetchSurveyMasterData } from '../service/surveyService';
+import { submitSurvey } from '../service/surveyService';
 import { useSurveyDraft } from '../hook/useSurveyDraft';
 import { surveySchema } from '../schema/surveySchema';
 
@@ -24,10 +24,12 @@ export default function Survey() {
   // Use React Query Hook
   const { data: masterData, isLoading } = useSurveyMasterData();
 
-  // Redirect if not logged in
+  // Redirect if not logged in or already surveyed
   useEffect(() => {
     if (!user) {
       navigate('/auth');
+    } else if (user.has_surveyed) {
+      navigate('/profile');
     }
   }, [user, navigate]);
 
@@ -43,6 +45,7 @@ export default function Survey() {
       height: '',
       weight: '',
       activity_level: '',
+      diet_preference: 'Bình thường',
       allergyIds: [],
     },
     mode: 'onTouched'
@@ -59,8 +62,6 @@ export default function Survey() {
   }, []);
 
   const handleSkipConfirm = () => {
-    // Generate default profile and set has_surveyed to true
-    updateSurveyStatus(true);
     clearDraft();
     navigate('/profile');
   };
@@ -86,6 +87,7 @@ export default function Survey() {
           height: Number(data.height),
           weight: Number(data.weight),
           activity_level: data.activity_level,
+          diet_preference: data.diet_preference,
           allergyIds: data.allergyIds,
         },
         user.id
@@ -127,7 +129,7 @@ export default function Survey() {
             <form id="survey-form" onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6">
 
               <HealthGoalForm healthGoals={masterData.healthGoals} />
-              <BodyMetricsForm activityLevels={masterData.activityLevels} />
+              <BodyMetricsForm activityLevels={masterData.activityLevels} dietPreferences={masterData.dietPreferences} />
               <AllergensForm allergies={masterData.allergies} />
 
               <SurveyStickyFooter

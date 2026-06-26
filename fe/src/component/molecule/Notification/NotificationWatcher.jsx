@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useHasDraft as useHasCheckoutDraft, useCheckoutDraft } from '../../../hook/useCheckoutDraft';
 import { useHasSurveyDraft, useSurveyDraft } from '../../../hook/useSurveyDraft';
 import { useNotificationStore } from '../../../store/notificationStore';
@@ -64,10 +64,10 @@ export const NotificationWatcher = () => {
     }
   }, [isAIAnalyzing, addNotification, removeNotification]);
 
+  const location = useLocation();
+
   useEffect(() => {
-    const hasSeenSurveyPrompt = localStorage.getItem(surveyPromptKey) === 'true';
-    if (((user && user.has_surveyed === false) || hasSurveyDraft) && !hasSeenSurveyPrompt) {
-      localStorage.setItem(surveyPromptKey, 'true');
+    if ((user && user.has_surveyed === false) || (!user && hasSurveyDraft)) {
       addNotification({
         id: 'survey_draft',
         title: 'Khảo sát sức khỏe chưa hoàn tất',
@@ -96,7 +96,7 @@ export const NotificationWatcher = () => {
     } else {
       removeNotification('survey_draft');
     }
-  }, [hasSurveyDraft, user, surveyPromptKey, navigate, clearSurveyDraft, addNotification, removeNotification]);
+  }, [hasSurveyDraft, user, location.pathname, navigate, clearSurveyDraft, addNotification, removeNotification]);
 
   return null;
 };

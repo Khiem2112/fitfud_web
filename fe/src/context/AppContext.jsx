@@ -63,7 +63,7 @@ export const AppProvider = ({ children }) => {
   };
 
   // Cart actions
-  const handleAddToCart = (item) => {
+  const handleAddToCart = (item, openMiniCart = true) => {
     const updatedCart = serviceAddToCart(item);
     setCart([...updatedCart]);
     
@@ -75,8 +75,10 @@ export const AppProvider = ({ children }) => {
     if (addedItem && !selectedCartItemIds.includes(addedItem.id)) {
       setSelectedCartItemIds(prev => [...prev, addedItem.id]);
     }
-    // Auto open minicart to notify user
-    setCartMode(CartMode.PINNED);
+    // Auto open minicart to notify user if openMiniCart is true
+    if (openMiniCart) {
+      setCartMode(CartMode.PINNED);
+    }
   };
 
   const handleAddMultipleToCart = (items) => {

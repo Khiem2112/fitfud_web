@@ -15,28 +15,27 @@ export default function QuickViewModal({
   dish,
   onClose,
   onAddToCart,
-  initialSize,
-  initialQuantity = 1,
-  initialChefNotes = '',
-  submitLabel
+  initialCartItem,
+  submitLabel,
+  successMessage
 }) {
   const { addToast } = useToast();
   const { user } = useApp();
   
   const { data: allergens, isLoading: isAllergyLoading, isError: isAllergyError } = useAllergyCheck(user?.id, dish?.ingredients);
 
-  const [quickViewSize, setQuickViewSize] = useState(initialSize || 'M');
-  const [removedIngredients, setRemovedIngredients] = useState([]);
-  const [chefNotes, setChefNotes] = useState(initialChefNotes);
-  const [quantity, setQuantity] = useState(initialQuantity);
+  const [quickViewSize, setQuickViewSize] = useState(initialCartItem?.size_name || 'M');
+  const [removedIngredients, setRemovedIngredients] = useState(initialCartItem?.removed_ingredients || []);
+  const [chefNotes, setChefNotes] = useState(initialCartItem?.chef_notes || '');
+  const [quantity, setQuantity] = useState(initialCartItem?.quantity || 1);
 
-  // Reset state when dish changes
+  // Reset state when dish or initial item changes
   useEffect(() => {
-    setQuickViewSize(initialSize || 'M');
-    setRemovedIngredients([]);
-    setChefNotes(initialChefNotes);
-    setQuantity(initialQuantity);
-  }, [dish, initialSize, initialQuantity, initialChefNotes]);
+    setQuickViewSize(initialCartItem?.size_name || 'M');
+    setRemovedIngredients(initialCartItem?.removed_ingredients || []);
+    setChefNotes(initialCartItem?.chef_notes || '');
+    setQuantity(initialCartItem?.quantity || 1);
+  }, [dish, initialCartItem]);
 
   const handleIngredientRemoveToggle = (ing) => {
     setRemovedIngredients((prev) =>
@@ -47,8 +46,6 @@ export default function QuickViewModal({
   const activeSizeObj = dish.sizes.find((s) => s.size_name === quickViewSize) || dish.sizes[0];
 
   const handleConfirmAddToCart = () => {
-    const finalNotes = chefNotes + (removedIngredients.length > 0 ? ` (Không lấy: ${removedIngredients.join(', ')})` : '');
-
     onAddToCart({
       dish_id: dish.id,
       dish_name: dish.dish_name,
@@ -56,14 +53,19 @@ export default function QuickViewModal({
       size_name: quickViewSize,
       price: activeSizeObj.price,
       quantity,
-      chef_notes: finalNotes,
+      chef_notes: chefNotes,
+      removed_ingredients: removedIngredients,
       calories: activeSizeObj.calories,
       protein: activeSizeObj.protein,
       fat: activeSizeObj.fat,
       carb: activeSizeObj.carb
     });
 
-    addToast('Đã thêm vào giỏ hàng', 'success');
+    if (successMessage) {
+      addToast(successMessage, 'success');
+    } else {
+      addToast('Đã thêm vào giỏ hàng', 'success');
+    }
     onClose();
   };
 

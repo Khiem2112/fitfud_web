@@ -1,17 +1,42 @@
 import { CartItemState, CheckoutInput, CheckoutOutput, SavedAddress } from '../type/checkout.types';
+import citiesData from '../seed/cities';
+import districtsData from '../seed/districts';
+import wardsData from '../seed/wards';
 
-const CART_KEY = 'fitfud_cart';
-const ORDERS_KEY = 'fitfud_orders';
+const getCartKey = () => {
+  const userStr = localStorage.getItem('fitfud_current_user');
+  if (userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      if (user && user.id) return `fitfud_cart_${user.id}`;
+    } catch (e) {
+      // ignore parsing error
+    }
+  }
+  return 'fitfud_cart_guest';
+};
 
 // --- Cart management (LocalStorage wrapper) ---
 
 export const getCart = (): CartItemState[] => {
-  const cart = localStorage.getItem(CART_KEY);
+  const cart = localStorage.getItem(getCartKey());
   return cart ? JSON.parse(cart) : [];
 };
 
+const sortCart = (cart: CartItemState[]) => {
+  const sizeOrder: Record<string, number> = { 'S': 1, 'M': 2, 'L': 3 };
+  return cart.sort((a, b) => {
+    const nameCmp = (a.dish_name || '').localeCompare(b.dish_name || '');
+    if (nameCmp !== 0) return nameCmp;
+    const sizeA = sizeOrder[a.size_name || ''] || 99;
+    const sizeB = sizeOrder[b.size_name || ''] || 99;
+    return sizeA - sizeB;
+  });
+};
+
 export const saveCart = (cart: CartItemState[]): void => {
-  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  const sortedCart = sortCart(cart);
+  localStorage.setItem(getCartKey(), JSON.stringify(sortedCart));
 };
 
 export const addToCart = (item: Omit<CartItemState, 'id'>): CartItemState[] => {
@@ -56,63 +81,49 @@ export const removeFromCart = (id: string): CartItemState[] => {
 };
 
 export const clearCart = (): void => {
-  localStorage.removeItem(CART_KEY);
+  localStorage.removeItem(getCartKey());
+};
+
+export const migrateGuestCartToUser = (userId: string) => {
+  const guestCartStr = localStorage.getItem('fitfud_cart_guest');
+  if (guestCartStr) {
+    try {
+      const guestCart = JSON.parse(guestCartStr);
+      if (guestCart && guestCart.length > 0) {
+        localStorage.setItem(`fitfud_cart_${userId}`, JSON.stringify(guestCart));
+        localStorage.removeItem('fitfud_cart_guest');
+      }
+    } catch (e) { }
+  }
 };
 
 // --- Vietnam Administrative Divisions Mock Data ---
 
-export const mockCities = [
-  { id: 'city_hcm', name: 'TP. Hồ Chí Minh' },
-  { id: 'city_hn', name: 'Hà Nội' },
-  { id: 'city_dn', name: 'Đà Nẵng' }
-];
-
-export const mockDistricts: Record<string, { id: string; name: string }[]> = {
-  city_hcm: [
-    { id: 'dist_q1', name: 'Quận 1' },
-    { id: 'dist_q3', name: 'Quận 3' },
-    { id: 'dist_q10', name: 'Quận 10' },
-    { id: 'dist_qbt', name: 'Quận Bình Thạnh' }
-  ],
-  city_hn: [
-    { id: 'dist_cg', name: 'Quận Cầu Giấy' },
-    { id: 'dist_bd', name: 'Quận Ba Đình' },
-    { id: 'dist_hk', name: 'Quận Hoàn Kiếm' }
-  ],
-  city_dn: [
-    { id: 'dist_hc', name: 'Quận Hải Châu' },
-    { id: 'dist_st', name: 'Quận Sơn Trà' }
-  ]
+export const fetchCities = async () => {
+  return Object.values(citiesData).map((city: any) => ({
+    id: city.code,
+    name: city.name_with_type
+  })).sort((a, b) => a.name.localeCompare(b.name));
 };
 
-export const mockWards: Record<string, { id: string; name: string }[]> = {
-  dist_q1: [
-    { id: 'ward_bn', name: 'Phường Bến Nghé' },
-    { id: 'ward_bt', name: 'Phường Bến Thành' },
-    { id: 'ward_cg', name: 'Phường Cô Giang' }
-  ],
-  dist_q10: [
-    { id: 'ward_p12', name: 'Phường 12' },
-    { id: 'ward_p14', name: 'Phường 14' }
-  ],
-  dist_cg: [
-    { id: 'ward_dvh', name: 'Phường Dịch Vọng Hậu' },
-    { id: 'ward_yh', name: 'Phường Yên Hòa' }
-  ]
+export const fetchDistricts = async (cityId: string) => {
+  if (!cityId) return [];
+  return Object.values(districtsData)
+    .filter((district: any) => district.parent_code === cityId)
+    .map((district: any) => ({
+      id: district.code,
+      name: district.name_with_type
+    })).sort((a, b) => a.name.localeCompare(b.name));
 };
 
-export const fetchCities = async () => mockCities;
-export const fetchDistricts = async (cityId: string) => mockDistricts[cityId] || [];
 export const fetchWards = async (districtId: string) => {
-  if (mockWards[districtId] && mockWards[districtId].length > 0) {
-    return mockWards[districtId];
-  }
-  // Generate dummy wards if missing
-  return [
-    { id: `ward_1_${districtId}`, name: 'Phường 1' },
-    { id: `ward_2_${districtId}`, name: 'Phường 2' },
-    { id: `ward_3_${districtId}`, name: 'Phường 3' },
-  ];
+  if (!districtId) return [];
+  return Object.values(wardsData)
+    .filter((ward: any) => ward.parent_code === districtId)
+    .map((ward: any) => ({
+      id: ward.code,
+      name: ward.name_with_type
+    })).sort((a, b) => a.name.localeCompare(b.name));
 };
 
 // --- Saved Addresses Mock Store ---
@@ -123,12 +134,12 @@ const mockAddresses: SavedAddress[] = [
     name: 'Nguyễn Minh Tuấn',
     phone: '0901234567',
     shipping_address_text: '123 Đường ABC',
-    wardId: 'ward_bn',
-    districtId: 'dist_q1',
-    cityId: 'city_hcm',
+    wardId: '26734',
+    districtId: '760',
+    cityId: '79',
     wardName: 'Phường Bến Nghé',
     districtName: 'Quận 1',
-    cityName: 'TP. Hồ Chí Minh',
+    cityName: 'Thành phố Hồ Chí Minh',
     isDefault: true
   },
   {
@@ -136,12 +147,12 @@ const mockAddresses: SavedAddress[] = [
     name: 'Trần Thị Bé Hai',
     phone: '0987654321',
     shipping_address_text: 'Tầng 15, Tòa nhà Landmark 81, 720A Điện Biên Phủ',
-    wardId: 'ward_22_dist_qbt', // Fake ID
-    districtId: 'dist_qbt',
-    cityId: 'city_hcm',
+    wardId: '26920',
+    districtId: '765',
+    cityId: '79',
     wardName: 'Phường 22',
     districtName: 'Quận Bình Thạnh',
-    cityName: 'TP. Hồ Chí Minh',
+    cityName: 'Thành phố Hồ Chí Minh',
     isDefault: false
   }
 ];
@@ -154,16 +165,17 @@ export const getSavedAddresses = async (userId: string): Promise<SavedAddress[]>
   if (stored) {
     return JSON.parse(stored);
   }
-  
-  // Set mock as initial state
-  localStorage.setItem(ADDRESSES_KEY_PREFIX + userId, JSON.stringify(mockAddresses));
-  return mockAddresses;
+
+  // Set mock as initial state only for the default user
+  const initialAddresses = userId === 'user_1' ? mockAddresses : [];
+  localStorage.setItem(ADDRESSES_KEY_PREFIX + userId, JSON.stringify(initialAddresses));
+  return initialAddresses;
 };
 
 export const addAddress = async (userId: string, input: Omit<SavedAddress, 'id'>): Promise<SavedAddress> => {
   await new Promise((resolve) => setTimeout(resolve, 500));
   const addresses = await getSavedAddresses(userId);
-  
+
   // If this is set to default, unset others
   if (input.isDefault) {
     addresses.forEach(a => a.isDefault = false);
@@ -224,10 +236,11 @@ export const createOrder = async (input: CheckoutInput, userId: string): Promise
     payment_status: input.payment_method === 'Online' ? 'Paid' : 'Pending'
   };
 
-  const storedOrders = localStorage.getItem(ORDERS_KEY);
+  const ordersKey = userId ? `fitfud_orders_${userId}` : 'fitfud_orders_guest';
+  const storedOrders = localStorage.getItem(ordersKey);
   const orders = storedOrders ? JSON.parse(storedOrders) : [];
   orders.unshift(newOrder); // Add to beginning of array
-  localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+  localStorage.setItem(ordersKey, JSON.stringify(orders));
 
   // Clear cart upon order completion
   clearCart();

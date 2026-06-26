@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
-import { getProfileDashboard, logMeal, updateProfileHealth } from '../service/profileService';
+import { useProfileDashboard } from '../hooks/useProfileDashboard';
 
 // Left Column Components
 import ProfileCard from '../component/organism/Profile/ProfileCard';
@@ -22,7 +22,7 @@ import ChangePasswordPopup from '../component/organism/Profile/ChangePasswordPop
 import AddAddressPopup from '../component/organism/Profile/AddAddressPopup';
 
 export default function Profile() {
-  const { user, logout, isAIAnalyzing } = useApp();
+  const { user, isAIAnalyzing } = useApp();
   const { addToast } = useToast();
   const navigate = useNavigate();
 
@@ -33,30 +33,17 @@ export default function Profile() {
     }
   }, [user, navigate]);
 
-  // Dashboard Data
-  const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  // Popups state
-  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
-  const [isAddAddressOpen, setIsAddAddressOpen] = useState(false);
-
-  const loadDashboardData = async () => {
-    if (user) {
-      try {
-        const data = await getProfileDashboard(user.id, user.full_name);
-        setDashboardData(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
-
-  useEffect(() => {
-    loadDashboardData();
-  }, [user]);
+  const {
+    dashboardData,
+    loading,
+    isChangePasswordOpen,
+    setIsChangePasswordOpen,
+    isAddAddressOpen,
+    setIsAddAddressOpen,
+    loadDashboardData,
+    handleLogMeal,
+    handleUpdateHealth
+  } = useProfileDashboard();
 
   const prevIsAIAnalyzing = useRef(isAIAnalyzing);
   useEffect(() => {
@@ -65,16 +52,23 @@ export default function Profile() {
       addToast('Đã phân tích và thêm bữa ăn từ ảnh!', 'success');
     }
     prevIsAIAnalyzing.current = isAIAnalyzing;
-  }, [isAIAnalyzing]);
+  }, [isAIAnalyzing, loadDashboardData, addToast]);
 
-  const handleLogMeal = async (mealInput) => {
+  const onLogMeal = async (mealInput) => {
     try {
-      await logMeal(user.id, mealInput);
-      loadDashboardData(); // Reload dashboard data
+      await handleLogMeal(mealInput);
       addToast('Đã thêm bữa ăn vào nhật ký!', 'success');
     } catch (err) {
-      addToast('Không thể ghi nhận bữa ăn.', 'error');
-      throw err;
+      addToast(err.message || 'Không thể ghi nhận bữa ăn.', 'error');
+    }
+  };
+
+  const onUpdateHealth = async (input) => {
+    try {
+      await handleUpdateHealth(input);
+      addToast('Đã cập nhật chỉ số thành công.', 'success');
+    } catch (err) {
+      addToast(err.message || 'Cập nhật thất bại.', 'error');
     }
   };
 
@@ -97,13 +91,13 @@ export default function Profile() {
           <ProfileCard
             dashboardData={dashboardData}
             onChangePassword={() => setIsChangePasswordOpen(true)}
-            onUpdateHealth={async (input) => {
-              await updateProfileHealth(user.id, input);
-              await loadDashboardData();
-              addToast('Đã cập nhật chiều cao/cân nặng.', 'success');
-            }}
+            onUpdateHealth={onUpdateHealth}
+            onAvatarChange={loadDashboardData}
           />
-          <HealthGoalPanel />
+          <HealthGoalPanel
+            dashboardData={dashboardData}
+            onUpdateGoal={onUpdateHealth}
+          />
           <DefaultAddressPanel
             addresses={dashboardData.addresses}
             onChangeAddress={() => setIsAddAddressOpen(true)}
@@ -115,7 +109,7 @@ export default function Profile() {
           <NutritionChartGrid />
 
           <div className="flex flex-col gap-4">
-            <MealLoggerPanel onLogMeal={handleLogMeal} />
+            <MealLoggerPanel onLogMeal={onLogMeal} />
 
             <div className="bg-bg-card border border-border-light rounded-2xl p-4 shadow-premium">
               <h2 className="text-sm font-bold text-text-main flex items-center gap-2 mb-4">

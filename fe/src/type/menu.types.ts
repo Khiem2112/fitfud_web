@@ -54,5 +54,5 @@ export type FilterMenuOutput = {
 export type FilterMasterDataOutput = {
   categories: { id: string; name: string }[];
   diets: { id: string; name: string }[];
-  allergies: { id: string; name: string }[];
+  allergies: { id: string; name: string; triggers: string[] }[];
 };

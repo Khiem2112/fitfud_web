@@ -7,6 +7,7 @@ export const surveySchema = z.object({
   height: z.coerce.number().min(100, 'Chiều cao tối thiểu là 100cm').max(250, 'Chiều cao tối đa là 250cm'),
   weight: z.coerce.number().min(30, 'Cân nặng tối thiểu là 30kg').max(300, 'Cân nặng tối đa là 300kg'),
   activity_level: z.enum(['Sedentary', 'Lightly Active', 'Moderately Active', 'Very Active', 'Extra Active']),
+  diet_preference: z.enum(['Bình thường', 'Eat Clean', 'Keto', 'Chay']).default('Bình thường'),
   allergyIds: z.array(z.string()),
 });
 

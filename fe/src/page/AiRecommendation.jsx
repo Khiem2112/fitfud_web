@@ -67,28 +67,16 @@ export default function AiRecommendation() {
 
     // Allergen detection
     if (profile && profile.allergyIds && profile.allergyIds.length > 0) {
-      const userAllergyNames = mockMasterData.allergies
-        .filter((a) => profile.allergyIds.includes(a.id))
-        .map((a) => a.name);
-
-      const allergenMap = {
-        'Cá': ['cá', 'cá hồi', 'cá ngừ'],
-        'Trứng': ['trứng'],
-        'Gluten': ['gạo lứt', 'mì ý', 'lúa mì', 'bột mì'],
-        'Lạc': ['đậu phộng', 'lạc'],
-        'Sữa': ['bơ', 'sữa', 'phô mai', 'bơ lạt'],
-        'Hạt': ['óc chó', 'hướng dương', 'hạt dẻ', 'điều'],
-        'Đậu nành': ['đậu nành', 'đậu hũ', 'tào phớ']
-      };
+      const userAllergies = mockMasterData.allergies.filter((a) => profile.allergyIds.includes(a.id));
 
       const matchedAllergens = [];
-      userAllergyNames.forEach((allergyName) => {
-        const triggers = allergenMap[allergyName] || [allergyName.toLowerCase()];
+      userAllergies.forEach((allergy) => {
+        const triggers = allergy.triggers || [allergy.name.toLowerCase()];
         const clashingIngredient = dish.ingredients.find((ing) =>
-          triggers.some((trig) => ing.toLowerCase().includes(trig))
+          triggers.some((trig) => ing.toLowerCase().includes(trig.toLowerCase()))
         );
         if (clashingIngredient) {
-          matchedAllergens.push({ allergyName, clashingIngredient });
+          matchedAllergens.push({ allergyName: allergy.name, clashingIngredient });
         }
       });
 
