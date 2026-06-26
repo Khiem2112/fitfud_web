@@ -1,7 +1,24 @@
 import { OrderDetail, OrderStatus, OrderHistorySummary } from '../type/orders.types';
 
-const ORDERS_KEY = 'fitfud_orders';
+const getOrdersKey = () => {
+  const userStr = localStorage.getItem('fitfud_current_user');
+  if (userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      if (user && user.id) return `fitfud_orders_${user.id}`;
+    } catch (e) {}
+  }
+  return 'fitfud_orders_guest';
+};
 
+export const seedInitialUserOrders = (userId: string) => {
+  const key = `fitfud_orders_${userId}`;
+  const stored = localStorage.getItem(key);
+  if (!stored) {
+    const orders = getMockInitialOrders(userId);
+    localStorage.setItem(key, JSON.stringify(orders));
+  }
+};
 const getMockInitialOrders = (userId: string): OrderDetail[] => {
   return [
     {
@@ -128,7 +145,8 @@ const getMockInitialOrders = (userId: string): OrderDetail[] => {
 
 export const getOrderDetail = async (orderId: string): Promise<OrderDetail> => {
   await new Promise((resolve) => setTimeout(resolve, 400));
-  const stored = localStorage.getItem(ORDERS_KEY);
+  const ordersKey = getOrdersKey();
+  const stored = localStorage.getItem(ordersKey);
   const allOrders: OrderDetail[] = stored ? JSON.parse(stored) : getMockInitialOrders('default');
 
   const order = allOrders.find(o => o.id === orderId);
@@ -139,12 +157,13 @@ export const getOrderDetail = async (orderId: string): Promise<OrderDetail> => {
 export const getUserOrders = async (userId: string): Promise<{ activeOrder: OrderHistorySummary | null, historyOrders: OrderHistorySummary[] }> => {
   await new Promise((resolve) => setTimeout(resolve, 500));
 
-  const stored = localStorage.getItem(ORDERS_KEY);
+  const ordersKey = `fitfud_orders_${userId}`;
+  const stored = localStorage.getItem(ordersKey);
   let allOrders: OrderDetail[] = [];
 
   if (!stored) {
     allOrders = getMockInitialOrders(userId);
-    localStorage.setItem(ORDERS_KEY, JSON.stringify(allOrders));
+    localStorage.setItem(ordersKey, JSON.stringify(allOrders));
   } else {
     allOrders = JSON.parse(stored);
   }
@@ -185,8 +204,9 @@ export const getUserOrders = async (userId: string): Promise<{ activeOrder: Orde
 export const lookupGuestOrders = async (phone: string): Promise<OrderHistorySummary[]> => {
   await new Promise((resolve) => setTimeout(resolve, 600));
 
-  const stored = localStorage.getItem(ORDERS_KEY);
-  const allOrders: OrderDetail[] = stored ? JSON.parse(stored) : getMockInitialOrders('default');
+  const ordersKey = 'fitfud_orders_guest';
+  const stored = localStorage.getItem(ordersKey);
+  const allOrders: OrderDetail[] = stored ? JSON.parse(stored) : [];
 
   // Filter orders matching the phone number
   const matched = allOrders.filter((o) => o.contact_phone.replace(/\s+/g, '') === phone.replace(/\s+/g, ''));
@@ -207,7 +227,8 @@ export const lookupGuestOrders = async (phone: string): Promise<OrderHistorySumm
 export const requestCancelOrder = async (orderId: string): Promise<{ success: boolean; message: string }> => {
   await new Promise((resolve) => setTimeout(resolve, 400));
 
-  const stored = localStorage.getItem(ORDERS_KEY);
+  const ordersKey = getOrdersKey();
+  const stored = localStorage.getItem(ordersKey);
   const orders: OrderDetail[] = stored ? JSON.parse(stored) : [];
   const order = orders.find((o) => o.id === orderId);
 
@@ -249,7 +270,8 @@ export const confirmCancelOrder = async (orderId: string, otpCode: string): Prom
     throw new Error('Mã OTP không đúng hoặc đã hết hạn! Vui lòng thử lại.');
   }
 
-  const stored = localStorage.getItem(ORDERS_KEY);
+  const ordersKey = getOrdersKey();
+  const stored = localStorage.getItem(ordersKey);
   const orders: OrderDetail[] = stored ? JSON.parse(stored) : [];
   const order = orders.find((o) => o.id === orderId);
 
@@ -264,7 +286,7 @@ export const confirmCancelOrder = async (orderId: string, otpCode: string): Prom
     logged_at: new Date().toISOString()
   });
 
-  localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+  localStorage.setItem(ordersKey, JSON.stringify(orders));
 
   // Remove used OTP
   const newOtpData = otpData.filter((r: any) => r !== validRecord);

@@ -3,13 +3,23 @@ import citiesData from '../seed/cities';
 import districtsData from '../seed/districts';
 import wardsData from '../seed/wards';
 
-const CART_KEY = 'fitfud_cart';
-const ORDERS_KEY = 'fitfud_orders';
+const getCartKey = () => {
+  const userStr = localStorage.getItem('fitfud_current_user');
+  if (userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      if (user && user.id) return `fitfud_cart_${user.id}`;
+    } catch (e) {
+      // ignore parsing error
+    }
+  }
+  return 'fitfud_cart_guest';
+};
 
 // --- Cart management (LocalStorage wrapper) ---
 
 export const getCart = (): CartItemState[] => {
-  const cart = localStorage.getItem(CART_KEY);
+  const cart = localStorage.getItem(getCartKey());
   return cart ? JSON.parse(cart) : [];
 };
 
@@ -26,7 +36,7 @@ const sortCart = (cart: CartItemState[]) => {
 
 export const saveCart = (cart: CartItemState[]): void => {
   const sortedCart = sortCart(cart);
-  localStorage.setItem(CART_KEY, JSON.stringify(sortedCart));
+  localStorage.setItem(getCartKey(), JSON.stringify(sortedCart));
 };
 
 export const addToCart = (item: Omit<CartItemState, 'id'>): CartItemState[] => {
@@ -71,7 +81,20 @@ export const removeFromCart = (id: string): CartItemState[] => {
 };
 
 export const clearCart = (): void => {
-  localStorage.removeItem(CART_KEY);
+  localStorage.removeItem(getCartKey());
+};
+
+export const migrateGuestCartToUser = (userId: string) => {
+  const guestCartStr = localStorage.getItem('fitfud_cart_guest');
+  if (guestCartStr) {
+    try {
+      const guestCart = JSON.parse(guestCartStr);
+      if (guestCart && guestCart.length > 0) {
+        localStorage.setItem(`fitfud_cart_${userId}`, JSON.stringify(guestCart));
+        localStorage.removeItem('fitfud_cart_guest');
+      }
+    } catch (e) { }
+  }
 };
 
 // --- Vietnam Administrative Divisions Mock Data ---
@@ -142,16 +165,17 @@ export const getSavedAddresses = async (userId: string): Promise<SavedAddress[]>
   if (stored) {
     return JSON.parse(stored);
   }
-  
-  // Set mock as initial state
-  localStorage.setItem(ADDRESSES_KEY_PREFIX + userId, JSON.stringify(mockAddresses));
-  return mockAddresses;
+
+  // Set mock as initial state only for the default user
+  const initialAddresses = userId === 'user_1' ? mockAddresses : [];
+  localStorage.setItem(ADDRESSES_KEY_PREFIX + userId, JSON.stringify(initialAddresses));
+  return initialAddresses;
 };
 
 export const addAddress = async (userId: string, input: Omit<SavedAddress, 'id'>): Promise<SavedAddress> => {
   await new Promise((resolve) => setTimeout(resolve, 500));
   const addresses = await getSavedAddresses(userId);
-  
+
   // If this is set to default, unset others
   if (input.isDefault) {
     addresses.forEach(a => a.isDefault = false);
@@ -212,10 +236,11 @@ export const createOrder = async (input: CheckoutInput, userId: string): Promise
     payment_status: input.payment_method === 'Online' ? 'Paid' : 'Pending'
   };
 
-  const storedOrders = localStorage.getItem(ORDERS_KEY);
+  const ordersKey = userId ? `fitfud_orders_${userId}` : 'fitfud_orders_guest';
+  const storedOrders = localStorage.getItem(ordersKey);
   const orders = storedOrders ? JSON.parse(storedOrders) : [];
   orders.unshift(newOrder); // Add to beginning of array
-  localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+  localStorage.setItem(ordersKey, JSON.stringify(orders));
 
   // Clear cart upon order completion
   clearCart();

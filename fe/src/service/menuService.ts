@@ -3,6 +3,7 @@ import { categories } from '../seed/categories';
 import { diets } from '../seed/diets';
 import { allergies } from '../seed/allergies';
 import { mockDishes as originalMockDishes } from '../seed/dishes';
+import { seedReviews } from '../seed/reviews';
 
 // Duplicate to have enough items for infinite scroll testing
 const mockDishes: DishItem[] = [
@@ -27,25 +28,40 @@ export const fetchFilterOptions = async (): Promise<FilterMasterDataOutput> => {
 // Helper function to attach user reviews from localStorage to a dish and recalculate rating_avg & reviews_count
 const attachReviewsToDish = (dish: DishItem): DishItem => {
   try {
-    const storedReviews = localStorage.getItem('fitfud_reviews');
-    if (!storedReviews) {
-      const count = dish.reviews?.length || 0;
-      const avg = count > 0 ? Number((dish.reviews.reduce((sum, r) => sum + r.rating, 0) / count).toFixed(1)) : dish.rating_avg;
-      return { ...dish, reviews_count: count, rating_avg: avg };
-    }
-
-    const allStoredReviews = JSON.parse(storedReviews);
-    // Find all reviews matching the base dish ID (remove _c1, _c2 etc if infinite scroll clones exist)
     const baseDishId = dish.id.split('_c')[0]; 
-    const dishUserReviews = allStoredReviews.filter((r: any) => r.dishId === baseDishId).map((r: any) => ({
+
+    // 1. Get seed reviews
+    const dishSeedReviews = seedReviews.filter((r) => r.dishId === baseDishId).map((r) => ({
       id: r.id,
-      reviewer_name: 'Bạn', // Simplified
+      reviewer_name: r.reviewer_name,
       rating: r.rating,
       comment: r.comment,
       date: r.createdAt.split('T')[0]
     }));
 
-    const combinedReviews = [...dishUserReviews, ...(dish.reviews || [])];
+    // 2. Get user specific reviews
+    let dishUserReviews: any[] = [];
+    const userStr = localStorage.getItem('fitfud_current_user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        if (user && user.id) {
+          const storedReviews = localStorage.getItem(`fitfud_reviews_${user.id}`);
+          if (storedReviews) {
+            const allStoredReviews = JSON.parse(storedReviews);
+            dishUserReviews = allStoredReviews.filter((r: any) => r.dishId === baseDishId).map((r: any) => ({
+              id: r.id,
+              reviewer_name: 'Bạn', // Simplified
+              rating: r.rating,
+              comment: r.comment,
+              date: r.createdAt.split('T')[0]
+            }));
+          }
+        }
+      } catch (e) {}
+    }
+
+    const combinedReviews = [...dishUserReviews, ...dishSeedReviews, ...(dish.reviews || [])];
     const reviewsCount = combinedReviews.length;
     const ratingAvg = reviewsCount > 0 
       ? Number((combinedReviews.reduce((sum, r) => sum + r.rating, 0) / reviewsCount).toFixed(1)) 

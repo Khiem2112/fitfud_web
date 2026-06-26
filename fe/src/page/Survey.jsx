@@ -24,10 +24,12 @@ export default function Survey() {
   // Use React Query Hook
   const { data: masterData, isLoading } = useSurveyMasterData();
 
-  // Redirect if not logged in
+  // Redirect if not logged in or already surveyed
   useEffect(() => {
     if (!user) {
       navigate('/auth');
+    } else if (user.has_surveyed) {
+      navigate('/profile');
     }
   }, [user, navigate]);
 
@@ -60,8 +62,6 @@ export default function Survey() {
   }, []);
 
   const handleSkipConfirm = () => {
-    // Generate default profile and set has_surveyed to true
-    updateSurveyStatus(true);
     clearDraft();
     navigate('/profile');
   };

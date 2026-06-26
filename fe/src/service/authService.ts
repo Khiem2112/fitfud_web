@@ -1,26 +1,37 @@
 import { LoginInput, LoginOutput, RegisterInput, RegisterOutput, ResetPasswordInput, ResetPasswordOutput } from '../type/auth.types';
 
+import { migrateGuestCartToUser } from './checkoutService';
+import { seedInitialUserOrders } from './ordersService';
+
 // Mock database in localStorage
 const STORAGE_USERS_KEY = 'fitfud_mock_users';
 const CURRENT_USER_KEY = 'fitfud_current_user';
 const TOKEN_KEY = 'fitfud_jwt_token';
-const ORDERS_KEY = 'fitfud_orders';
 
 const migrateGuestOrdersToUser = (phone: string, userId: string) => {
-  const storedOrders = localStorage.getItem(ORDERS_KEY);
-  if (!storedOrders || !phone) return;
+  const guestOrdersStr = localStorage.getItem('fitfud_orders_guest');
+  if (!guestOrdersStr || !phone) return;
 
   const normalizedPhone = phone.replace(/\s+/g, '');
-  const orders = JSON.parse(storedOrders);
-  const migratedOrders = orders.map((order: any) => {
+  const guestOrders = JSON.parse(guestOrdersStr);
+  const userOrdersStr = localStorage.getItem(`fitfud_orders_${userId}`);
+  const userOrders = userOrdersStr ? JSON.parse(userOrdersStr) : [];
+  
+  let hasMigration = false;
+  const remainingGuestOrders = guestOrders.filter((order: any) => {
     const orderPhone = (order.contact_phone || '').replace(/\s+/g, '');
     if (orderPhone === normalizedPhone) {
-      return { ...order, userId };
+      userOrders.push({ ...order, userId });
+      hasMigration = true;
+      return false; // remove from guest
     }
-    return order;
+    return true; // keep in guest
   });
 
-  localStorage.setItem(ORDERS_KEY, JSON.stringify(migratedOrders));
+  if (hasMigration) {
+    localStorage.setItem(`fitfud_orders_${userId}`, JSON.stringify(userOrders));
+    localStorage.setItem('fitfud_orders_guest', JSON.stringify(remainingGuestOrders));
+  }
 };
 
 const getMockUsers = () => {
@@ -77,6 +88,7 @@ export const loginUser = async (input: LoginInput): Promise<LoginOutput> => {
 
   localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(session.user));
   localStorage.setItem(TOKEN_KEY, session.jwt);
+  seedInitialUserOrders(matchedUser.id);
   migrateGuestOrdersToUser(matchedUser.phone, matchedUser.id);
 
   return session;
@@ -117,6 +129,8 @@ export const registerUser = async (input: RegisterInput): Promise<RegisterOutput
 
   localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(session.user));
   localStorage.setItem(TOKEN_KEY, session.jwt);
+  seedInitialUserOrders(newUser.id);
+  migrateGuestCartToUser(newUser.id);
   migrateGuestOrdersToUser(newUser.phone, newUser.id);
 
   return session;
