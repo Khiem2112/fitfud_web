@@ -24,6 +24,44 @@ export const fetchFilterOptions = async (): Promise<FilterMasterDataOutput> => {
   return mockMasterData;
 };
 
+// Helper function to attach user reviews from localStorage to a dish and recalculate rating_avg & reviews_count
+const attachReviewsToDish = (dish: DishItem): DishItem => {
+  try {
+    const storedReviews = localStorage.getItem('fitfud_reviews');
+    if (!storedReviews) {
+      const count = dish.reviews?.length || 0;
+      const avg = count > 0 ? Number((dish.reviews.reduce((sum, r) => sum + r.rating, 0) / count).toFixed(1)) : dish.rating_avg;
+      return { ...dish, reviews_count: count, rating_avg: avg };
+    }
+
+    const allStoredReviews = JSON.parse(storedReviews);
+    // Find all reviews matching the base dish ID (remove _c1, _c2 etc if infinite scroll clones exist)
+    const baseDishId = dish.id.split('_c')[0]; 
+    const dishUserReviews = allStoredReviews.filter((r: any) => r.dishId === baseDishId).map((r: any) => ({
+      id: r.id,
+      reviewer_name: 'Bạn', // Simplified
+      rating: r.rating,
+      comment: r.comment,
+      date: r.createdAt.split('T')[0]
+    }));
+
+    const combinedReviews = [...dishUserReviews, ...(dish.reviews || [])];
+    const reviewsCount = combinedReviews.length;
+    const ratingAvg = reviewsCount > 0 
+      ? Number((combinedReviews.reduce((sum, r) => sum + r.rating, 0) / reviewsCount).toFixed(1)) 
+      : dish.rating_avg;
+
+    return {
+      ...dish,
+      reviews: combinedReviews,
+      reviews_count: reviewsCount,
+      rating_avg: ratingAvg
+    };
+  } catch (err) {
+    return dish; // Fallback
+  }
+};
+
 export const fetchHealthyMenu = async (input: FilterMenuInput): Promise<FilterMenuOutput> => {
   await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -100,7 +138,7 @@ export const fetchHealthyMenu = async (input: FilterMenuInput): Promise<FilterMe
   const totalItems = filtered.length;
   const totalPages = Math.ceil(totalItems / input.limit);
   const startIdx = (input.page - 1) * input.limit;
-  const paginatedDishes = filtered.slice(startIdx, startIdx + input.limit);
+  const paginatedDishes = filtered.slice(startIdx, startIdx + input.limit).map(attachReviewsToDish);
 
   return {
     dishes: paginatedDishes,
@@ -115,5 +153,5 @@ export const fetchDishDetail = async (id: string): Promise<DishItem> => {
   if (!dish) {
     throw new Error('Không tìm thấy món ăn này!');
   }
-  return dish;
+  return attachReviewsToDish(dish);
 };

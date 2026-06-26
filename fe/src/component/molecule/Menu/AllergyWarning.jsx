@@ -1,6 +1,9 @@
 import React from 'react';
+import { useToast } from '../../../context/ToastContext';
 
 export default function AllergyWarning({ allergens, isLoading, isError, className = '' }) {
+  const { addToast } = useToast();
+
   if (isLoading) {
     return (
       <div className={`rounded-2xl bg-orange-50 border border-orange-100 p-4 animate-pulse flex items-start gap-3 ${className}`}>
@@ -36,7 +39,10 @@ export default function AllergyWarning({ allergens, isLoading, isError, classNam
           . Hồ sơ sức khỏe của bạn ghi nhận dị ứng với{' '}
           {allergens.map((a) => a.allergyName).join(', ')}. Sử dụng món ăn này có thể gây kích ứng.
         </p>
-        <button className="text-sm font-bold text-[#EA580C] underline hover:text-[#C2410C] transition">
+        <button 
+          onClick={() => addToast('Chức năng "Xem thành phần gây dị ứng" đang được phát triển.', 'warning')}
+          className="text-sm font-bold text-[#EA580C] underline hover:text-[#C2410C] transition"
+        >
           Xem thành phần gây dị ứng
         </button>
       </div>

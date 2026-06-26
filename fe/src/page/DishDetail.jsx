@@ -126,7 +126,7 @@ export default function DishDetail() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {dish.reviews.slice(0, 2).map((rev) => (
+                  {dish.reviews.slice(0, 3).map((rev) => (
                     <div key={rev.id} className="space-y-1 pb-2 border-b border-border-light last:border-0 last:pb-0">
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-xs text-text-main">{rev.reviewer_name}</span>
@@ -138,7 +138,10 @@ export default function DishDetail() {
                 </div>
               )}
             </div>
-            <button className="w-full text-center text-xs font-semibold text-primary hover:underline">
+            <button 
+              onClick={() => addToast('Chức năng "Xem tất cả đánh giá" đang được phát triển.', 'warning')}
+              className="w-full text-center text-xs font-semibold text-primary hover:underline"
+            >
               Xem tất cả đánh giá
             </button>
           </div>

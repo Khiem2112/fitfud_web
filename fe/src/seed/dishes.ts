@@ -58,7 +58,10 @@ export const mockDishes: DishItem[] = [
       { id: 'sz_3_m', size_name: 'M', price: 115000, calories: 480, protein: 35, fat: 20, carb: 28 },
       { id: 'sz_3_l', size_name: 'L', price: 135000, calories: 590, protein: 45, fat: 25, carb: 36 }
     ],
-    reviews: []
+    reviews: [
+      { id: 'rev_10', reviewer_name: 'Minh Tuấn', rating: 5, comment: 'Thịt bò rất mềm, sốt tiêu đen tuyệt vời!', date: '2026-06-30' },
+      { id: 'rev_11', reviewer_name: 'Bảo Trâm', rating: 4, comment: 'Khoai lang ngọt, ăn kèm bò rất vừa miệng.', date: '2026-07-02' }
+    ]
   },
   {
     id: 'dish_4',
@@ -76,7 +79,9 @@ export const mockDishes: DishItem[] = [
       { id: 'sz_4_m', size_name: 'M', price: 65000, calories: 310, protein: 22, fat: 15, carb: 12 },
       { id: 'sz_4_l', size_name: 'L', price: 80000, calories: 400, protein: 28, fat: 20, carb: 15 }
     ],
-    reviews: []
+    reviews: [
+      { id: 'rev_12', reviewer_name: 'Thu Hà', rating: 4, comment: 'Salad tươi ngon, bơ rất béo và bùi.', date: '2026-07-05' }
+    ]
   },
   {
     id: 'dish_5',
@@ -114,7 +119,10 @@ export const mockDishes: DishItem[] = [
       { id: 'sz_6_m', size_name: 'M', price: 95000, calories: 380, protein: 16, fat: 11, carb: 45 },
       { id: 'sz_6_l', size_name: 'L', price: 110000, calories: 460, protein: 20, fat: 14, carb: 55 }
     ],
-    reviews: []
+    reviews: [
+      { id: 'rev_13', reviewer_name: 'Phương Linh', rating: 5, comment: 'Món chay nhưng ăn rất no và đầy đủ dưỡng chất.', date: '2026-07-08' },
+      { id: 'rev_14', reviewer_name: 'Hoàng Lâm', rating: 5, comment: 'Sốt hạt hướng dương rất lạ miệng và thơm.', date: '2026-07-10' }
+    ]
   },
   {
     id: 'dish_7',
