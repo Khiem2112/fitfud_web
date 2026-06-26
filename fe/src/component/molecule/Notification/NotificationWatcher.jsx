@@ -5,16 +5,19 @@ import { useHasSurveyDraft, useSurveyDraft } from '../../../hook/useSurveyDraft'
 import { useNotificationStore } from '../../../store/notificationStore';
 import { useApp } from '../../../context/AppContext';
 
+let hasDismissedSurveySession = false;
+
 export const NotificationWatcher = () => {
   const navigate = useNavigate();
   const hasCheckoutDraft = useHasCheckoutDraft();
   const { clearDraft: clearCheckoutDraft } = useCheckoutDraft();
   const addNotification = useNotificationStore((state) => state.addNotification);
   const removeNotification = useNotificationStore((state) => state.removeNotification);
+  const { user, updateSurveyStatus, isAIAnalyzing, cart } = useApp();
 
   // Watch for Checkout Draft
   useEffect(() => {
-    if (hasCheckoutDraft) {
+    if (hasCheckoutDraft && cart.length > 0) {
       addNotification({
         id: 'checkout_draft',
         title: 'Đơn hàng đang chờ thanh toán',
@@ -38,12 +41,11 @@ export const NotificationWatcher = () => {
     } else {
       removeNotification('checkout_draft');
     }
-  }, [hasCheckoutDraft, navigate, clearCheckoutDraft, addNotification, removeNotification]);
+  }, [hasCheckoutDraft, cart.length, navigate, clearCheckoutDraft, addNotification, removeNotification]);
 
   // Watch for Survey
   const hasSurveyDraft = useHasSurveyDraft();
   const { clearDraft: clearSurveyDraft } = useSurveyDraft();
-  const { user, updateSurveyStatus, isAIAnalyzing } = useApp();
   const surveyPromptKey = user ? `fitfud_survey_prompt_seen_${user.id}` : 'fitfud_survey_prompt_seen_guest';
 
   // Watch for AI analyzing
@@ -67,7 +69,7 @@ export const NotificationWatcher = () => {
   const location = useLocation();
 
   useEffect(() => {
-    if ((user && user.has_surveyed === false) || (!user && hasSurveyDraft)) {
+    if (!hasDismissedSurveySession && ((user && user.has_surveyed === false) || (!user && hasSurveyDraft))) {
       addNotification({
         id: 'survey_draft',
         title: 'Khảo sát sức khỏe chưa hoàn tất',
@@ -80,6 +82,7 @@ export const NotificationWatcher = () => {
           {
             label: 'Để sau',
             onClick: () => {
+              hasDismissedSurveySession = true;
               removeNotification('survey_draft');
             },
           },

@@ -1,4 +1,5 @@
 import { LoginInput, LoginOutput, RegisterInput, RegisterOutput, ResetPasswordInput, ResetPasswordOutput } from '../type/auth.types';
+import { useCheckoutStore } from '../store/checkoutStore';
 
 import { migrateGuestCartToUser } from './checkoutService';
 import { seedInitialUserOrders } from './ordersService';
@@ -127,10 +128,12 @@ export const registerUser = async (input: RegisterInput): Promise<RegisterOutput
     }
   };
 
+
   localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(session.user));
   localStorage.setItem(TOKEN_KEY, session.jwt);
   seedInitialUserOrders(newUser.id);
   migrateGuestCartToUser(newUser.id);
+  useCheckoutStore.getState().migrateDraft('guest', newUser.id);
   migrateGuestOrdersToUser(newUser.phone, newUser.id);
 
   return session;
