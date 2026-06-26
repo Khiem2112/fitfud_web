@@ -69,7 +69,7 @@ export const getProfileDashboard = async (userId: string, fullName: string): Pro
     { day: 'T5', calories: 1800, protein: 85 },
     { day: 'T6', calories: 2350, protein: 130 },
     { day: 'T7', calories: 1700, protein: 80 },
-    { day: 'CN', calories: todayCal || 2150, protein: todayPro || 115 }
+    { day: 'CN', calories: todayCal, protein: todayPro }
   ];
 
   const addresses = await getSavedAddresses(userId);
@@ -120,8 +120,8 @@ export const getProfileDashboard = async (userId: string, fullName: string): Pro
     diet_preference: profile.diet_preference || 'Bình thường',
     target_calories: profile.target_calories,
     target_protein: profile.target_protein,
-    today_calories_logged: todayCal || 1250,
-    today_protein_logged: todayPro || 90,
+    today_calories_logged: todayCal,
+    today_protein_logged: todayPro,
     weekly_trend,
     defaultAddress: mappedAddress,
     addresses: mappedAddresses,
@@ -283,7 +283,7 @@ export const getNutritionHistory = async (userId: string) => {
     { day: 'T5', calories: 1800, protein: 85 },
     { day: 'T6', calories: 2350, protein: 130 },
     { day: 'T7', calories: 1700, protein: 80 },
-    { day: 'CN', calories: todayCal || 2150, protein: todayPro || 115 }
+    { day: 'CN', calories: todayCal, protein: todayPro }
   ];
 
   return {
