@@ -80,7 +80,10 @@ export default function DishDetail() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-3 sm:px-6 lg:px-8 page-enter space-y-3">
 
-      <Breadcrumb dishName={dish?.dish_name} />
+      <Breadcrumb items={[
+        { label: 'Thực đơn', path: '/menu' },
+        { label: dish?.dish_name || 'Chi tiết món ăn' }
+      ]} />
 
       {/* Main Layout Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-[45fr_55fr] gap-4 items-start">
