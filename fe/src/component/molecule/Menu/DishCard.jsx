@@ -31,19 +31,6 @@ export default function DishCard({ dish, onOpenQuickView }) {
             <span className="text-gray-400">No Image</span>
           </div>
         )}
-
-        {/* Badges */}
-        {!isOutOfStock && dish.id === 'dish_2' && (
-          <div className="absolute top-2 left-2 bg-[#b45309] text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
-            -13%
-          </div>
-        )}
-        {!isOutOfStock && dish.dish_name.includes('Bò') && (
-          <div className="absolute top-2 left-2 bg-[#194b33] text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
-            PRO
-          </div>
-        )}
-
         {/* Out of stock overlay */}
         {isOutOfStock && (
           <div className="absolute inset-0 bg-white/40 flex items-center justify-center">
@@ -83,8 +70,8 @@ export default function DishCard({ dish, onOpenQuickView }) {
           }}
           disabled={isOutOfStock}
           className={`w-full mt-4 rounded border border-transparent py-2 text-center text-[12px] font-bold transition-colors ${isOutOfStock
-              ? 'bg-[#e5e7eb] text-[#9ca3af] cursor-not-allowed'
-              : 'bg-[#194b33] text-white hover:bg-[#123825]'
+            ? 'bg-[#e5e7eb] text-[#9ca3af] cursor-not-allowed'
+            : 'bg-[#194b33] text-white hover:bg-[#123825]'
             }`}
         >
           {isOutOfStock ? 'Hết hàng' : 'Thêm vào giỏ'}

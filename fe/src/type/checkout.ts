@@ -17,7 +17,8 @@ export interface CheckoutDraft {
 }
 
 export interface CheckoutStore {
-  draft: CheckoutDraft | null;
-  saveDraft: (data: Partial<CheckoutDraft>) => void;
-  clearDraft: () => void;
+  drafts: Record<string, CheckoutDraft>;
+  saveDraft: (userId: string, data: Partial<CheckoutDraft>) => void;
+  clearDraft: (userId: string) => void;
+  migrateDraft: (fromUserId: string, toUserId: string) => void;
 }

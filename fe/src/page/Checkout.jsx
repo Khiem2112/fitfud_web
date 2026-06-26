@@ -20,10 +20,27 @@ export default function Checkout() {
   const [orderSuccessData, setOrderSuccessData] = useState(null);
   const [editingCartItem, setEditingCartItem] = useState(null);
   const [editingDish, setEditingDish] = useState(null);
+  const [itemToRemove, setItemToRemove] = useState(null); // ID of item to remove, triggers modal if cart.length === 1
   const navigate = useNavigate();
 
   // Use checkout draft hook
   const { getDraftFormData, updateDraft, clearDraft } = useCheckoutDraft();
+
+  const handleRemoveItem = (id) => {
+    if (cart.length === 1) {
+      setItemToRemove(id);
+    } else {
+      removeFromCart(id);
+    }
+  };
+
+  const confirmRemoveLastItem = () => {
+    clearDraft();
+    clearCart();
+    setItemToRemove(null);
+    navigate('/menu');
+  };
+
 
   const methods = useForm({
     resolver: zodResolver(checkoutSchema),
@@ -127,12 +144,12 @@ export default function Checkout() {
         },
       };
 
-      const orderUserId = user ? user.id : `guest_${Date.now()}`;
+      const orderUserId = user ? user.id : 'guest';
       const res = await createOrder(payload, orderUserId);
 
       clearCart();
       clearDraft(); // Wipe draft on success
-      setOrderSuccessData(res);
+      setOrderSuccessData({ ...res, contact_phone: payload.contact_phone });
     } catch (err) {
       setGlobalError(err.message || 'Đã xảy ra lỗi khi tạo đơn hàng.');
     } finally {
@@ -208,7 +225,7 @@ export default function Checkout() {
                     <OrderSummarySidebarCard
                       cartItems={cart}
                       onUpdateQuantity={updateCartQty}
-                      onRemoveItem={removeFromCart}
+                      onRemoveItem={handleRemoveItem}
                       onEditItem={handleEditCartItem}
                       isSubmitting={isSubmitting}
                       paymentMethod={field.value}
@@ -246,6 +263,37 @@ export default function Checkout() {
             setEditingDish(null);
           }}
         />
+      )}
+
+      {/* Remove Last Item Warning Modal */}
+      {itemToRemove && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+          <div className="relative bg-white rounded-2xl w-full max-w-[400px] flex flex-col shadow-premium-lg animate-fade-in-up p-6 items-center text-center">
+            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4 shadow-sm border border-red-100">
+              <i className="bi bi-exclamation-triangle text-2xl text-red-500"></i>
+            </div>
+            <h2 className="text-xl font-bold text-text-main mb-2">Huỷ thanh toán?</h2>
+            <p className="text-text-muted text-sm mb-6">
+              Bạn có chắc chắn muốn xoá sản phẩm cuối cùng và hủy thanh toán không? Thông tin giao hàng của bạn cũng sẽ bị xoá.
+            </p>
+            <div className="flex gap-3 w-full">
+              <button
+                type="button"
+                className="flex-1 py-2.5 rounded-xl border border-border-light text-text-main font-semibold hover:bg-bg-main transition-colors text-sm"
+                onClick={() => setItemToRemove(null)}
+              >
+                Không, giữ lại
+              </button>
+              <button
+                type="button"
+                className="flex-1 py-2.5 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600 transition-colors shadow-sm text-sm"
+                onClick={confirmRemoveLastItem}
+              >
+                Có, huỷ thanh toán
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

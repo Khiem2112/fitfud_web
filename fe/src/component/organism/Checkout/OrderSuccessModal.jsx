@@ -40,7 +40,7 @@ export const OrderSuccessModal = ({ data, isOpen }) => {
         {/* Action Buttons */}
         <div className="flex flex-col gap-3 w-full">
           <button
-            onClick={() => navigate(`/orders`)}
+            onClick={() => navigate('/orders', { state: { phone: data.contact_phone } })}
             className="w-full py-3.5 bg-primary text-white font-bold rounded-xl shadow-md hover:bg-primary-dark transition-colors"
           >
             Theo dõi đơn hàng
