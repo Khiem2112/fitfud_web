@@ -6,6 +6,7 @@ export type WeeklyTrendItem = {
 
 export type ProfileDashboardOutput = {
   fullName: string;
+  avatar?: string;
   weight: number;
   height: number;
   bmi: number;

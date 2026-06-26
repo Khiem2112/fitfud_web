@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import AvatarUpload from './AvatarUpload';
 
-export default function ProfileCard({ dashboardData, onChangePassword, onUpdateHealth }) {
+export default function ProfileCard({ dashboardData, onChangePassword, onUpdateHealth, onAvatarChange }) {
   const [isEditingHealth, setIsEditingHealth] = useState(false);
   const [weight, setWeight] = useState(dashboardData?.weight || '');
   const [height, setHeight] = useState(dashboardData?.height || '');
@@ -14,18 +15,10 @@ export default function ProfileCard({ dashboardData, onChangePassword, onUpdateH
 
   return (
     <div className="bg-bg-card border border-border-light rounded-2xl p-4 shadow-premium flex flex-col items-center text-center space-y-3 relative">
-      <div className="relative">
-        <div className="h-24 w-24 rounded-full bg-primary-light flex items-center justify-center text-4xl overflow-hidden border-4 border-white shadow-sm">
-          {dashboardData.avatar ? (
-            <img src={dashboardData.avatar} alt="Avatar" className="w-full h-full object-cover" />
-          ) : (
-            <i className="bi bi-person text-4xl leading-none text-primary" aria-hidden="true" />
-          )}
-        </div>
-        <button className="absolute bottom-1 right-1 bg-primary text-white rounded-full p-1.5 shadow-md hover:bg-primary-dark transition text-xs">
-          <i className="bi bi-pencil" aria-hidden="true" />
-        </button>
-      </div>
+      <AvatarUpload 
+        avatar={dashboardData.avatar} 
+        onAvatarChange={onAvatarChange} 
+      />
 
       <div>
         <h2 className="text-lg font-extrabold text-text-main">{dashboardData.fullName}</h2>

@@ -2,6 +2,7 @@ import { MealLogInput, MealLogOutput, ProfileDashboardOutput, UpdateProfileHealt
 import { getCustomerProfile } from './surveyService';
 import { getSavedAddresses } from './checkoutService';
 import { fetchHealthyMenu } from './menuService';
+import { getAvatarFromDB } from './avatarService';
 
 const MEAL_LOGS_KEY_PREFIX = 'fitfud_meal_logs_';
 
@@ -47,6 +48,9 @@ export const getProfileDashboard = async (userId: string, fullName: string): Pro
 
   const profile = getCustomerProfile(userId);
   const logs = getMealLogs(userId);
+
+  const avatarBlob = await getAvatarFromDB(userId);
+  const avatarUrl = avatarBlob ? URL.createObjectURL(avatarBlob) : undefined;
 
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
@@ -111,6 +115,7 @@ export const getProfileDashboard = async (userId: string, fullName: string): Pro
 
   return {
     fullName: fullName,
+    avatar: avatarUrl,
     weight: profile.weight,
     height: profile.height,
     bmi: profile.bmi,

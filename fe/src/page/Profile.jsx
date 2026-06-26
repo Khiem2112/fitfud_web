@@ -92,6 +92,7 @@ export default function Profile() {
             dashboardData={dashboardData}
             onChangePassword={() => setIsChangePasswordOpen(true)}
             onUpdateHealth={onUpdateHealth}
+            onAvatarChange={loadDashboardData}
           />
           <HealthGoalPanel
             dashboardData={dashboardData}
