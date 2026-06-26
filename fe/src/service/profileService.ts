@@ -114,7 +114,9 @@ export const getProfileDashboard = async (userId: string, fullName: string): Pro
     height: profile.height,
     bmi: profile.bmi,
     tdee: profile.tdee,
-    health_goal: profile.health_goal || 'Giảm cân',
+    health_goal: profile.health_goal || 'Weight Loss',
+    activity_level: profile.activity_level || 'Moderately Active',
+    diet_preference: profile.diet_preference || 'Bình thường',
     target_calories: profile.target_calories,
     target_protein: profile.target_protein,
     today_calories_logged: todayCal || 1250,
@@ -133,24 +135,66 @@ export const updateProfileHealth = async (userId: string, input: UpdateProfileHe
 
   const updatedWeight = input.weight || profile.weight;
   const updatedHeight = input.height || profile.height;
+  const updatedGoal = input.health_goal || profile.health_goal;
+  const updatedActivity = input.activity_level || profile.activity_level;
+  const updatedDiet = input.diet_preference || profile.diet_preference;
 
   const heightM = updatedHeight / 100;
   const bmi = Number((updatedWeight / (heightM * heightM)).toFixed(1));
+
+  let bmr = 0;
+  if (profile.gender === 'Male') {
+    bmr = 88.362 + 13.397 * updatedWeight + 4.799 * updatedHeight - 5.677 * profile.age;
+  } else if (profile.gender === 'Female') {
+    bmr = 447.593 + 9.247 * updatedWeight + 3.098 * updatedHeight - 4.330 * profile.age;
+  } else {
+    bmr = 260 + 11.3 * updatedWeight + 4.0 * updatedHeight - 5.0 * profile.age;
+  }
+
+  let multiplier = 1.2;
+  switch (updatedActivity) {
+    case 'Sedentary': multiplier = 1.2; break;
+    case 'Lightly Active': multiplier = 1.375; break;
+    case 'Moderately Active': multiplier = 1.55; break;
+    case 'Very Active': multiplier = 1.725; break;
+    case 'Extra Active': multiplier = 1.9; break;
+  }
+  const tdee = Math.round(bmr * multiplier);
+
+  let target_calories = tdee;
+  if (updatedGoal === 'Weight Loss') {
+    target_calories = Math.max(1200, tdee - 500);
+  } else if (updatedGoal === 'Muscle Gain') {
+    target_calories = tdee + 300;
+  }
+
+  let proteinMultiplier = 1.5;
+  if (updatedGoal === 'Muscle Gain' || updatedGoal === 'Weight Loss') {
+    proteinMultiplier = 2.0;
+  }
+  const target_protein = Math.round(updatedWeight * proteinMultiplier);
+
   const updatedProfile = {
     ...profile,
     weight: updatedWeight,
     height: updatedHeight,
+    health_goal: updatedGoal,
+    activity_level: updatedActivity,
+    diet_preference: updatedDiet,
     bmi,
+    tdee,
+    target_calories,
+    target_protein
   };
 
   localStorage.setItem(`fitfud_profile_${userId}`, JSON.stringify(updatedProfile));
 
   return {
     success: true,
-    bmi: bmi,
-    tdee: profile.tdee,
-    target_calories: profile.target_calories,
-    target_protein: profile.target_protein
+    bmi,
+    tdee,
+    target_calories,
+    target_protein
   };
 };
 

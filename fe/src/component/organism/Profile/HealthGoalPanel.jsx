@@ -1,17 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useToast } from '../../../context/ToastContext';
 
-export default function HealthGoalPanel() {
+export default function HealthGoalPanel({ dashboardData, onUpdateGoal }) {
   const { addToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleUpdateGoal = () => {
+  const [goal, setGoal] = useState('Weight Loss');
+  const [activity, setActivity] = useState('Moderately Active');
+  const [diet, setDiet] = useState('Bình thường');
+
+  useEffect(() => {
+    if (dashboardData) {
+      setGoal(dashboardData.health_goal || 'Weight Loss');
+      setActivity(dashboardData.activity_level || 'Moderately Active');
+      setDiet(dashboardData.diet_preference || 'Bình thường');
+    }
+  }, [dashboardData]);
+
+  const handleUpdateGoal = async () => {
     setIsLoading(true);
-    // Mock API call
-    setTimeout(() => {
-      addToast('Đổi mục tiêu sức khỏe thành công!', 'success');
+    try {
+      if (onUpdateGoal) {
+        await onUpdateGoal({
+          health_goal: goal,
+          activity_level: activity,
+          diet_preference: diet
+        });
+      }
+    } catch (error) {
+      addToast('Cập nhật thất bại', 'error');
+    } finally {
       setIsLoading(false);
-    }, 600);
+    }
   };
 
   return (
@@ -24,29 +44,46 @@ export default function HealthGoalPanel() {
       <div className="space-y-3">
         <div>
           <label className="block text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">Mục tiêu hiện tại</label>
-          <select className="w-full rounded-xl border border-border-light bg-bg-card px-3 py-2 text-xs text-text-main focus:outline-none focus:border-primary appearance-none relative">
-            <option>Giảm mỡ & Tăng cơ</option>
-            <option>Giảm cân</option>
-            <option>Tăng cân</option>
+          <select 
+            className="w-full rounded-xl border border-border-light bg-bg-card px-3 py-2 text-xs text-text-main focus:outline-none focus:border-primary appearance-none relative"
+            value={goal}
+            onChange={(e) => setGoal(e.target.value)}
+          >
+            <option value="Weight Loss">Giảm cân</option>
+            <option value="Muscle Gain">Tăng cơ</option>
+            <option value="Healthy Eating">Ăn uống lành mạnh</option>
+            <option value="Calorie Control">Kiểm soát calories</option>
+            <option value="Maintain Weight">Duy trì vóc dáng</option>
+            <option value="Convenience">Tiện lợi / tiết kiệm</option>
           </select>
         </div>
         
         <div>
           <label className="block text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">Mức độ hoạt động</label>
-          <select className="w-full rounded-xl border border-border-light bg-bg-card px-3 py-2 text-xs text-text-main focus:outline-none focus:border-primary appearance-none">
-            <option>Nhẹ (1-3 buổi/tuần)</option>
-            <option>Vừa (3-5 buổi/tuần)</option>
-            <option>Nặng (6-7 buổi/tuần)</option>
+          <select 
+            className="w-full rounded-xl border border-border-light bg-bg-card px-3 py-2 text-xs text-text-main focus:outline-none focus:border-primary appearance-none relative"
+            value={activity}
+            onChange={(e) => setActivity(e.target.value)}
+          >
+            <option value="Sedentary">Ít vận động (1-2 buổi/tuần)</option>
+            <option value="Lightly Active">Vận động nhẹ (2-3 buổi/tuần)</option>
+            <option value="Moderately Active">Vận động vừa (3-4 buổi/tuần)</option>
+            <option value="Very Active">Vận động nhiều (5-6 buổi/tuần)</option>
+            <option value="Extra Active">Vận động rất nhiều</option>
           </select>
         </div>
 
         <div>
           <label className="block text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">Chế độ ăn</label>
-          <select className="w-full rounded-xl border border-border-light bg-bg-card px-3 py-2 text-xs text-text-main focus:outline-none focus:border-primary appearance-none">
-            <option>Bình thường</option>
-            <option>Eat Clean</option>
-            <option>Keto</option>
-            <option>Chay</option>
+          <select 
+            className="w-full rounded-xl border border-border-light bg-bg-card px-3 py-2 text-xs text-text-main focus:outline-none focus:border-primary appearance-none relative"
+            value={diet}
+            onChange={(e) => setDiet(e.target.value)}
+          >
+            <option value="Bình thường">Bình thường</option>
+            <option value="Eat Clean">Eat Clean</option>
+            <option value="Keto">Keto</option>
+            <option value="Chay">Chay</option>
           </select>
         </div>
 

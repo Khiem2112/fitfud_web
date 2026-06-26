@@ -103,7 +103,14 @@ export default function Profile() {
               addToast('Đã cập nhật chiều cao/cân nặng.', 'success');
             }}
           />
-          <HealthGoalPanel />
+          <HealthGoalPanel
+            dashboardData={dashboardData}
+            onUpdateGoal={async (input) => {
+              await updateProfileHealth(user.id, input);
+              await loadDashboardData();
+              addToast('Đã cập nhật mục tiêu sức khỏe.', 'success');
+            }}
+          />
           <DefaultAddressPanel
             addresses={dashboardData.addresses}
             onChangeAddress={() => setIsAddAddressOpen(true)}

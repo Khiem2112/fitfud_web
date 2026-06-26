@@ -1,5 +1,7 @@
 import { SurveyInput, SurveyOutput, SurveyMasterDataOutput } from '../type/survey.types';
 import { updateCurrentUserSurveyStatus } from './authService';
+import { healthGoals, activityLevels, dietPreferences } from '../seed/healthMetrics';
+import { allergies } from '../seed/allergies';
 
 const PROFILE_KEY_PREFIX = 'fitfud_profile_';
 
@@ -8,31 +10,10 @@ export const fetchSurveyMasterData = async (): Promise<SurveyMasterDataOutput> =
   await new Promise((resolve) => setTimeout(resolve, 500));
 
   return {
-    healthGoals: [
-      { id: 'Weight Loss', name: 'Giảm cân' },
-      { id: 'Muscle Gain', name: 'Tăng cơ' },
-      { id: 'Healthy Eating', name: 'Ăn uống lành mạnh' },
-      { id: 'Calorie Control', name: 'Kiểm soát calories' },
-      { id: 'Maintain Weight', name: 'Duy trì vóc dáng' },
-      { id: 'Convenience', name: 'Tiện lợi / tiết kiệm' }
-    ],
-    activityLevels: [
-      { id: 'Sedentary', name: 'Ít vận động', description: 'Chủ yếu ngồi học/làm việc, rất ít đi lại, hầu như không tập luyện.' },
-      { id: 'Lightly Active', name: 'Vận động nhẹ', description: 'Có đi bộ nhẹ hoặc vận động nhẹ trong ngày, tập luyện 1-2 buổi/tuần.' },
-      { id: 'Moderately Active', name: 'Vận động vừa', description: 'Có tập luyện đều đặn 3-4 buổi/tuần hoặc thường xuyên đi lại, hoạt động vừa phải.' },
-      { id: 'Very Active', name: 'Vận động nhiều', description: 'Tập luyện cường độ cao 5-6 buổi/tuần, công việc hoặc sinh hoạt khá năng động.' },
-      { id: 'Extra Active', name: 'Vận động rất nhiều', description: 'Tập nặng gần như mỗi ngày, vận động viên, người lao động thể lực cao hoặc tập 2 buổi/ngày.' }
-    ],
-    allergies: [
-      { id: 'fish', name: 'Cá' },
-      { id: 'egg', name: 'Trứng' },
-      { id: 'gluten', name: 'Gluten' },
-      { id: 'peanut', name: 'Lạc' },
-      { id: 'shellfish', name: 'Hải sản vỏ' },
-      { id: 'soy', name: 'Đậu nành' },
-      { id: 'treenut', name: 'Hạt' },
-      { id: 'dairy', name: 'Sữa' }
-    ]
+    healthGoals,
+    activityLevels,
+    dietPreferences,
+    allergies
   };
 };
 
@@ -122,6 +103,7 @@ export const getCustomerProfile = (userId: string) => {
       height: 175,
       weight: 68,
       activity_level: 'Moderately Active',
+      diet_preference: 'Bình thường',
       allergyIds: [],
       profileId: 'profile_default',
       target_calories: 1850,

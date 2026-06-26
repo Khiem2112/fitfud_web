@@ -1,10 +1,11 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
-export const BodyMetricsForm = ({ activityLevels = [] }) => {
+export const BodyMetricsForm = ({ activityLevels = [], dietPreferences = [] }) => {
   const { register, watch, setValue, clearErrors, formState: { errors } } = useFormContext();
   const gender = watch('gender');
   const currentActivity = watch('activity_level');
+  const currentDiet = watch('diet_preference');
 
   return (
     <div className="bg-white rounded-2xl border border-border-light p-6 shadow-sm">
@@ -23,7 +24,8 @@ export const BodyMetricsForm = ({ activityLevels = [] }) => {
             setValue('height', '');
             setValue('weight', '');
             setValue('activity_level', '');
-            clearErrors(['gender', 'age', 'height', 'weight', 'activity_level']);
+            setValue('diet_preference', 'Bình thường');
+            clearErrors(['gender', 'age', 'height', 'weight', 'activity_level', 'diet_preference']);
           }}
           className="text-xs font-semibold text-text-muted hover:text-primary transition flex items-center gap-1"
         >
@@ -136,6 +138,29 @@ export const BodyMetricsForm = ({ activityLevels = [] }) => {
                     )}
                   </div>
                 </label>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Diet Preference List */}
+        <div>
+          <label className="block text-xs font-bold text-text-main mb-3">
+            Chế độ ăn ưa thích
+          </label>
+          <div className="flex flex-wrap gap-3">
+            {dietPreferences.map((diet) => {
+              const isSelected = currentDiet === diet.id;
+              return (
+                <button
+                  key={diet.id}
+                  type="button"
+                  onClick={() => setValue('diet_preference', diet.id, { shouldValidate: true })}
+                  className={`px-4 py-2 rounded-xl text-sm font-semibold transition border ${isSelected ? 'bg-primary/10 text-primary border-primary' : 'bg-white text-text-main border-border-light hover:border-primary/50'
+                    }`}
+                >
+                  {diet.name}
+                </button>
               );
             })}
           </div>

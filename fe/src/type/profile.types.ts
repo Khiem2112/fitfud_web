@@ -11,6 +11,8 @@ export type ProfileDashboardOutput = {
   bmi: number;
   tdee: number;
   health_goal?: string;
+  activity_level?: string;
+  diet_preference?: string;
 
   target_calories: number;
   target_protein: number;
@@ -63,6 +65,8 @@ export type UpdateProfileHealthInput = {
   weight?: number;
   height?: number;
   health_goal?: string;
+  activity_level?: string;
+  diet_preference?: string;
 };
 
 export type UpdateProfileHealthOutput = {
