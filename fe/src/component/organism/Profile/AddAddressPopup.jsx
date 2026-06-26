@@ -1,15 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { useToast } from '../../../context/ToastContext';
 import { useApp } from '../../../context/AppContext';
-import { addAddress } from '../../../service/checkoutService';
+import { addAddress, fetchCities, fetchDistricts, fetchWards } from '../../../service/checkoutService';
 
 export default function AddAddressPopup({ isOpen, onClose, onSuccess }) {
-  const { register, handleSubmit, formState: { errors }, reset } = useForm();
+  const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm();
   const { addToast } = useToast();
   const { user } = useApp();
   const [isLoading, setIsLoading] = useState(false);
+
+  const [cities, setCities] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [wards, setWards] = useState([]);
+
+  useEffect(() => {
+    fetchCities().then(setCities);
+  }, []);
+
+  const selectedCityId = watch('city');
+  const selectedDistrictId = watch('district');
+
+  const [prevCityId, setPrevCityId] = useState('');
+  useEffect(() => {
+    if (selectedCityId !== prevCityId) {
+      setValue('district', '');
+      setValue('ward', '');
+      if (selectedCityId) {
+        fetchDistricts(selectedCityId).then(setDistricts);
+      } else {
+        setDistricts([]);
+      }
+      setPrevCityId(selectedCityId);
+    }
+  }, [selectedCityId, prevCityId, setValue]);
+
+  const [prevDistrictId, setPrevDistrictId] = useState('');
+  useEffect(() => {
+    if (selectedDistrictId !== prevDistrictId) {
+      setValue('ward', '');
+      if (selectedDistrictId) {
+        fetchWards(selectedDistrictId).then(setWards);
+      } else {
+        setWards([]);
+      }
+      setPrevDistrictId(selectedDistrictId);
+    }
+  }, [selectedDistrictId, prevDistrictId, setValue]);
 
   if (!isOpen) return null;
 
@@ -17,6 +55,10 @@ export default function AddAddressPopup({ isOpen, onClose, onSuccess }) {
     setIsLoading(true);
     
     try {
+      const cityName = cities.find(c => c.id === data.city)?.name || '';
+      const districtName = districts.find(d => d.id === data.district)?.name || '';
+      const wardName = wards.find(w => w.id === data.ward)?.name || '';
+
       await addAddress(user.id, {
         name: data.receiver_name,
         phone: data.receiver_phone,
@@ -24,9 +66,9 @@ export default function AddAddressPopup({ isOpen, onClose, onSuccess }) {
         wardId: data.ward,
         districtId: data.district,
         cityId: data.city,
-        wardName: data.ward,
-        districtName: data.district,
-        cityName: data.city,
+        wardName: wardName,
+        districtName: districtName,
+        cityName: cityName,
         isDefault: data.is_default
       });
       
@@ -91,9 +133,7 @@ export default function AddAddressPopup({ isOpen, onClose, onSuccess }) {
                 className={`w-full rounded-xl border bg-bg-main px-4 py-2.5 text-sm focus:outline-none focus:border-primary ${errors.city ? 'border-danger' : 'border-border-light'}`}
               >
                 <option value="">Chọn Tỉnh/Thành phố</option>
-                <option value="Hồ Chí Minh">Hồ Chí Minh</option>
-                <option value="Hà Nội">Hà Nội</option>
-                <option value="Đà Nẵng">Đà Nẵng</option>
+                {cities.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
               {errors.city && <p className="text-[10px] text-danger mt-1">{errors.city.message}</p>}
             </div>
@@ -103,11 +143,10 @@ export default function AddAddressPopup({ isOpen, onClose, onSuccess }) {
               <select 
                 {...register('district', { required: 'Vui lòng chọn Quận/Huyện' })}
                 className={`w-full rounded-xl border bg-bg-main px-4 py-2.5 text-sm focus:outline-none focus:border-primary ${errors.district ? 'border-danger' : 'border-border-light'}`}
+                disabled={!selectedCityId}
               >
                 <option value="">Chọn Quận/Huyện</option>
-                <option value="Quận 1">Quận 1</option>
-                <option value="Quận 2">Quận 2</option>
-                <option value="Quận 3">Quận 3</option>
+                {districts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
               </select>
               {errors.district && <p className="text-[10px] text-danger mt-1">{errors.district.message}</p>}
             </div>
@@ -118,10 +157,10 @@ export default function AddAddressPopup({ isOpen, onClose, onSuccess }) {
             <select 
               {...register('ward', { required: 'Vui lòng chọn Phường/Xã' })}
               className={`w-full rounded-xl border bg-bg-main px-4 py-2.5 text-sm focus:outline-none focus:border-primary ${errors.ward ? 'border-danger' : 'border-border-light'}`}
+              disabled={!selectedDistrictId}
             >
               <option value="">Chọn Phường/Xã</option>
-              <option value="Phường Bến Nghé">Phường Bến Nghé</option>
-              <option value="Phường Bến Thành">Phường Bến Thành</option>
+              {wards.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
             </select>
             {errors.ward && <p className="text-[10px] text-danger mt-1">{errors.ward.message}</p>}
           </div>

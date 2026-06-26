@@ -7,10 +7,12 @@ export default function DefaultAddressPanel({ addresses, onChangeAddress }) {
   const { addToast } = useToast();
 
   useEffect(() => {
-    if (addresses && addresses.length > 0 && !selectedAddressId) {
-      setSelectedAddressId(addresses[0].id);
+    if (addresses && addresses.length > 0) {
+      const defaultAddr = addresses.find(a => a.isDefault) || addresses[0];
+      setSelectedAddressId(defaultAddr.id);
     }
-  }, [addresses, selectedAddressId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addresses]);
 
   const handleSelectAddress = (id) => {
     if (id !== selectedAddressId) {

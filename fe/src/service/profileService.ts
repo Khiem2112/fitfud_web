@@ -86,7 +86,8 @@ export const getProfileDashboard = async (userId: string, fullName: string): Pro
     id: addr.id,
     receiver_name: addr.name,
     receiver_phone: addr.phone,
-    full_address: `${addr.shipping_address_text}, ${addr.wardName}, ${addr.districtName}, ${addr.cityName}`
+    full_address: `${addr.shipping_address_text}, ${addr.wardName}, ${addr.districtName}, ${addr.cityName}`,
+    isDefault: addr.isDefault
   }));
 
   // Lấy món ăn bất kỳ từ menu
