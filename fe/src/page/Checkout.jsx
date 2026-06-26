@@ -144,12 +144,12 @@ export default function Checkout() {
         },
       };
 
-      const orderUserId = user ? user.id : `guest_${Date.now()}`;
+      const orderUserId = user ? user.id : 'guest';
       const res = await createOrder(payload, orderUserId);
 
       clearCart();
       clearDraft(); // Wipe draft on success
-      setOrderSuccessData(res);
+      setOrderSuccessData({ ...res, contact_phone: payload.contact_phone });
     } catch (err) {
       setGlobalError(err.message || 'Đã xảy ra lỗi khi tạo đơn hàng.');
     } finally {

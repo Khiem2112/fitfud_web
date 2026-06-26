@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { z } from 'zod';
 import { useApp } from '../context/AppContext';
 import { requestCancelOrder, confirmCancelOrder, getOrderDetail } from '../service/ordersService';
 import { fetchDishDetail } from '../service/menuService';
@@ -11,9 +12,14 @@ import { CancelOrderModal } from '../component/organism/Orders/CancelOrderModal'
 import { ReorderConfirmModal } from '../component/organism/Orders/ReorderConfirmModal';
 import { useToast } from '../context/ToastContext';
 
+const phoneSchema = z.string()
+  .min(1, 'Vui lòng nhập số điện thoại')
+  .regex(/^(0|\+84)[3|5|7|8|9][0-9]{8}$/, 'Số điện thoại không hợp lệ');
+
 export default function Orders() {
   const { user, addMultipleToCart } = useApp();
   const navigate = useNavigate();
+  const location = useLocation();
   const { addToast } = useToast();
 
   // Queries and mutations
@@ -23,20 +29,40 @@ export default function Orders() {
   const orders = userOrdersData || { activeOrder: null, historyOrders: [] };
 
   // Guest lookup states
-  const [guestPhone, setGuestPhone] = useState('');
+  const [guestPhone, setGuestPhone] = useState(location.state?.phone || '');
+  const [phoneError, setPhoneError] = useState('');
 
   // Modals state
   const [cancellingOrder, setCancellingOrder] = useState(null);
   const [viewingDetailOrder, setViewingDetailOrder] = useState(null);
   const [reorderingOrder, setReorderingOrder] = useState(null);
 
+  // Auto lookup if navigated from success modal
+  useEffect(() => {
+    if (location.state?.phone) {
+      mutateGuestLookup(location.state.phone).catch(() => {
+        addToast('Không tìm thấy đơn hàng của số điện thoại này.', 'error');
+      });
+      // Clear location state to prevent re-fetching on subsequent renders
+      window.history.replaceState({}, document.title);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleGuestLookup = async (e) => {
     e.preventDefault();
     if (!guestPhone) return;
+    
     try {
+      phoneSchema.parse(guestPhone);
+      setPhoneError('');
       await mutateGuestLookup(guestPhone);
-    } catch {
-      addToast('Không tìm thấy đơn hàng của số điện thoại này.', 'error');
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setPhoneError(err.errors[0].message);
+      } else {
+        addToast('Không tìm thấy đơn hàng của số điện thoại này.', 'error');
+      }
     }
   };
 
@@ -275,10 +301,15 @@ export default function Orders() {
                     <input
                       type="text"
                       value={guestPhone}
-                      onChange={(e) => setGuestPhone(e.target.value)}
+                      onChange={(e) => { setGuestPhone(e.target.value); setPhoneError(''); }}
                       placeholder="Ví dụ: 0901234567"
-                      className="w-full rounded-xl border border-border-light bg-bg-main px-4 py-2.5 text-xs focus:border-primary focus:outline-none transition"
+                      className={`w-full rounded-xl border bg-bg-main px-4 py-2.5 text-xs focus:outline-none transition ${phoneError ? 'border-red-500 focus:border-red-500' : 'border-border-light focus:border-primary'}`}
                     />
+                    {phoneError && (
+                      <p className="mt-1.5 text-[11px] text-red-500 flex items-center">
+                        <i className="bi bi-exclamation-circle mr-1"></i> {phoneError}
+                      </p>
+                    )}
                   </div>
                   <button
                     type="submit"
