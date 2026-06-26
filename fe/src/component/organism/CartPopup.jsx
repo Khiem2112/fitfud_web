@@ -123,9 +123,7 @@ export const CartPopup = ({ mode, onClose }) => {
       {editingCartItem && editingDish && (
         <QuickViewModal
           dish={editingDish}
-          initialSize={editingCartItem.size_name}
-          initialQuantity={editingCartItem.quantity}
-          initialChefNotes={editingCartItem.chef_notes || ''}
+          initialCartItem={editingCartItem}
           submitLabel="Lưu thay đổi"
           onClose={() => {
             setEditingCartItem(null);

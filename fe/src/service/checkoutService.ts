@@ -10,8 +10,20 @@ export const getCart = (): CartItemState[] => {
   return cart ? JSON.parse(cart) : [];
 };
 
+const sortCart = (cart: CartItemState[]) => {
+  const sizeOrder: Record<string, number> = { 'S': 1, 'M': 2, 'L': 3 };
+  return cart.sort((a, b) => {
+    const nameCmp = (a.dish_name || '').localeCompare(b.dish_name || '');
+    if (nameCmp !== 0) return nameCmp;
+    const sizeA = sizeOrder[a.size_name || ''] || 99;
+    const sizeB = sizeOrder[b.size_name || ''] || 99;
+    return sizeA - sizeB;
+  });
+};
+
 export const saveCart = (cart: CartItemState[]): void => {
-  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  const sortedCart = sortCart(cart);
+  localStorage.setItem(CART_KEY, JSON.stringify(sortedCart));
 };
 
 export const addToCart = (item: Omit<CartItemState, 'id'>): CartItemState[] => {

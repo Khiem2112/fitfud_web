@@ -232,17 +232,16 @@ export default function Checkout() {
       {editingCartItem && editingDish && (
         <QuickViewModal
           dish={editingDish}
-          initialSize={editingCartItem.size_name}
-          initialQuantity={editingCartItem.quantity}
-          initialChefNotes={editingCartItem.chef_notes || ''}
+          initialCartItem={editingCartItem}
           submitLabel="Lưu thay đổi"
+          successMessage={`Đã cập nhật ${editingDish.dish_name} thành công`}
           onClose={() => {
             setEditingCartItem(null);
             setEditingDish(null);
           }}
           onAddToCart={(updatedItem) => {
             removeFromCart(editingCartItem.id);
-            addToCart(updatedItem);
+            addToCart(updatedItem, false);
             setEditingCartItem(null);
             setEditingDish(null);
           }}
