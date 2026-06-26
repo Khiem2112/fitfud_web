@@ -1,4 +1,7 @@
 import { CartItemState, CheckoutInput, CheckoutOutput, SavedAddress } from '../type/checkout.types';
+import citiesData from '../seed/cities';
+import districtsData from '../seed/districts';
+import wardsData from '../seed/wards';
 
 const CART_KEY = 'fitfud_cart';
 const ORDERS_KEY = 'fitfud_orders';
@@ -73,58 +76,31 @@ export const clearCart = (): void => {
 
 // --- Vietnam Administrative Divisions Mock Data ---
 
-export const mockCities = [
-  { id: 'city_hcm', name: 'TP. Hồ Chí Minh' },
-  { id: 'city_hn', name: 'Hà Nội' },
-  { id: 'city_dn', name: 'Đà Nẵng' }
-];
-
-export const mockDistricts: Record<string, { id: string; name: string }[]> = {
-  city_hcm: [
-    { id: 'dist_q1', name: 'Quận 1' },
-    { id: 'dist_q3', name: 'Quận 3' },
-    { id: 'dist_q10', name: 'Quận 10' },
-    { id: 'dist_qbt', name: 'Quận Bình Thạnh' }
-  ],
-  city_hn: [
-    { id: 'dist_cg', name: 'Quận Cầu Giấy' },
-    { id: 'dist_bd', name: 'Quận Ba Đình' },
-    { id: 'dist_hk', name: 'Quận Hoàn Kiếm' }
-  ],
-  city_dn: [
-    { id: 'dist_hc', name: 'Quận Hải Châu' },
-    { id: 'dist_st', name: 'Quận Sơn Trà' }
-  ]
+export const fetchCities = async () => {
+  return Object.values(citiesData).map((city: any) => ({
+    id: city.code,
+    name: city.name_with_type
+  })).sort((a, b) => a.name.localeCompare(b.name));
 };
 
-export const mockWards: Record<string, { id: string; name: string }[]> = {
-  dist_q1: [
-    { id: 'ward_bn', name: 'Phường Bến Nghé' },
-    { id: 'ward_bt', name: 'Phường Bến Thành' },
-    { id: 'ward_cg', name: 'Phường Cô Giang' }
-  ],
-  dist_q10: [
-    { id: 'ward_p12', name: 'Phường 12' },
-    { id: 'ward_p14', name: 'Phường 14' }
-  ],
-  dist_cg: [
-    { id: 'ward_dvh', name: 'Phường Dịch Vọng Hậu' },
-    { id: 'ward_yh', name: 'Phường Yên Hòa' }
-  ]
+export const fetchDistricts = async (cityId: string) => {
+  if (!cityId) return [];
+  return Object.values(districtsData)
+    .filter((district: any) => district.parent_code === cityId)
+    .map((district: any) => ({
+      id: district.code,
+      name: district.name_with_type
+    })).sort((a, b) => a.name.localeCompare(b.name));
 };
 
-export const fetchCities = async () => mockCities;
-export const fetchDistricts = async (cityId: string) => mockDistricts[cityId] || [];
 export const fetchWards = async (districtId: string) => {
-  if (mockWards[districtId] && mockWards[districtId].length > 0) {
-    return mockWards[districtId];
-  }
-  // Generate dummy wards if missing
-  return [
-    { id: `ward_1_${districtId}`, name: 'Phường 1' },
-    { id: `ward_2_${districtId}`, name: 'Phường 2' },
-    { id: `ward_3_${districtId}`, name: 'Phường 3' },
-  ];
+  if (!districtId) return [];
+  return Object.values(wardsData)
+    .filter((ward: any) => ward.parent_code === districtId)
+    .map((ward: any) => ({
+      id: ward.code,
+      name: ward.name_with_type
+    })).sort((a, b) => a.name.localeCompare(b.name));
 };
 
 // --- Saved Addresses Mock Store ---
@@ -135,12 +111,12 @@ const mockAddresses: SavedAddress[] = [
     name: 'Nguyễn Minh Tuấn',
     phone: '0901234567',
     shipping_address_text: '123 Đường ABC',
-    wardId: 'ward_bn',
-    districtId: 'dist_q1',
-    cityId: 'city_hcm',
+    wardId: '26734',
+    districtId: '760',
+    cityId: '79',
     wardName: 'Phường Bến Nghé',
     districtName: 'Quận 1',
-    cityName: 'TP. Hồ Chí Minh',
+    cityName: 'Thành phố Hồ Chí Minh',
     isDefault: true
   },
   {
@@ -148,12 +124,12 @@ const mockAddresses: SavedAddress[] = [
     name: 'Trần Thị Bé Hai',
     phone: '0987654321',
     shipping_address_text: 'Tầng 15, Tòa nhà Landmark 81, 720A Điện Biên Phủ',
-    wardId: 'ward_22_dist_qbt', // Fake ID
-    districtId: 'dist_qbt',
-    cityId: 'city_hcm',
+    wardId: '26920',
+    districtId: '765',
+    cityId: '79',
     wardName: 'Phường 22',
     districtName: 'Quận Bình Thạnh',
-    cityName: 'TP. Hồ Chí Minh',
+    cityName: 'Thành phố Hồ Chí Minh',
     isDefault: false
   }
 ];
