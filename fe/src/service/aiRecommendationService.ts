@@ -1,5 +1,5 @@
 import { AiRecommendationInput, AiRecommendationOutput, AiRecommendedDish } from '../type/ai-recommendation.types';
-import { mockDishes } from './menuService';
+import { mockDishes } from '../seed/dishes';
 
 // Giả lập service gọi AI để phân tích và gợi ý
 export const fetchAiRecommendations = async (params: AiRecommendationInput): Promise<AiRecommendationOutput> => {

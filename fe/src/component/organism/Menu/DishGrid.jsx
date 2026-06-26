@@ -3,9 +3,9 @@ import DishCard from '../../molecule/Menu/DishCard';
 
 /**
  * DishGrid Organism
- * @param {{ isLoading: boolean, isError: boolean, menuData: any, page: number, setPage: function, onOpenQuickView: function, onClearAllFilters: function }} props
+ * @param {{ isLoading: boolean, isError: boolean, dishes: any[], totalItems: number, onOpenQuickView: function, onClearAllFilters: function }} props
  */
-export default function DishGrid({ isLoading, isError, menuData, page, setPage, onOpenQuickView, onClearAllFilters }) {
+export default function DishGrid({ isLoading, isError, dishes, totalItems, onOpenQuickView, onClearAllFilters }) {
   return (
     <section className="lg:col-span-4 space-y-3">
       {/* Header & Meta */}
@@ -13,12 +13,12 @@ export default function DishGrid({ isLoading, isError, menuData, page, setPage, 
         <div>
           <h1 className="text-xl font-extrabold text-text-main tracking-tight">Thực đơn lành mạnh</h1>
           <p className="text-xs text-text-muted mt-0.5">
-            Tìm thấy {menuData?.totalItems || 0} món ăn sức khỏe được tuyển chọn
+            Tìm thấy {totalItems} món ăn sức khỏe được tuyển chọn
           </p>
         </div>
       </div>
 
-      {/* LOADING STATE */}
+      {/* LOADING STATE FOR INITIAL LOAD */}
       {isLoading && (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
           {[...Array(8)].map((_, idx) => (
@@ -47,7 +47,7 @@ export default function DishGrid({ isLoading, isError, menuData, page, setPage, 
       )}
 
       {/* EMPTY STATE */}
-      {!isLoading && !isError && menuData?.dishes.length === 0 && (
+      {!isLoading && !isError && dishes.length === 0 && (
         <div className="rounded-2xl border border-border-light bg-bg-card p-16 text-center text-text-muted space-y-4">
           <i className="bi bi-egg-fried block text-5xl leading-none text-primary" aria-hidden="true" />
           <p className="font-semibold text-sm text-text-main">Không tìm thấy món ăn nào khớp với bộ lọc của bạn.</p>
@@ -64,43 +64,11 @@ export default function DishGrid({ isLoading, isError, menuData, page, setPage, 
       )}
 
       {/* DISHES LIST GRID */}
-      {!isLoading && !isError && menuData && (
+      {!isLoading && !isError && dishes.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
-          {menuData.dishes.map((dish) => (
+          {dishes.map((dish) => (
             <DishCard key={dish.id} dish={dish} onOpenQuickView={onOpenQuickView} />
           ))}
-        </div>
-      )}
-
-      {/* PAGINATION */}
-      {!isLoading && !isError && menuData && menuData.totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 pt-8 border-t border-border-light">
-          <button
-            onClick={() => setPage(Math.max(1, page - 1))}
-            disabled={page === 1}
-            className="rounded-xl border border-border-light bg-bg-card p-2 text-xs font-bold text-text-main hover:bg-bg-main transition disabled:opacity-30 disabled:hover:bg-bg-card"
-          >
-            <i className="bi bi-chevron-left" aria-hidden="true" />
-          </button>
-          {[...Array(menuData.totalPages)].map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setPage(i + 1)}
-              className={`rounded-xl h-8 w-8 text-xs font-bold transition ${page === i + 1
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'border border-border-light bg-bg-card text-text-main hover:bg-bg-main'
-                }`}
-            >
-              {i + 1}
-            </button>
-          ))}
-          <button
-            onClick={() => setPage(Math.min(menuData.totalPages, page + 1))}
-            disabled={page === menuData.totalPages}
-            className="rounded-xl border border-border-light bg-bg-card p-2 text-xs font-bold text-text-main hover:bg-bg-main transition disabled:opacity-30 disabled:hover:bg-bg-card"
-          >
-            <i className="bi bi-chevron-right" aria-hidden="true" />
-          </button>
         </div>
       )}
     </section>
